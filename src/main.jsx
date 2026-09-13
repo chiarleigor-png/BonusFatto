@@ -6,6 +6,8 @@ import './v2.css';
 import './demo.css';
 import './restyle.css';
 import './family-hero.css';
+import './results-v3.css';
+import './paywallV3.js';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
