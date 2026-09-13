@@ -4,6 +4,7 @@ export const euro = (n) =>
     currency: 'EUR',
     maximumFractionDigits: 2,
   }).format(n);
+
 export const MEDIA_TARI = {
   Roma: 360,
   Milano: 400,
@@ -15,6 +16,7 @@ export const MEDIA_TARI = {
   Costarainera: 285,
   Imperia: 290,
 };
+
 export const DEADLINES = {
   Roma: {
     date: '2026-02-28T23:59:59+01:00',
@@ -27,6 +29,7 @@ export const DEADLINES = {
     url: 'https://www.comune.fiumicino.rm.it/index.php/it/news/bando-agevolazioni-tari-2026',
   },
 };
+
 export function countdown(date, now = Date.now()) {
   const remaining = Math.max(0, Math.floor((new Date(date).getTime() - now) / 1000));
   return {
@@ -38,8 +41,6 @@ export function countdown(date, now = Date.now()) {
   };
 }
 
-// Product brief formulas, intentionally isolated from official eligibility rules.
-// Never present these bands as Italian law or municipal tariff regulations.
 export function calculate({ isee, children, municipality }) {
   if (
     !Number.isFinite(isee) ||
@@ -48,31 +49,37 @@ export function calculate({ isee, children, municipality }) {
     children < 0 ||
     children > 5 ||
     !municipality?.name
-  )
+  ) {
     throw new Error('Controlla ISEE, figli e Comune.');
-  const tariPercent = isee <= 8000 ? 100 : isee <= 15000 ? 50 : isee <= 26530 ? 25 : 0;
+  }
+
+  const socialThreshold = isee <= 9796 || (children >= 4 && isee <= 20000);
+  const tariPercent = socialThreshold ? 25 : 0;
   const tariBase = MEDIA_TARI[municipality.name] ?? 350;
   const benefits = [];
   const add = (id, name, category, amount, period, description) =>
     benefits.push({ id, name, category, amount, period, description });
-  if (tariPercent)
+
+  if (socialThreshold) {
     add(
       'tari',
-      'Sconto TARI',
+      'Bonus sociale rifiuti (TARI)',
       'Casa',
-      (tariBase * tariPercent) / 100,
+      (tariBase * 25) / 100,
       'annuo',
-      `${tariPercent}% su una TARI ipotetica di ${euro(tariBase)}. Fasce del simulatore, non aliquote del Comune. Le agevolazioni locali devono essere verificate.`,
+      `Riduzione nazionale del 25% sulla TARI dovuta. Il valore in euro mostrato usa una TARI media stimata di ${euro(tariBase)}; l'importo reale dipende dalla TARI effettivamente dovuta. Il bonus nazionale è automatico con DSU/ISEE valido.`,
     );
-  if (isee <= 9530 || (children >= 4 && isee <= 20000))
+
     add(
       'utilities',
-      'Bonus luce, gas e acqua',
+      'Bonus sociali luce, gas e acqua',
       'Bollette',
       250,
       'annuo',
-      'Ipotesi: luce 80 € + gas 120 € + acqua 50 €. Il valore reale dipende da nucleo, forniture e consumi. Il modello usa 9.530 €; la soglia ordinaria ufficiale 2026 è 9.796 €.',
+      'Stima orientativa complessiva. Nel 2026 la soglia ordinaria ISEE è 9.796 euro, elevata a 20.000 euro per nuclei con almeno 4 figli a carico. Gli importi effettivi dipendono dalle regole ARERA e dalle caratteristiche delle forniture.',
     );
+  }
+
   if (children > 0) {
     const monthly = isee <= 17500 ? 199 : isee <= 40000 ? 120 : 57;
     add(
@@ -81,9 +88,10 @@ export function calculate({ isee, children, municipality }) {
       'Famiglia',
       monthly * children * 12,
       'annuo',
-      `Stima semplificata: ${euro(monthly)} × ${children} figli × 12 mesi. Età, maggiorazioni e tabelle INPS possono cambiare l’importo.`,
+      `Stima semplificata: ${euro(monthly)} × ${children} figli × 12 mesi. Età, maggiorazioni e tabelle INPS possono cambiare l'importo.`,
     );
   }
+
   if (isee <= 50000)
     add(
       'psychologist',
@@ -91,18 +99,19 @@ export function calculate({ isee, children, municipality }) {
       'Benessere',
       isee <= 15000 ? 1500 : isee <= 30000 ? 1000 : 500,
       'massimale',
-      'Fino a 50 € per seduta. Occorrono domanda, disponibilità delle risorse e posizione utile in graduatoria; non è un pagamento automatico.',
+      'Importo massimo orientativo. Occorrono domanda, disponibilità delle risorse e posizione utile in graduatoria.',
     );
+
   if (children >= 2 && isee <= 40000)
     add(
       'mothers',
       'Bonus mamme 2026',
       'Famiglia',
       3000,
-      'annuo',
-      'Massimo ipotizzato dal modello. Attività lavorativa, reddito ed età dei figli non sono rilevati: spettanza e importo da verificare.',
+      'massimale',
+      'Massimale indicativo: attività lavorativa, reddito ed età dei figli possono modificare spettanza e importo.',
     );
-  // Family size is unknown. Keep this candidate conditional, without assuming two adults.
+
   if (isee <= 15000)
     add(
       'dedicated',
@@ -110,8 +119,9 @@ export function calculate({ isee, children, municipality }) {
       'Spesa',
       500,
       'una tantum',
-      'Solo se il nucleo ha almeno 3 persone e rispetta gli altri requisiti. La composizione del nucleo e l’assegnazione comunale non sono verificate.',
+      'Possibile solo se il nucleo rispetta i requisiti previsti e rientra nell’assegnazione disponibile. La composizione completa del nucleo non viene rilevata dal simulatore.',
     );
+
   if (isee <= 8117)
     add(
       'purchases',
@@ -119,8 +129,9 @@ export function calculate({ isee, children, municipality }) {
       'Spesa',
       480,
       'annuo',
-      '80 € a bimestre × 6. Soglia del modello; sono necessari anche requisiti anagrafici (under 3 o almeno 65 anni), reddituali e patrimoniali.',
+      '80 euro a bimestre per 6 erogazioni. Sono necessari anche specifici requisiti anagrafici, reddituali e patrimoniali.',
     );
+
   if (children > 0)
     add(
       'nursery',
@@ -128,37 +139,42 @@ export function calculate({ isee, children, municipality }) {
       'Famiglia',
       isee <= 25000 ? 3000 : isee <= 40000 ? 2500 : 1500,
       'massimale',
-      'Ipotesi per un bambino. Richiede età idonea e spese documentate; il rimborso non supera la spesa. Le regole 2026 possono prevedere fino a 3.600 €.',
+      'Stima per un bambino. Richiede età idonea e spese documentate; il rimborso non supera la spesa sostenuta.',
     );
+
   add(
     'renovation',
     'Detrazione 730 ristrutturazione',
     'Casa',
     null,
     'detrazione',
-    'Ipotesi del brief: 50% in 10 anni su massimo 96.000 €. Aliquota effettiva, abitazione, spesa e capienza fiscale da verificare. Esclusa dal totale.',
+    'Agevolazione da verificare sulla singola spesa, sull’immobile e sulla capienza fiscale. Non viene inclusa nel totale stimato.',
   );
-  if (children > 0)
+
+  if (children > 0 && isee <= 40000)
     add(
       'newborn',
       'Bonus nuovi nati',
       'Famiglia',
       1000,
       'una tantum',
-      'Solo per una nascita o adozione ammissibile. Avere figli non basta: nel 2026 è richiesto anche un ISEE specifico non superiore a 40.000 €.',
+      'Solo in presenza di nascita o adozione ammissibile e degli ulteriori requisiti previsti.',
     );
+
   return {
     benefits,
     tariPercent,
     tariBase,
+    tariEstimatedSaving: (tariBase * tariPercent) / 100,
+    tariNationalEligible: socialThreshold,
     total: benefits.reduce((sum, b) => sum + (b.amount ?? 0), 0),
-    recurring: benefits.filter((b) => b.period === 'annuo').reduce((sum, b) => sum + b.amount, 0),
+    recurring: benefits.filter((b) => b.period === 'annuo').reduce((sum, b) => sum + (b.amount ?? 0), 0),
     conditional: benefits
       .filter((b) => ['massimale', 'una tantum'].includes(b.period))
-      .reduce((sum, b) => sum + b.amount, 0),
+      .reduce((sum, b) => sum + (b.amount ?? 0), 0),
   };
 }
 
 export function emailTemplate({ municipality, isee }) {
-  return `Oggetto: Richiesta agevolazione TARI 2026 – ISEE ${euro(isee)} – Comune ${municipality.name}\n\nGentile Ufficio Tributi del Comune di ${municipality.name},\n\nsono residente nel Comune e il mio ISEE è pari a ${euro(isee)}. Vorrei conoscere le agevolazioni TARI previste per il mio nucleo familiare, i requisiti, la documentazione necessaria e le modalità di presentazione della domanda.\n\nChiedo inoltre conferma delle scadenze 2026 e, se già trascorse, delle eventuali possibilità ancora disponibili.\n\nResto a disposizione per trasmettere la documentazione attraverso i vostri canali ufficiali.\n\nCordiali saluti,\n[Nome e cognome]\n[Codice utenza TARI]\n[Recapito]`;
+  return `Oggetto: Richiesta informazioni agevolazioni TARI 2026 – ISEE ${euro(isee)} – Comune ${municipality.name}\n\nGentile Ufficio Tributi del Comune di ${municipality.name},\n\nsono residente nel Comune e dispongo di un ISEE 2026 pari a ${euro(isee)}.\n\nChiedo cortesemente di conoscere le eventuali agevolazioni, riduzioni o esenzioni TARI comunali ulteriori rispetto al bonus sociale rifiuti nazionale, con indicazione di requisiti, percentuali applicabili, documentazione necessaria, modalità di presentazione e scadenze.\n\nQualora sia prevista una procedura a domanda, chiedo anche il relativo modulo o il collegamento al servizio online.\n\nResto a disposizione per trasmettere la documentazione attraverso i canali ufficiali dell'Ente.\n\nCordiali saluti,\n[Nome e cognome]\n[Codice fiscale]\n[Codice utenza TARI]\n[Recapito]`;
 }
