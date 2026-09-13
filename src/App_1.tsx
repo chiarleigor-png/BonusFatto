@@ -2,8 +2,6 @@ import { useEffect, useState, useMemo, useRef } from "react";
 // logo via public folder
 const bonusLogo = "/bonusfatto_logo.png";
 const sunLogo = "/logo.webp";
-import { BLOG_ARTICLES } from "./blogData";
-
 
 type ComuneRaw = any;
 type ComuneNorm = { nome: string; provincia: string; regione: string };
@@ -131,8 +129,7 @@ export default function App(){
     return isNaN(n) ? 0 : n;
   }, [tariInput]);
 
-  const [stage, setStage] = useState<"form"|"teaser"|"checkout"|"result"|"blog"|"article">("form");
-  const [selectedSlug, setSelectedSlug] = useState<string|null>(null);
+  const [stage, setStage] = useState<"form"|"teaser"|"checkout"|"result">("form");
   const [pdfModels, setPdfModels] = useState(false);
   const [alert2026, setAlert2026] = useState(false);
   const [alert2027, setAlert2027] = useState(false);
@@ -140,10 +137,6 @@ export default function App(){
   // NEW: live now for countdowns + copy state
   const [now, setNow] = useState(()=> new Date());
   const [copied, setCopied] = useState(false);
-  const selectedArticle = selectedSlug ? BLOG_ARTICLES.find(a=>a.slug===selectedSlug) : null;
-  const openBlog = () => { setStage("blog"); window.scrollTo({top:0, behavior:"smooth"}); };
-  const openArticle = (slug:string) => { setSelectedSlug(slug); setStage("article"); window.scrollTo({top:0, behavior:"smooth"}); };
-
 
   const teaserRef = useRef<HTMLDivElement>(null);
   const checkoutRef = useRef<HTMLDivElement>(null);
@@ -822,25 +815,6 @@ Distinti saluti,
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden box-border bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 text-[16px] leading-[1.5] font-[Inter,system-ui,sans-serif]">
-      {/* HEADER MAGAZINE SEO */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-amber-100">
-        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 md:px-8 h-[64px] flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={()=>setStage("form")}>
-            <img src={bonusLogo} alt="BonusFatto" className="h-[36px] w-auto" />
-            <span className="font-extrabold text-[18px] tracking-tight">BonusFatto.it</span>
-            <span className="hidden sm:inline text-[11px] bg-amber-100 text-amber-800 px-2 py-1 rounded-full font-bold ml-2">7904 comuni</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={openBlog} className="h-[40px] px-4 rounded-[12px] bg-slate-900 text-white font-bold text-[13px] hover:bg-black flex items-center gap-2">
-              <span>📚</span> Magazine
-            </button>
-            <button onClick={()=>setStage("form")} className="hidden sm:flex h-[40px] px-4 rounded-[12px] bg-amber-400 text-slate-900 font-bold text-[13px] hover:bg-amber-500">
-              Calcola Bonus →
-            </button>
-          </div>
-        </div>
-      </header>
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
         *,*::before,*::after{box-sizing:border-box}
@@ -1503,80 +1477,7 @@ Distinti saluti,
         </div>
       )}
 
-      
-      {/* BLOG LIST VIEW */}
-      {stage==="blog" && (
-        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 md:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-[32px] font-extrabold tracking-tight">Magazine BonusFatto.it</h1>
-            <p className="text-[16px] text-slate-600 mt-2 max-w-[700px]">Guide pratiche su ISEE, TARI, Bonus Luce/Gas, Voucher Scuola e tutti i bonus 2026. Articoli verificati con fonti ARERA, INPS, Comuni – ottimizzati per aiutarti a risparmiare fino a 5.000€/anno.</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-[12px] font-bold">10 Guide SEO</span>
-              <span className="bg-violet-100 text-violet-800 px-3 py-1 rounded-full text-[12px] font-bold">Aggiornato Set 2026</span>
-              <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[12px] font-bold">Fonti ufficiali</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {BLOG_ARTICLES.map(a=>(
-              <article key={a.slug} onClick={()=>openArticle(a.slug)} className="group cursor-pointer rounded-[20px] border border-slate-200 bg-white overflow-hidden hover:shadow-xl transition">
-                <div className="h-[180px] overflow-hidden">
-                  <img src={a.img} alt={a.titolo} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 text-[11px]">
-                    <span className="bg-slate-900 text-white px-2 py-1 rounded-full font-bold">{a.categoria}</span>
-                    <span className="text-slate-500">{a.data} • {a.lettura}</span>
-                  </div>
-                  <h3 className="mt-3 font-extrabold text-[16px] leading-[1.3] group-hover:text-violet-700">{a.titolo}</h3>
-                  <p className="mt-2 text-[13px] text-slate-600 line-clamp-2">{a.excerpt}</p>
-                  <div className="mt-4 text-[12px] font-bold text-violet-600">Leggi guida →</div>
-                </div>
-              </article>
-            ))}
-          </div>
-          <div className="mt-10 rounded-[16px] bg-gradient-to-br from-amber-100 to-orange-50 border border-amber-200 p-6 text-center">
-            <div className="font-extrabold text-[18px]">Vuoi sapere a quali bonus hai diritto TU?</div>
-            <div className="text-[14px] text-slate-700 mt-1">Inserisci Comune + ISEE e calcoliamo sconto TARI + bonus bollette in 30 secondi.</div>
-            <button onClick={()=>setStage("form")} className="mt-4 h-[44px] px-6 rounded-[12px] bg-slate-900 text-white font-bold">Calcola ora gratis →</button>
-          </div>
-        </div>
-      )}
-
-      {/* ARTICLE DETAIL VIEW */}
-      {stage==="article" && selectedArticle && (
-        <div className="max-w-[840px] mx-auto px-4 sm:px-6 md:px-8 py-8">
-          <button onClick={openBlog} className="mb-6 text-[13px] font-bold text-slate-600 hover:text-slate-900">← Torna al Magazine</button>
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[12px] font-bold">{selectedArticle.categoria}</span>
-            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[12px]">{selectedArticle.data} • {selectedArticle.lettura}</span>
-            <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-[12px] font-bold">Guida verificata 2026</span>
-          </div>
-          <h1 className="text-[28px] md:text-[36px] font-extrabold leading-[1.1] tracking-tight">{selectedArticle.titolo}</h1>
-          <p className="mt-4 text-[16px] text-slate-600 leading-[1.5]">{selectedArticle.excerpt}</p>
-          <img src={selectedArticle.img} alt={selectedArticle.titolo} className="mt-6 w-full rounded-[16px] border border-slate-200" />
-          <div className="mt-8 prose prose-slate max-w-none text-[15px] leading-[1.7] [&>h2]:text-[22px] [&>h2]:font-extrabold [&>h2]:mt-8 [&>h2]:mb-3 [&>h3]:text-[16px] [&>h3]:font-bold [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6" dangerouslySetInnerHTML={{__html: selectedArticle.contenuto}} />
-          <div className="mt-10 rounded-[16px] bg-slate-900 text-white p-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div>
-              <div className="font-bold">Ti serve il calcolo personalizzato per il tuo Comune?</div>
-              <div className="text-[13px] text-white/70 mt-1">BonusFatto calcola sconto TARI reale + bonus luce/gas + modello email pronto.</div>
-            </div>
-            <button onClick={()=>setStage("form")} className="h-[44px] px-6 rounded-[12px] bg-white text-slate-900 font-bold shrink-0">Calcola bonus →</button>
-          </div>
-          <div className="mt-8">
-            <div className="font-bold text-[14px] mb-3">Altre guide</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {BLOG_ARTICLES.filter(a=>a.slug!==selectedArticle.slug).slice(0,2).map(a=>(
-                <div key={a.slug} onClick={()=>openArticle(a.slug)} className="cursor-pointer rounded-[12px] border bg-white p-3 flex gap-3 hover:shadow">
-                  <img src={a.img} alt={a.titolo} className="w-[80px] h-[60px] object-cover rounded-[8px] shrink-0" />
-                  <div className="text-[13px] font-bold leading-[1.3]">{a.titolo}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-{/* FOOTER BAR if still in form */}
+      {/* FOOTER BAR if still in form */}
       {stage==="form" && (
         <div className="max-w-[1120px] w-full mx-auto px-4 sm:px-6 md:px-8 pb-12 mt-8 box-border">
           <div className="rounded-[16px] border border-dashed border-violet-200 bg-white/60 p-4 text-[12px] text-slate-500 text-center w-full max-w-full overflow-hidden break-words box-border">
