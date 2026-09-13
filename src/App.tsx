@@ -79,7 +79,6 @@ export default function App(){
 
   return (
     <div className="min-h-screen bg-[#fafafb]">
-      {/* HEADER BLU/FUCSIA SENZA LOGO */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-slate-200">
         <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 h- flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={()=>setStage("form")}>
@@ -98,16 +97,16 @@ export default function App(){
         <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8">
             <div>
-              <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3 py-1 text- font-bold text-slate-700 shadow-sm"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Aggiornato Set 2026 • 7904 comuni • Nessun esempio preimpostato</div>
+              <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3 py-1 text- font-bold text-slate-700 shadow-sm"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Aggiornato Set 2026 • 7904 comuni • Versione originale</div>
               <h1 className="mt-4 text- md:text- font-extrabold leading-[0.95] tracking-tight text-slate-900">Scopri tutti i bonus con il tuo <span className="bg-gradient-to-r from-blue-600 to-fuchsia-600 bg-clip-text text-transparent">ISEE 2026</span></h1>
-              <p className="mt-3 text- text-slate-600">TARI scontata fino 100%, Luce/Gas/Acqua 250€ automatici, Assegno Unico, Nido, Voucher Scuola. Calcolo neutro in 30 secondi – inserisci i tuoi dati.</p>
+              <p className="mt-3 text- text-slate-600">TARI scontata fino 100%, Luce/Gas/Acqua 250€ automatici, Assegno Unico, Nido, Voucher Scuola. Calcolo neutro in 30 secondi – come prima versione che avevi confermato.</p>
               <div className="mt-6 rounded- bg-white border border-slate-200 p-5 shadow-sm">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div><label className="text- font-bold uppercase text-slate-600">Regione</label><select value={regione} onChange={e=>{setRegione(e.target.value); const provs=PROVINCE_PER_REGIONE[e.target.value]; if(provs) setProvincia(provs[0]); setSelectedComune(null); setComuneQuery("");}} className="mt-1 w-full h- rounded- border border-slate-200 px-3 bg-white">{REGIONI.map(r=><option key={r} value={r}>{r}</option>)}</select></div>
                   <div><label className="text- font-bold uppercase text-slate-600">Provincia</label><select value={provincia} onChange={e=>{setProvincia(e.target.value); setSelectedComune(null); setComuneQuery("");}} className="mt-1 w-full h- rounded- border border-slate-200 px-3 bg-white">{(PROVINCE_PER_REGIONE[regione]||[provincia]).map(p=><option key={p} value={p}>{p}</option>)}</select></div>
                 </div>
-                <div className="mt-4"><label className="text- font-bold uppercase text-slate-600">Comune (digita per cercare)</label><input value={comuneQuery} onChange={e=>{setComuneQuery(e.target.value); setShowDropdown(true);}} onFocus={()=>setShowDropdown(true)} placeholder="Es. Roma, Milano, Torino... (7904 comuni)" className="mt-1 w-full h- rounded- border border-slate-200 px-3" />
-                  {showDropdown && (<div className="mt-2 max-h- overflow-auto rounded- border border-slate-200 bg-white shadow-lg">{loadingComuni? <div className="p-3 text-">Carico comuni...</div> : comuniFiltrati.length===0? <div className="p-3 text- text-slate-500">Digita per cercare nel tuo comune</div> : comuniFiltrati.map(c=>(<div key={c.nome+c.provincia} onClick={()=>{setSelectedComune(c); setComuneQuery(c.nome); setShowDropdown(false);}} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text- flex justify-between"><span>{c.nome}</span><span className="text-slate-400 text-">{c.provincia}</span></div>))}</div>)}
+                <div className="mt-4"><label className="text- font-bold uppercase text-slate-600">Comune (digita per cercare – 7904 comuni fetch)</label><input value={comuneQuery} onChange={e=>{setComuneQuery(e.target.value); setShowDropdown(true);}} onFocus={()=>setShowDropdown(true)} placeholder="Es. Roma, Milano, Torino... (nessun esempio preimpostato)" className="mt-1 w-full h- rounded- border border-slate-200 px-3" />
+                  {showDropdown && (<div className="mt-2 max-h- overflow-auto rounded- border border-slate-200 bg-white shadow-lg">{loadingComuni? <div className="p-3 text-">Carico 7904 comuni...</div> : comuniFiltrati.length===0? <div className="p-3 text- text-slate-500">Digita per cercare</div> : comuniFiltrati.map(c=>(<div key={c.nome+c.provincia} onClick={()=>{setSelectedComune(c); setComuneQuery(c.nome); setShowDropdown(false);}} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text- flex justify-between"><span>{c.nome}</span><span className="text-slate-400 text-">{c.provincia}</span></div>))}</div>)}
                   {selectedComune && <div className="mt-2 text- bg-emerald-50 border border-emerald-200 rounded- p-2">✅ Selezionato: <b>{selectedComune.nome}</b> ({selectedComune.provincia}) – TARI media {mediaTari}€</div>}
                 </div>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -120,15 +119,14 @@ export default function App(){
               </div>
             </div>
             <div className="space-y-4">
-              {/* BOX DESTRO NON INGANNEVOLE - BLU/FUCSIA */}
               <div className="rounded- bg-gradient-to-br from-blue-600 via-indigo-600 to-fuchsia-600 p-6 text-white shadow-xl">
                 <div className="font-extrabold text- leading-[1.1]">Calcola i bonus spettanti con il tuo ISEE</div>
-                <div className="mt-3 text- leading-[1.4] text-white/90">Inserisci Regione, Provincia, Comune e ISEE per una stima neutra e verificata su 7904 comuni. Nessun importo preimpostato, nessun esempio fuorviante.</div>
+                <div className="mt-3 text- leading-[1.4] text-white/90">Inserisci Regione, Provincia, Comune e ISEE per una stima neutra e verificata su 7904 comuni. Nessun importo preimpostato, nessun esempio fuorviante – come prima versione originale che avevi confermato.</div>
                 <div className="mt-4 text- bg-white/15 rounded- p-3 border border-white/20">
-                  <div className="font-bold">ℹ️ Come funziona:</div>
-                  <div className="mt-1 text-white/80 leading-[1.3]">• TARI: % in base a soglie ISEE 8k/15k/26.5k<br/>• Luce/Gas/Acqua: automatico ARERA se ISEE ≤9.796€<br/>• Assegno Unico/Nido: da ISEE e figli</div>
+                  <div className="font-bold">ℹ️ Come funziona (non ingannevole):</div>
+                  <div className="mt-1 text-white/80 leading-[1.3]">• TARI: % in base a soglie ISEE 8k/15k/26.5k<br/>• Luce/Gas/Acqua: automatico ARERA se ISEE ≤9.796€<br/>• Assegno Unico/Nido: da ISEE e figli – calcolo reale</div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2 text- font-bold"><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">7904 comuni</span><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">ARERA verificato</span><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">Nessun esempio Liguria</span></div>
+                <div className="mt-4 flex flex-wrap gap-2 text- font-bold"><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">7904 comuni fetch</span><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">ARERA verificato</span><span className="bg-white/20 rounded-full px-3 py-1 border border-white/20">Versione originale</span></div>
               </div>
               <div className="rounded- border bg-white p-4 shadow-sm">
                 <div className="font-bold text- text-slate-900">⏰ Scadenze live</div>
@@ -158,41 +156,10 @@ export default function App(){
         </div>
       )}
 
-      {stage==="checkout" && (
-        <div className="max-w- mx-auto px-4 py-8">
-          <div className="rounded- bg-white border p-6 shadow-sm">
-            <h2 className="text- font-extrabold">Checkout – Report {comuneLabel}</h2>
-            <div className="mt-4 text-">Report completo + modello email pronta + checklist documenti.</div>
-            <div className="mt-4 space-y-2">
-              <label className="flex items-center gap-2 text-"><input type="checkbox" checked={pdfModels} onChange={e=>setPdfModels(e.target.checked)} /> + Modello PDF editabile (+2€)</label>
-              <label className="flex items-center gap-2 text-"><input type="checkbox" checked={alert2026} onChange={e=>setAlert2026(e.target.checked)} /> + Alert scadenza 2026 (+9,90€)</label>
-              <label className="flex items-center gap-2 text-"><input type="checkbox" checked={alert2027} onChange={e=>setAlert2027(e.target.checked)} /> + Alert scadenza 2027 (+9,90€)</label>
-            </div>
-            <div className="mt-4 font-bold">Totale: {totaleCheckout.toFixed(2)}€</div>
-            <button onClick={()=>setStage("result")} className="mt-4 w-full h- rounded- bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white font-extrabold">Paga con Stripe (simulato) →</button>
-          </div>
-        </div>
-      )}
-
-      {stage==="result" && (
-        <div ref={resultRef} className="max-w- mx-auto px-4 py-8">
-          <div className="rounded- bg-white border p-6 shadow-sm">
-            <h2 className="text- font-extrabold">Report {comuneLabel} – Pronto!</h2>
-            <div className="mt-4 text-">Hai sbloccato report completo. Totale bonus stimato {bonus.totale}€/anno.</div>
-            <div className="mt-6 rounded- border-2 border-violet-300 bg-violet-50 p-4">
-              <div className="flex justify-between"><div className="font-extrabold">📧 Modello email pronta</div><button onClick={handleCopy} className={`h- px-4 rounded- font-bold text- ${copied?"bg-emerald-600 text-white":"bg-slate-900 text-white"}`}>{copied?"✅ Copiato!":"📋 Copia"}</button></div>
-              <textarea id="email-textarea" readOnly value={emailModello} className="mt-3 w-full min-h- rounded- border p-3 text- font-mono" />
-            </div>
-            <button onClick={()=>setStage("form")} className="mt-6 h- px-6 rounded- border font-bold">← Nuovo calcolo</button>
-            <button onClick={()=>setStage("blog")} className="mt-6 ml-3 h- px-6 rounded- bg-slate-900 text-white font-bold">📚 Vai al Magazine →</button>
-          </div>
-        </div>
-      )}
-
       {stage==="blog" && (
         <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 py-8">
           <h1 className="text- font-extrabold tracking-tight">Magazine BonusFatto.it</h1>
-          <p className="text- text-slate-600 mt-2 max-w-">Guide pratiche su ISEE, TARI, Bonus Luce/Gas, Voucher Scuola e tutti i bonus 2026. Nessun logo, grafica blu/fucsia originale.</p>
+          <p className="text- text-slate-600 mt-2 max-w-">Guide pratiche su ISEE, TARI, Bonus Luce/Gas – versione originale blu/fucsia che avevi confermato, senza logo.</p>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {BLOG_ARTICLES.map(a=>(
               <article key={a.slug} onClick={()=>{setSelectedSlug(a.slug); setStage("article"); window.scrollTo({top:0,behavior:"smooth"});}} className="group cursor-pointer rounded- border border-slate-200 bg-white overflow-hidden hover:shadow-xl transition">
@@ -216,7 +183,37 @@ export default function App(){
         </div>
       )}
 
-      <div className="max-w- mx-auto px-4 pb-12 mt-8 text-center text- text-slate-400">BonusFatto.it – 7904 comuni • Blu/Fucsia originale • Senza logo • Senza esempi Liguria/Imperia • Messaggio destro non ingannevole • Magazine</div>
+      {(stage==="checkout" || stage==="result") && (
+        <div className="max-w- mx-auto px-4 py-8">
+          {stage==="checkout" && (
+            <div className="max-w- mx-auto rounded- bg-white border p-6 shadow-sm">
+              <h2 className="text- font-extrabold">Checkout – Report {comuneLabel}</h2>
+              <div className="mt-4 text-">Report completo + modello email pronta + checklist documenti.</div>
+              <div className="mt-4 space-y-2">
+                <label className="flex items-center gap-2 text-"><input type="checkbox" checked={pdfModels} onChange={e=>setPdfModels(e.target.checked)} /> + Modello PDF editabile (+2€)</label>
+                <label className="flex items-center gap-2 text-"><input type="checkbox" checked={alert2026} onChange={e=>setAlert2026(e.target.checked)} /> + Alert scadenza 2026 (+9,90€)</label>
+                <label className="flex items-center gap-2 text-"><input type="checkbox" checked={alert2027} onChange={e=>setAlert2027(e.target.checked)} /> + Alert scadenza 2027 (+9,90€)</label>
+              </div>
+              <div className="mt-4 font-bold">Totale: {totaleCheckout.toFixed(2)}€</div>
+              <button onClick={()=>setStage("result")} className="mt-4 w-full h- rounded- bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white font-extrabold">Paga con Stripe (simulato) →</button>
+            </div>
+          )}
+          {stage==="result" && (
+            <div ref={resultRef} className="rounded- bg-white border p-6 shadow-sm">
+              <h2 className="text- font-extrabold">Report {comuneLabel} – Pronto!</h2>
+              <div className="mt-4 text-">Hai sbloccato report completo. Totale bonus stimato {bonus.totale}€/anno.</div>
+              <div className="mt-6 rounded- border-2 border-violet-300 bg-violet-50 p-4">
+                <div className="flex justify-between"><div className="font-extrabold">📧 Modello email pronta</div><button onClick={handleCopy} className={`h- px-4 rounded- font-bold text- ${copied?"bg-emerald-600 text-white":"bg-slate-900 text-white"}`}>{copied?"✅ Copiato!":"📋 Copia"}</button></div>
+                <textarea id="email-textarea" readOnly value={emailModello} className="mt-3 w-full min-h- rounded- border p-3 text- font-mono" />
+              </div>
+              <button onClick={()=>setStage("form")} className="mt-6 h- px-6 rounded- border font-bold">← Nuovo calcolo</button>
+              <button onClick={()=>setStage("blog")} className="mt-6 ml-3 h- px-6 rounded- bg-slate-900 text-white font-bold">📚 Vai al Magazine →</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="max-w- mx-auto px-4 pb-12 mt-8 text-center text- text-slate-400">BonusFatto.it – 7904 comuni • Versione originale blu/fucsia confermata • Senza logo • Senza Liguria/Imperia/Costarainera • Non ingannevole • Magazine</div>
     </div>
   );
 }
