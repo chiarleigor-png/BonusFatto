@@ -1,5 +1,3 @@
-import './resultsEnhancerEntry.js';
-
 const DEMO_KEY = 'bonusfatto_demo_checkout';
 const realFetch = window.fetch.bind(window);
 
@@ -16,7 +14,7 @@ window.fetch = async function demoFetch(input, init = {}) {
   if (url === '/api/checkout' && String(init.method || 'GET').toUpperCase() === 'POST') {
     try {
       const data = JSON.parse(init.body || '{}');
-      if (!['base', 'report'].includes(data.plan)) {
+      if (!['base', 'report', 'whatsapp'].includes(data.plan)) {
         return jsonResponse({ error: 'Piano demo non valido.' }, 400);
       }
       const sessionId = `demo_local_${Date.now()}_${data.plan}`;
@@ -28,6 +26,7 @@ window.fetch = async function demoFetch(input, init = {}) {
           comune: data.comune,
           isee: Number(data.isee),
           figli: Number(data.figli),
+          billing: data.billing || null,
         }),
       );
       return jsonResponse({
@@ -54,6 +53,7 @@ window.fetch = async function demoFetch(input, init = {}) {
         comune: saved.comune,
         isee: saved.isee,
         figli: saved.figli,
+        billing: saved.billing,
       });
     } catch {
       return jsonResponse({ error: 'Impossibile verificare la sessione demo.' }, 400);
