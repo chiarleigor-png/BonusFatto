@@ -1,0 +1,1 @@
+.stats::after{content:'';grid-column:1/-1;display:block;height:300px;border-radius:24px;background:url('https://images.unsplash.com/photo-1763013259279-3195d6330519?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;}
