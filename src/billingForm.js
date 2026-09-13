@@ -15,22 +15,19 @@ export function openBillingForm(plan, payload) {
       </div>
       <form class="bf-billing-form">
         <div class="bf-billing-grid">
-          <label>Tipo cliente<select name="customerType"><option value="privato">Privato</option><option value="azienda">Azienda / professionista</option></select></label>
           <label>Email<input type="email" name="email" required /></label>
           <label>Nome<input name="nome" required /></label>
-          <label>Cognome / Ragione sociale<input name="cognome" required /></label>
+          <label>Cognome<input name="cognome" required /></label>
           <label>Codice fiscale<input name="codiceFiscale" maxlength="16" required /></label>
-          <label>Partita IVA<input name="partitaIva" maxlength="11" /></label>
           <label class="full">Indirizzo di fatturazione<input name="indirizzo" required /></label>
           <label>CAP<input name="cap" maxlength="5" required /></label>
           <label>Comune<input name="comuneFatturazione" value="${payload.comune || ''}" required /></label>
           <label>Provincia<input name="provincia" maxlength="2" placeholder="TO" required /></label>
-          <label>Codice destinatario<input name="sdi" maxlength="7" /></label>
-          <label>PEC<input type="email" name="pec" /></label>
+          <label class="full">PEC <small>(facoltativa)</small><input type="email" name="pec" /></label>
           ${plan === 'whatsapp' ? '<label class="full">Numero WhatsApp<input type="tel" name="whatsapp" placeholder="+39 333 1234567" required /></label>' : ''}
         </div>
         ${plan === 'whatsapp' ? '<label class="bf-billing-consent"><input type="checkbox" name="waConsent" required /><span>Acconsento a ricevere su WhatsApp gli avvisi relativi a scadenze e nuovi bonus del servizio acquistato.</span></label>' : ''}
-        <p class="bf-billing-note">Dati richiesti per pagamento e documentazione fiscale. Per aziende/professionisti compilare anche Partita IVA e, se disponibile, codice destinatario o PEC.</p>
+        <p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
@@ -51,12 +48,6 @@ export function openBillingForm(plan, payload) {
     const submit = form.querySelector('button[type="submit"]');
     const billing = Object.fromEntries(new FormData(form).entries());
     billing.waConsent = form.elements.waConsent ? form.elements.waConsent.checked : false;
-
-    if (billing.customerType === 'azienda' && !billing.partitaIva) {
-      error.hidden = false;
-      error.textContent = 'Per azienda o professionista inserisci la Partita IVA.';
-      return;
-    }
 
     submit.disabled = true;
     submit.textContent = 'Apertura pagamento…';
