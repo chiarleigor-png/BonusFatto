@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import bonusLogo from "[image]
-import sunLogo from "[image]
+const bonusLogo = "/bonusfatto_logo.png";
+const sunLogo = "/logo.webp";
+import { BLOG_ARTICLES } from "./blogData";
 // logo via public folder
 const bonusLogo = "/bonusfatto_logo.png";
 const sunLogo = "/logo.webp";
