@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import bonusLogo from "container:///mnt/data/src/assets/869e5cd09b99e3fc-bonusfatto_logo.png";
-import sunLogo from "container:///mnt/data/src/assets/9caff25c611418e3-to_bouncy_sun_logo.webp";
+// logo via public folder
+const bonusLogo = "/bonusfatto_logo.png";
+const sunLogo = "/logo.webp";
 
 type ComuneRaw = any;
 type ComuneNorm = { nome: string; provincia: string; regione: string };
