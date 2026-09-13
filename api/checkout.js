@@ -8,8 +8,8 @@ function getOrigin(req) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { plan, comune, isee, figli } = req.body || {};
-  if (!['base', 'report'].includes(plan)) return res.status(400).json({ error: 'Piano non valido.' });
+  const { plan, comune, isee, figli, billing } = req.body || {};
+  if (!['base', 'report', 'whatsapp'].includes(plan)) return res.status(400).json({ error: 'Piano non valido.' });
 
   const iseeNumber = Number(isee);
   const childrenNumber = Number(figli);
@@ -17,12 +17,30 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Dati del calcolo non validi.' });
   }
 
+  const safeBilling = billing && typeof billing === 'object' ? {
+    customerType: String(billing.customerType || '').slice(0, 30),
+    email: String(billing.email || '').slice(0, 160),
+    nome: String(billing.nome || '').slice(0, 100),
+    cognome: String(billing.cognome || '').slice(0, 160),
+    codiceFiscale: String(billing.codiceFiscale || '').slice(0, 16),
+    partitaIva: String(billing.partitaIva || '').slice(0, 11),
+    indirizzo: String(billing.indirizzo || '').slice(0, 200),
+    cap: String(billing.cap || '').slice(0, 5),
+    comuneFatturazione: String(billing.comuneFatturazione || '').slice(0, 120),
+    provincia: String(billing.provincia || '').slice(0, 2),
+    sdi: String(billing.sdi || '').slice(0, 7),
+    pec: String(billing.pec || '').slice(0, 160),
+    whatsapp: String(billing.whatsapp || '').slice(0, 30),
+    waConsent: Boolean(billing.waConsent),
+  } : null;
+
   const payload = Buffer.from(
     JSON.stringify({
       plan,
       comune: String(comune).slice(0, 120),
       isee: iseeNumber,
       figli: childrenNumber,
+      billing: safeBilling,
     }),
     'utf8',
   ).toString('base64url');
