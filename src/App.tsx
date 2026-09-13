@@ -78,58 +78,129 @@ export default function App(){
   function Badge({info}:{info:any}){ const c=info.status==="expired"?"bg-red-600 text-white":info.status==="urgent"?"bg-red-100 text-red-700 border border-red-300":info.status==="warning"?"bg-amber-100 text-amber-800 border border-amber-200":"bg-emerald-100 text-emerald-800 border border-emerald-200"; return <span className={`px-2.5 py-1 rounded-full text- font-bold ${c}`}>{info.days<0?`Scaduto`:`${info.days}gg`}</span>; }
 
   return (
-    <div className="min-h-screen bg-[#fafafb]">
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-[#E9E8FF] via-[#F3F1FF] to-[#FFF0F8]">
+      {/* HEADER COME SCREENSHOT ORIGINALE */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-violet-100">
         <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 h- flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={()=>setStage("form")}>
-            <div className="w- h- rounded- bg-gradient-to-br from-blue-600 to-fuchsia-600 flex items-center justify-center text-white font-extrabold">B</div>
-            <span className="font-extrabold text- tracking-tight">BonusFatto.it</span>
-            <span className="hidden sm:inline text- bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold ml-2 border">7904 comuni • Originale</span>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={()=>setStage("form")}>
+            <div className="w- h- rounded- bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center text-white font-extrabold text-">B</div>
+            <span className="font-extrabold text- tracking-tight text-slate-900">BonusFatto.it</span>
+            <span className="hidden sm:inline text- bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full font-bold ml-1 border border-violet-200">Tutti i comuni</span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={()=>setStage("blog")} className="h- px-4 rounded- bg-slate-900 text-white font-bold text-">📚 Magazine</button>
-            <button onClick={()=>setStage("form")} className="hidden sm:flex h- px-4 rounded- bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white font-bold text-">Calcola Bonus →</button>
+            <button onClick={()=>setStage("blog")} className="h- px-4 rounded- bg-slate-900 text-white font-bold text- hover:bg-black">MAGAZINE</button>
+            <button onClick={()=>setStage("form")} className="h- px-4 rounded- bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold text- shadow">Calcola</button>
           </div>
         </div>
       </header>
 
       {stage==="form" && (
-        <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3 py-1 text- font-bold text-slate-700"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Prima versione originale • 7904 comuni • Blu/Fucsia</div>
-              <h1 className="mt-4 text- md:text- font-extrabold leading-[0.95] tracking-tight">Scopri tutti i bonus con il tuo <span className="bg-gradient-to-r from-blue-600 to-fuchsia-600 bg-clip-text text-transparent">ISEE 2026</span></h1>
-              <p className="mt-3 text- text-slate-600">TARI, Luce/Gas/Acqua, Assegno Unico, Nido, Voucher Scuola. Calcolo neutro 30 secondi – versione originale capolavoro che avevi confermato.</p>
-              <div className="mt-6 rounded- bg-white border border-slate-200 p-5 shadow-sm">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div><label className="text- font-bold uppercase text-slate-600">Regione</label><select value={regione} onChange={e=>{setRegione(e.target.value); const provs=PROVINCE_PER_REGIONE[e.target.value]; if(provs) setProvincia(provs[0]); setSelectedComune(null); setComuneQuery("");}} className="mt-1 w-full h- rounded- border border-slate-200 px-3">{REGIONI.map(r=><option key={r} value={r}>{r}</option>)}</select></div>
-                  <div><label className="text- font-bold uppercase text-slate-600">Provincia</label><select value={provincia} onChange={e=>{setProvincia(e.target.value); setSelectedComune(null); setComuneQuery("");}} className="mt-1 w-full h- rounded- border border-slate-200 px-3">{(PROVINCE_PER_REGIONE[regione]||[provincia]).map(p=><option key={p} value={p}>{p}</option>)}</select></div>
+        <div className="max-w- mx-auto px-4 sm:px-6 md:px-8 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6">
+            {/* SINISTRA - COME SCREENSHOT */}
+            <div className="rounded- bg-white border border-violet-100 p-6 sm:p-7 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.15)]">
+              <div className="inline-flex items-center gap-2 bg-[#F5F3FF] border border-violet-200 rounded-full px-3 py-1 text- font-bold text-violet-700">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> 7904 comuni • Tutti i comuni fetch nazionale
+              </div>
+              <h1 className="mt-4 text- sm:text- font-extrabold leading-[1.05] tracking-tight text-slate-900">
+                Scopri quanti<br/>
+                <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">bonus 2026</span><br/>
+                ti spettano davvero
+              </h1>
+              <p className="mt-3 text- leading-[1.5] text-slate-600">
+                Inserisci Regione, Provincia, Comune, ISEE e figli – quantifica 2026 con stima, Report completo a 4.99€ con modello email pronta, checklist documenti verificati.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text- font-bold uppercase tracking-wider text-slate-600">Regione</label>
+                    <select value={regione} onChange={e=>{setRegione(e.target.value); const provs=PROVINCE_PER_REGIONE[e.target.value]; if(provs) setProvincia(provs[0]); setSelectedComune(null); setComuneQuery("");}} className="mt-1.5 w-full h- rounded- border border-slate-200 px-3 bg-white text- font-medium focus:border-violet-400 focus:ring-4 focus:ring-violet-100">
+                      {REGIONI.map(r=><option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text- font-bold uppercase tracking-wider text-slate-600">Provincia</label>
+                    <select value={provincia} onChange={e=>{setProvincia(e.target.value); setSelectedComune(null); setComuneQuery("");}} className="mt-1.5 w-full h- rounded- border border-slate-200 px-3 bg-white text- font-medium focus:border-violet-400 focus:ring-4 focus:ring-violet-100">
+                      {(PROVINCE_PER_REGIONE[regione]||[provincia]).map(p=><option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div className="mt-4"><label className="text- font-bold uppercase text-slate-600">Comune (7904 comuni fetch nazionale)</label><input value={comuneQuery} onChange={e=>{setComuneQuery(e.target.value); setShowDropdown(true);}} onFocus={()=>setShowDropdown(true)} placeholder="Es. Roma, Milano, Torino..." className="mt-1 w-full h- rounded- border border-slate-200 px-3" />
-                  {showDropdown && (<div className="mt-2 max-h- overflow-auto rounded- border border-slate-200 bg-white shadow-lg">{loadingComuni? <div className="p-3 text-">Carico 7904 comuni...</div> : comuniFiltrati.map(c=>(<div key={c.nome+c.provincia} onClick={()=>{setSelectedComune(c); setComuneQuery(c.nome); setShowDropdown(false);}} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text- flex justify-between"><span>{c.nome}</span><span className="text-slate-400 text-">{c.provincia}</span></div>))}</div>)}
-                  {selectedComune && <div className="mt-2 text- bg-emerald-50 border border-emerald-200 rounded- p-2">✅ {selectedComune.nome} ({selectedComune.provincia}) – TARI media {mediaTari}€</div>}
+
+                <div>
+                  <label className="text- font-bold uppercase tracking-wider text-slate-600">Comune (7904 comuni – digita)</label>
+                  <input value={comuneQuery} onChange={e=>{setComuneQuery(e.target.value); setShowDropdown(true);}} onFocus={()=>setShowDropdown(true)} placeholder="Es. Roma, Milano, Torino..." className="mt-1.5 w-full h- rounded- border border-slate-200 px-3 text- focus:border-violet-400 focus:ring-4 focus:ring-violet-100" />
+                  {showDropdown && (
+                    <div className="mt-2 max-h- overflow-auto rounded- border border-slate-200 bg-white shadow-xl">
+                      {loadingComuni? <div className="p-3 text-">Carico 7904 comuni...</div> : comuniFiltrati.map(c=>(
+                        <div key={c.nome+c.provincia} onClick={()=>{setSelectedComune(c); setComuneQuery(c.nome); setShowDropdown(false);}} className="px-3 py-2.5 hover:bg-violet-50 cursor-pointer text- flex justify-between">
+                          <span className="font-medium">{c.nome}</span><span className="text-slate-400 text-">{c.provincia}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {selectedComune && <div className="mt-2 text- bg-emerald-50 border border-emerald-200 rounded- p-2 font-bold">✅ {selectedComune.nome} – TARI media {mediaTari}€</div>}
                 </div>
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div><label className="text- font-bold uppercase text-slate-600">ISEE 2026 €</label><input value={iseeInput} onChange={e=>setIseeInput(e.target.value.replace(/[^0-9]/g,""))} placeholder="15000" className="mt-1 w-full h- rounded- border border-slate-200 px-3" /></div>
-                  <div><label className="text- font-bold uppercase text-slate-600">Figli</label><select value={figli} onChange={e=>setFigli(parseInt(e.target.value))} className="mt-1 w-full h- rounded- border border-slate-200 px-3">{[0,1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
-                  <div><label className="text- font-bold uppercase text-slate-600">TARI €</label><input value={tariInput} onChange={e=>setTariInput(e.target.value.replace(/[^0-9]/g,""))} placeholder="350" className="mt-1 w-full h- rounded- border border-slate-200 px-3" /></div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div><label className="text- font-bold uppercase text-slate-600">ISEE 2026 €</label><input value={iseeInput} onChange={e=>setIseeInput(e.target.value.replace(/[^0-9]/g,""))} placeholder="15000" className="mt-1.5 w-full h- rounded- border border-slate-200 px-3 text- font-bold" /></div>
+                  <div><label className="text- font-bold uppercase text-slate-600">Figli</label><select value={figli} onChange={e=>setFigli(parseInt(e.target.value))} className="mt-1.5 w-full h- rounded- border border-slate-200 px-2 text- font-bold">{[0,1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+                  <div><label className="text- font-bold uppercase text-slate-600">TARI €</label><input value={tariInput} onChange={e=>setTariInput(e.target.value.replace(/[^0-9]/g,""))} placeholder="350" className="mt-1.5 w-full h- rounded- border border-slate-200 px-3 text- font-bold" /></div>
                 </div>
-                <div className="mt-3 text- p-3 rounded- bg-slate-50 border">{tariInfo.msg}</div>
-                <button onClick={()=>setStage("teaser")} disabled={!isee} className="mt-5 w-full h- rounded- bg-slate-900 text-white font-extrabold text- disabled:opacity-50">Vedi bonus per {comuneLabel} →</button>
+
+                {isee>0 && <div className="text- p-2.5 rounded- bg-slate-50 border font-medium">{tariInfo.msg}</div>}
+
+                <button onClick={()=>setStage("teaser")} disabled={!isee} className="w-full h- rounded- bg-gradient-to-r from-blue-600 to-violet-600 text-white font-extrabold text- shadow-lg shadow-violet-200 disabled:opacity-50 hover:from-blue-700 hover:to-violet-700">
+                  Calcola Bonus – Report 4,99€ →
+                </button>
+                <div className="text- text-slate-400 text-center">✓ ARERA verificato • ✓ 7904 comuni • ✓ Modello email</div>
               </div>
             </div>
+
+            {/* DESTRA - COME SCREENSHOT CON 1-2-3 */}
             <div className="space-y-4">
-              <div className="rounded- bg-gradient-to-br from-blue-600 via-indigo-600 to-fuchsia-600 p-6 text-white shadow-xl">
-                <div className="font-extrabold text- leading-[1.1]">Calcola i bonus spettanti</div>
-                <div className="mt-3 text- text-white/90">Versione originale blu/fucsia capolavoro – 7904 comuni fetch nazionale, calcolo neutro, nessun esempio fuorviante.</div>
-                <div className="mt-4 text- bg-white/15 rounded- p-3 border border-white/20">• TARI: soglie ISEE 8k/15k/26.5k<br/>• Luce/Gas: automatico ≤9.796€<br/>• Assegno/Nido: da ISEE e figli</div>
-              </div>
-              <div className="rounded- border bg-white p-4">
-                <div className="font-bold text-">⏰ Scadenze</div>
-                <div className="mt-3 space-y-2 text-">
-                  <div className="flex justify-between"><span>Roma 28/02/26</span><Badge info={countdownRoma} /></div>
-                  <div className="flex justify-between"><span>Fiumicino 16/03/26</span><Badge info={countdownFiumicino} /></div>
-                  <div className="flex justify-between"><span>Voucher Piemonte</span><Badge info={countdownVoucher} /></div>
+              <div className="rounded- bg-white border border-violet-100 p-5 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.12)]">
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="w- h- rounded-full bg-blue-600 text-white flex items-center justify-center text- font-extrabold flex-shrink-0">1</div>
+                    <div>
+                      <div className="font-bold text- text-slate-900">Regione – Provincia – Comune</div>
+                      <div className="text- text-slate-500 mt-0.5">Seleziona il tuo comune tra 7904 – fetch nazionale reale</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w- h- rounded-full bg-violet-600 text-white flex items-center justify-center text- font-extrabold flex-shrink-0">2</div>
+                    <div>
+                      <div className="font-bold text- text-slate-900">ISEE, figli e importo TARI</div>
+                      <div className="text- text-slate-500 mt-0.5">Inserisci ISEE 2026, numero figli e TARI annua (opzionale)</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w- h- rounded-full bg-fuchsia-600 text-white flex items-center justify-center text- font-extrabold flex-shrink-0">3</div>
+                    <div>
+                      <div className="font-bold text- text-slate-900">Report subito – da 4,99€ – modello email pronta</div>
+                      <div className="text- text-slate-500 mt-0.5">Stima immediata, poi Report PDF con modello per Comune + checklist</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded- bg-[#F8F7FF] border border-violet-100 p-3">
+                  <div className="text- font-bold text-slate-900">✅ Cosa ottieni con 4,99€:</div>
+                  <div className="mt-1.5 text- text-slate-600 leading-[1.4]">
+                    • Sconto TARI % stimata + €<br/>
+                    • Bonus Luce/Gas/Acqua automatici<br/>
+                    • Assegno Unico + Nido + Voucher<br/>
+                    • Modello email pronta per Comune<br/>
+                    • Checklist documenti
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded- bg-slate-50 border p-3">
+                  <div className="text- font-bold uppercase text-slate-500">Scadenze live</div>
+                  <div className="mt-2 space-y-2 text-">
+                    <div className="flex justify-between items-center"><span>Roma 28/02/26</span><Badge info={countdownRoma} /></div>
+                    <div className="flex justify-between items-center"><span>Fiumicino 16/03/26</span><Badge info={countdownFiumicino} /></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,14 +210,15 @@ export default function App(){
 
       {stage==="teaser" && (
         <div ref={teaserRef} className="max-w- mx-auto px-4 py-8">
-          <div className="rounded- bg-white border p-6">
-            <h2 className="text- font-extrabold">Risultato {comuneLabel} – ISEE {isee}€</h2>
+          <div className="rounded- bg-white border border-violet-100 p-6 shadow-xl">
+            <h2 className="text- font-extrabold">Risultato per {comuneLabel} – ISEE {isee}€</h2>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="rounded- bg-blue-50 border border-blue-200 p-4"><div className="text- font-bold uppercase text-blue-700">TARI</div><div className="text- font-extrabold">{tariInfo.percent}% → ~{tariInfo.risparmioStima}€</div></div>
               <div className="rounded- bg-violet-50 border border-violet-200 p-4"><div className="text- font-bold uppercase text-violet-700">Luce/Gas</div><div className="text- font-extrabold">~{bonus.lucegas}€</div></div>
               <div className="rounded- bg-fuchsia-50 border border-fuchsia-200 p-4"><div className="text- font-bold uppercase text-fuchsia-700">Totale</div><div className="text- font-extrabold">~{bonus.totale}€</div></div>
             </div>
             <button onClick={()=>setStage("checkout")} className="mt-6 h- px-6 rounded- bg-slate-900 text-white font-bold">Sblocca 4,99€ →</button>
+            <button onClick={()=>setStage("form")} className="mt-3 ml-2 h- px-6 rounded- border font-bold">← Modifica</button>
           </div>
         </div>
       )}
@@ -154,11 +226,12 @@ export default function App(){
       {stage==="blog" && (
         <div className="max-w- mx-auto px-4 py-8">
           <h1 className="text- font-extrabold">Magazine</h1>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <p className="text- text-slate-600 mt-1">Stessa grafica originale lilla – guide ISEE, TARI, Bonus</p>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {BLOG_ARTICLES.map(a=>(
-              <article key={a.slug} onClick={()=>{setSelectedSlug(a.slug); setStage("article");}} className="rounded- border bg-white overflow-hidden cursor-pointer hover:shadow-xl">
+              <article key={a.slug} onClick={()=>{setSelectedSlug(a.slug); setStage("article");}} className="rounded- border border-violet-100 bg-white overflow-hidden cursor-pointer hover:shadow-xl transition">
                 <div className="h- bg-slate-100"><img src={a.img} alt={a.titolo} className="w-full h-full object-cover" /></div>
-                <div className="p-4"><div className="text- font-bold">{a.categoria}</div><h3 className="font-bold mt-2">{a.titolo}</h3><p className="text- text-slate-600 mt-1">{a.excerpt}</p></div>
+                <div className="p-4"><div className="text- font-bold text-violet-700">{a.categoria}</div><h3 className="font-bold text- mt-1 leading-[1.3]">{a.titolo}</h3><p className="text- text-slate-500 mt-1 line-clamp-2">{a.excerpt}</p></div>
               </article>
             ))}
           </div>
@@ -167,28 +240,34 @@ export default function App(){
 
       {stage==="article" && selectedArticle && (
         <div className="max-w- mx-auto px-4 py-8">
-          <button onClick={()=>setStage("blog")} className="mb-4 text- font-bold">← Magazine</button>
-          <h1 className="text- font-extrabold">{selectedArticle.titolo}</h1>
-          <div className="mt-6 prose" dangerouslySetInnerHTML={{__html: selectedArticle.contenuto}} />
+          <button onClick={()=>setStage("blog")} className="mb-4 text- font-bold bg-white border rounded-full px-3 py-1">← Magazine</button>
+          <h1 className="text- font-extrabold leading-[1.1]">{selectedArticle.titolo}</h1>
+          <p className="text- text-slate-600 mt-2">{selectedArticle.excerpt}</p>
+          <img src={selectedArticle.img} alt={selectedArticle.titolo} className="mt-4 w-full rounded- border" />
+          <div className="mt-6 prose prose-sm max-w-none text-" dangerouslySetInnerHTML={{__html: selectedArticle.contenuto}} />
         </div>
       )}
 
       {(stage==="checkout" || stage==="result") && (
         <div className="max-w- mx-auto px-4 py-8">
-          <div className="rounded- bg-white border p-6">
+          <div className="rounded- bg-white border border-violet-100 p-6 shadow-xl">
             {stage==="checkout"? (
               <>
-                <h2 className="text- font-extrabold">Checkout {comuneLabel}</h2>
+                <h2 className="text- font-extrabold">Checkout – Report {comuneLabel}</h2>
+                <div className="mt-3 text-">Report completo + modello email + checklist</div>
                 <div className="mt-4 font-bold">Totale: {totaleCheckout.toFixed(2)}€</div>
-                <button onClick={()=>setStage("result")} className="mt-4 w-full h- rounded- bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white font-extrabold">Paga →</button>
+                <button onClick={()=>setStage("result")} className="mt-4 w-full h- rounded- bg-gradient-to-r from-blue-600 to-violet-600 text-white font-extrabold">Paga con Stripe (simulato) →</button>
               </>
             ) : (
               <>
-                <h2 className="text- font-extrabold">Report {comuneLabel} Pronto!</h2>
-                <div className="mt-4 text-">Totale {bonus.totale}€</div>
-                <textarea id="email-textarea" readOnly value={emailModello} className="mt-4 w-full min-h- border rounded- p-3 text- font-mono" />
-                <button onClick={handleCopy} className="mt-3 h- px-4 rounded- bg-slate-900 text-white font-bold">{copied?"Copiato!":"Copia"}</button>
-                <button onClick={()=>setStage("form")} className="mt-3 ml-2 h- px-4 rounded- border font-bold">Nuovo calcolo</button>
+                <h2 className="text- font-extrabold">Report {comuneLabel} – Pronto!</h2>
+                <div className="mt-3 text-">Totale bonus stimato {bonus.totale}€/anno – stessa grafica originale</div>
+                <textarea id="email-textarea" readOnly value={emailModello} className="mt-4 w-full min-h- border rounded- p-3 text- font-mono bg-[#FBFAFF]" />
+                <div className="mt-3 flex gap-2">
+                  <button onClick={handleCopy} className="h- px-4 rounded- bg-slate-900 text-white font-bold text-">{copied?"✅ Copiato!":"📋 Copia"}</button>
+                  <button onClick={()=>setStage("form")} className="h- px-4 rounded- border font-bold text-">← Nuovo calcolo</button>
+                  <button onClick={()=>setStage("blog")} className="h- px-4 rounded- bg-violet-600 text-white font-bold text-">📚 Magazine →</button>
+                </div>
               </>
             )}
           </div>
