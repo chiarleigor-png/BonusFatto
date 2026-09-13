@@ -1,3 +1,5 @@
+import './resultsEnhancerEntry.js';
+
 const DEMO_KEY = 'bonusfatto_demo_checkout';
 const realFetch = window.fetch.bind(window);
 
