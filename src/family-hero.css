@@ -1,1 +1,30 @@
-.stats::after{content:'';grid-column:1/-1;display:block;height:300px;border-radius:24px;background:url('https://images.unsplash.com/photo-1763013259279-3195d6330519?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;}
+/* Immagine famiglia: solo elemento visivo della Home, nessuna logica coinvolta. */
+.stats::after {
+  content: '';
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  min-height: 310px;
+  margin-top: 8px;
+  border: 1px solid rgba(222, 212, 198, .92);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.08)),
+    url('https://unsplash.com/photos/tdkQ_CLYtCc/download?force=true') center 38% / cover no-repeat;
+  box-shadow: 0 16px 38px rgba(71, 53, 25, .09);
+}
+
+@media (max-width: 800px) {
+  .stats::after {
+    min-height: 290px;
+    border-radius: 20px;
+    background-position: center 32%;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats::after {
+    min-height: 250px;
+    border-radius: 18px;
+  }
+}
