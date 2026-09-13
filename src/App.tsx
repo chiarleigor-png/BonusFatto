@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import bonusLogo from "container:///mnt/data/src/assets/869e5cd09b99e3fc-bonusfatto_logo.png";
-import sunLogo from "container:///mnt/data/src/assets/9caff25c611418e3-to_bouncy_sun_logo.webp";
+import bonusLogo from "[image]
+import sunLogo from "[image]
 // logo via public folder
 const bonusLogo = "/bonusfatto_logo.png";
 const sunLogo = "/logo.webp";
