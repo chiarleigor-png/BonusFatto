@@ -133,6 +133,7 @@ export default function App(){
 
   const [stage, setStage] = useState<"form"|"teaser"|"checkout"|"result"|"blog"|"article">("form");
   const [selectedSlug, setSelectedSlug] = useState<string|null>(null);
+  const [selectedSlug, setSelectedSlug] = useState<string|null>(null);
   const [pdfModels, setPdfModels] = useState(false);
   const [alert2026, setAlert2026] = useState(false);
   const [alert2027, setAlert2027] = useState(false);
