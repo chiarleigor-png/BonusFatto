@@ -255,3 +255,12 @@ function installDownloadButton() {
 const observer = new MutationObserver(installDownloadButton);
 observer.observe(document.documentElement, { subtree: true, childList: true });
 installDownloadButton();
+
+/* Load the visual-only family hero stylesheet. */
+if (!document.querySelector('link[data-bf-family-hero]')) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '/src/family-hero.css';
+  link.dataset.bfFamilyHero = 'true';
+  document.head.appendChild(link);
+}
