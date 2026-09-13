@@ -1,25 +1,30 @@
 .site-header { min-height: 105px; height: auto; }
-.dataset-badge { font-size: 12px; }
-.magazine-button { font-size: 13px; }
-.intro-badge { font-size: 11px; }
-.lead { font-size: 18px; }
-.hero-description { font-size: 15px; line-height: 1.75; max-width: 500px; }
-.pill { font-size: 12px; }
-.simulation-caption { font-size: 12px; }
-.stats > div > span { font-size: 10px; }
-.stats small, .stats p { font-size: 11px; }
-.privacy-line p { font-size: 12px; }
-.form-heading p, .form-time { font-size: 12px; }
-label, .checkbox-label, .capital-note { font-size: 13px; }
-select, input:not([type='checkbox']), textarea { font-size: 14px; }
-.field-hint, .news-box div > span, .deadline, .form-disclaimer, .dataset-footer { font-size: 11px; }
-.news-box strong { font-size: 13px; }
-.news-box p { font-size: 12px; }
-.label-count, .selection-hint, .options-note, .empty-options { font-size: 11px; }
-.options-panel li { font-size: 13px; }
-.options-panel li > span { font-size: 11px; }
-.bonus-body p, .white-card p, .model-notice p, .section-title p { font-size: 13px; line-height: 1.65; }
-.category, .eyebrow { font-size: 10px; }
+.dataset-badge { font-size: 13.5px; }
+.magazine-button { font-size: 14.5px; }
+.intro-badge { font-size: 12.5px; }
+.lead { font-size: 20px; line-height: 1.6; }
+.hero-description { font-size: 17px; line-height: 1.75; max-width: 520px; }
+.pill { font-size: 13.5px; }
+.simulation-caption { font-size: 13.5px; line-height: 1.55; }
+.stats > div > span { font-size: 11.5px; }
+.stats small, .stats p { font-size: 12.5px; line-height: 1.45; }
+.privacy-line p { font-size: 13.5px; line-height: 1.55; }
+.form-heading h2 { font-size: 25px; }
+.form-heading p, .form-time { font-size: 13.5px; }
+label, .checkbox-label, .capital-note { font-size: 14.5px; }
+select, input:not([type='checkbox']), textarea { font-size: 16px; }
+.field-hint, .news-box div > span, .deadline, .form-disclaimer, .dataset-footer { font-size: 12.5px; line-height: 1.55; }
+.news-box strong { font-size: 14.5px; }
+.news-box p { font-size: 13.5px; line-height: 1.6; }
+.label-count, .selection-hint, .options-note, .empty-options { font-size: 12.5px; }
+.options-panel li { font-size: 14.5px; }
+.options-panel li > span { font-size: 12.5px; }
+.bonus-body h3 { font-size: 18px; }
+.bonus-body p, .white-card p, .model-notice p, .section-title p { font-size: 14.5px; line-height: 1.7; }
+.category, .eyebrow { font-size: 11.5px; }
+.checklist li { font-size: 14px; line-height: 1.55; }
+.primary { font-size: 15px; }
+.site-footer, .site-footer button { font-size: 13.5px; }
 
 .paywall-shell { max-width: 980px; margin: 0 auto; padding: 52px 0 70px; }
 .paywall-heading { text-align: center; max-width: 760px; margin: 0 auto 28px; }
@@ -27,32 +32,37 @@ select, input:not([type='checkbox']), textarea { font-size: 14px; }
 .paywall-heading .lead { max-width: 680px; margin: 18px auto 0; }
 .teaser-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0; }
 .teaser-summary > div { background: rgba(255,255,255,.72); border: 1px solid #e6e2d5; border-radius: 14px; padding: 18px; }
-.teaser-summary span { display: block; font-size: 11px; color: #8a8879; text-transform: uppercase; letter-spacing: .08em; }
-.teaser-summary strong { display: block; font-size: 22px; margin-top: 7px; }
+.teaser-summary span { display: block; font-size: 12.5px; color: #8a8879; text-transform: uppercase; letter-spacing: .08em; }
+.teaser-summary strong { display: block; font-size: 24px; margin-top: 7px; }
 .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; align-items: stretch; }
 .plan-card { position: relative; background: white; border: 1px solid #e3dfd1; border-radius: 22px; padding: 26px; box-shadow: 0 12px 36px rgba(78,68,38,.08); }
 .plan-card.featured { border: 2px solid #7358d8; box-shadow: 0 16px 42px rgba(93,70,190,.14); }
-.plan-badge { display: inline-flex; padding: 5px 9px; border-radius: 99px; background: #efeafd; color: #674dc1; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
-.plan-card h2 { font-size: 22px; }
-.plan-price { font-size: 38px; letter-spacing: -1.5px; font-weight: 780; margin: 15px 0 6px; }
-.plan-price small { font-size: 13px; font-weight: 500; color: #8d8a7c; letter-spacing: 0; }
-.plan-card > p { color: #77796d; font-size: 14px; line-height: 1.6; }
+.plan-badge { display: inline-flex; padding: 5px 9px; border-radius: 99px; background: #efeafd; color: #674dc1; font-size: 12.5px; font-weight: 700; margin-bottom: 12px; }
+.plan-card h2 { font-size: 24px; }
+.plan-price { font-size: 40px; letter-spacing: -1.5px; font-weight: 780; margin: 15px 0 6px; }
+.plan-price small { font-size: 14px; font-weight: 500; color: #8d8a7c; letter-spacing: 0; }
+.plan-card > p { color: #77796d; font-size: 15.5px; line-height: 1.65; }
 .plan-list { list-style: none; padding: 0; margin: 18px 0 24px; display: grid; gap: 11px; }
-.plan-list li { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.45; }
+.plan-list li { display: flex; gap: 8px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; }
 .plan-list svg { color: #6f9255; flex: 0 0 auto; margin-top: 1px; }
 .plan-card .primary { width: 100%; }
-.checkout-note { text-align: center; color: #8d8b7d; font-size: 12px; margin: 20px 0 0; }
-.checkout-error { margin: 18px auto 0; max-width: 720px; padding: 12px 14px; border-radius: 10px; background: #fff2dd; border: 1px solid #efd6a7; color: #805f2d; font-size: 13px; text-align: center; }
-.paid-banner { display: flex; gap: 10px; align-items: center; margin: 0 0 24px; padding: 12px 14px; border-radius: 12px; background: #edf6e4; color: #526c40; border: 1px solid #d7e7c9; font-size: 13px; }
+.checkout-note { text-align: center; color: #8d8b7d; font-size: 13.5px; margin: 20px 0 0; }
+.checkout-error { margin: 18px auto 0; max-width: 720px; padding: 12px 14px; border-radius: 10px; background: #fff2dd; border: 1px solid #efd6a7; color: #805f2d; font-size: 14px; text-align: center; }
+.paid-banner { display: flex; gap: 10px; align-items: center; margin: 0 0 24px; padding: 12px 14px; border-radius: 12px; background: #edf6e4; color: #526c40; border: 1px solid #d7e7c9; font-size: 14px; }
 .report-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-.secondary-action { border: 1px solid #dcd7c8; background: #fffdf5; border-radius: 10px; padding: 11px 15px; font-size: 13px; display: inline-flex; gap: 8px; align-items: center; }
-.tari-official { display: inline-flex; margin-top: 10px; padding: 5px 8px; border-radius: 7px; background: #edf6e4; color: #577443; font-size: 11px; font-weight: 700; }
-.tari-local-status { margin-top: 12px; padding: 10px 11px; border-radius: 9px; background: #faf7ed; border: 1px solid #ece3c9; font-size: 12px; color: #77715e; line-height: 1.55; }
+.secondary-action { border: 1px solid #dcd7c8; background: #fffdf5; border-radius: 10px; padding: 11px 15px; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
+.tari-official { display: inline-flex; margin-top: 10px; padding: 5px 8px; border-radius: 7px; background: #edf6e4; color: #577443; font-size: 12.5px; font-weight: 700; }
+.tari-local-status { margin-top: 12px; padding: 10px 11px; border-radius: 9px; background: #faf7ed; border: 1px solid #ece3c9; font-size: 13.5px; color: #77715e; line-height: 1.6; }
 .locked-extra { margin-top: 22px; padding: 18px; border: 1px dashed #d9d2bc; background: #fffdf6; border-radius: 14px; }
-.locked-extra h3 { margin: 0 0 7px; font-size: 17px; }
-.locked-extra p { margin: 0; color: #7d7a6e; font-size: 13px; line-height: 1.6; }
+.locked-extra h3 { margin: 0 0 7px; font-size: 18px; }
+.locked-extra p { margin: 0; color: #7d7a6e; font-size: 14px; line-height: 1.65; }
+
 @media (max-width: 760px) {
+  .lead { font-size: 18px; }
+  .hero-description { font-size: 16px; }
   .teaser-summary, .plan-grid { grid-template-columns: 1fr; }
   .paywall-shell { padding: 32px 0 50px; }
   .plan-card { padding: 22px; }
+  label, .checkbox-label, .capital-note { font-size: 14px; }
+  .bonus-body p, .white-card p, .model-notice p, .section-title p { font-size: 14px; }
 }
