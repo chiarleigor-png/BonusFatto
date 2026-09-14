@@ -1,53 +1,105 @@
-function getOrigin(req) {
-  if (req.headers.origin) return req.headers.origin;
-  const host = req.headers['x-forwarded-host'] || req.headers.host;
-  const proto = req.headers['x-forwarded-proto'] || 'https';
-  return `${proto}://${host}`;
+const PLANS = {
+  base: {
+    name: 'BonusFatto - Analisi completa',
+    amount: 499,
+  },
+  report: {
+    name: 'BonusFatto - Relazione PDF + modello email/PEC TARI',
+    amount: 990,
+  },
+  whatsapp: {
+    name: 'BonusFatto - Bonus Alert WhatsApp 12 mesi',
+    amount: 999,
+  },
+  tari: {
+    name: 'BonusFatto - Presentazione pratica TARI',
+    amount: 2490,
+  },
+};
+
+function siteOrigin(req) {
+  const configured = String(process.env.BONUSFATTO_SITE_URL || process.env.SITE_URL || '').trim();
+  if (configured) return configured.replace(/\/$/, '');
+
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').trim();
+  const safeHost = /(^|\.)bonusfatto\.it$/i.test(host) || /\.vercel\.app$/i.test(host);
+  if (safeHost) return `https://${host}`;
+
+  return 'https://bonus-fatto.vercel.app';
+}
+
+function validEmail(value) {
+  const email = String(value || '').trim();
+  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email.slice(0, 160) : '';
+}
+
+function appendMetadata(params, key, value) {
+  if (value === undefined || value === null || value === '') return;
+  params.append(`metadata[${key}]`, String(value).slice(0, 500));
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ error: 'Metodo non consentito.' });
+  }
+
+  const secret = String(process.env.STRIPE_SECRET_KEY || '').trim();
+  if (!secret) {
+    return res.status(503).json({ error: 'Pagamento temporaneamente non disponibile: configurazione Stripe mancante.' });
+  }
 
   const { plan, comune, isee, figli, billing } = req.body || {};
-  if (!['base', 'report', 'whatsapp', 'tari'].includes(plan)) return res.status(400).json({ error: 'Piano non valido.' });
+  const selectedPlan = PLANS[plan];
+  if (!selectedPlan) return res.status(400).json({ error: 'Piano non valido.' });
 
   const iseeNumber = Number(isee);
   const childrenNumber = Number(figli);
-  if (!comune || !Number.isFinite(iseeNumber) || !Number.isInteger(childrenNumber)) {
+  const municipality = String(comune || '').trim();
+  if (!municipality || !Number.isFinite(iseeNumber) || iseeNumber < 0 || !Number.isInteger(childrenNumber) || childrenNumber < 0) {
     return res.status(400).json({ error: 'Dati del calcolo non validi.' });
   }
 
-  const safeBilling = billing && typeof billing === 'object' ? {
-    email: String(billing.email || '').slice(0, 160),
-    nome: String(billing.nome || '').slice(0, 100),
-    cognome: String(billing.cognome || '').slice(0, 100),
-    codiceFiscale: String(billing.codiceFiscale || '').slice(0, 16),
-    indirizzo: String(billing.indirizzo || '').slice(0, 200),
-    cap: String(billing.cap || '').slice(0, 5),
-    comuneFatturazione: String(billing.comuneFatturazione || '').slice(0, 120),
-    provincia: String(billing.provincia || '').slice(0, 2),
-    pec: String(billing.pec || '').slice(0, 160),
-    whatsapp: String(billing.whatsapp || '').slice(0, 30),
-    waConsent: Boolean(billing.waConsent),
-  } : null;
+  const email = validEmail(billing?.email);
+  const origin = siteOrigin(req);
+  const params = new URLSearchParams();
 
-  const payload = Buffer.from(
-    JSON.stringify({
-      plan,
-      comune: String(comune).slice(0, 120),
-      isee: iseeNumber,
-      figli: childrenNumber,
-      billing: safeBilling,
-    }),
-    'utf8',
-  ).toString('base64url');
+  params.append('mode', 'payment');
+  params.append('payment_method_types[0]', 'card');
+  params.append('locale', 'it');
+  params.append('success_url', `${origin}/?session_id={CHECKOUT_SESSION_ID}`);
+  params.append('cancel_url', `${origin}/?checkout=cancelled`);
+  params.append('line_items[0][quantity]', '1');
+  params.append('line_items[0][price_data][currency]', 'eur');
+  params.append('line_items[0][price_data][unit_amount]', String(selectedPlan.amount));
+  params.append('line_items[0][price_data][product_data][name]', selectedPlan.name);
+  if (email) params.append('customer_email', email);
 
-  const demoSession = `demo_${payload}`;
-  const origin = getOrigin(req);
+  appendMetadata(params, 'source', 'bonusfatto');
+  appendMetadata(params, 'plan', plan);
+  appendMetadata(params, 'comune', municipality);
+  appendMetadata(params, 'isee', iseeNumber);
+  appendMetadata(params, 'figli', childrenNumber);
 
-  return res.status(200).json({
-    demo: true,
-    id: demoSession,
-    url: `${origin}/?session_id=${encodeURIComponent(demoSession)}`,
-  });
+  try {
+    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    });
+
+    const session = await stripeResponse.json();
+    if (!stripeResponse.ok || !session?.id || !session?.url) {
+      console.error('Stripe checkout error', session?.error?.type || stripeResponse.status);
+      return res.status(502).json({ error: 'Stripe non ha potuto creare il pagamento. Riprova tra poco.' });
+    }
+
+    return res.status(200).json({ id: session.id, url: session.url });
+  } catch (error) {
+    console.error('Stripe checkout request failed', error?.message || error);
+    return res.status(502).json({ error: 'Impossibile contattare Stripe. Riprova tra poco.' });
+  }
 }
