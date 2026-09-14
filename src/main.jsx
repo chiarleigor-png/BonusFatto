@@ -10,6 +10,7 @@ import './results-v3.css';
 import './paywallV3.js';
 import './legalSite.js';
 import './guideNav.js';
+import './brandLogo.js';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
