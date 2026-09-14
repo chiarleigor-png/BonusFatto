@@ -12,7 +12,7 @@ function apply2026Corrections(rows) {
   const removed = new Set(['Lirio', 'Castegnero', 'Nanto']);
   const corrected = rows.filter((c) => !removed.has(c.name));
   if (!corrected.some((c) => c.name === 'Castegnero Nanto')) {
-    corrected.push({ id: '024129', name: 'Castegnero Nanto', region: 'Veneto', province: 'Vicenza', code: 'VI' });
+    corrected.push({ id: '024129', name: 'Castegnero Nanto', region: 'Veneto', province: 'Vicenza', code: 'VI', caps: [], cadastralCode: '' });
   }
   const seen = new Set();
   return corrected.filter((c) => {
@@ -31,6 +31,8 @@ export function normalizeDataset(raw) {
     region: c.regione?.nome || c.region,
     province: c.provincia?.nome || c.province,
     code: c.sigla || c.provincia?.sigla || c.code,
+    caps: Array.isArray(c.cap) ? c.cap.map(String) : c.cap ? [String(c.cap)] : [],
+    cadastralCode: c.codiceCatastale || c.codice_catastale || c.cadastralCode || '',
   }));
   if (rows.some((c) => !c.id || !c.name || !c.region || !c.province)) throw new Error('Formato comuni non valido');
   const corrected = apply2026Corrections(rows);
