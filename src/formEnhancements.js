@@ -66,6 +66,62 @@ function makeFiscalCode({ nome, cognome, dataNascita, sesso, cadastralCode }) {
   return first15 + checkChar(first15);
 }
 
-export function formEnhancementsReady() {
-  return Boolean(fetchMunicipalities && normalizeText);
+function addField(form, before, labelText, name, type = 'text', extra = '') {
+  const label = document.createElement('label');
+  label.innerHTML = `${labelText}<input type="${type}" name="${name}" ${extra} required />`;
+  before.before(label);
+  return label.querySelector('input');
 }
+
+function enhanceForm(form) {
+  if (!form || form.dataset.bfAutoData) return;
+  form.dataset.bfAutoData = 'true';
+  const cf = form.elements.codiceFiscale;
+  const cfLabel = cf?.closest('label');
+  if (!cf || !cfLabel) return;
+
+  const birthDate = addField(form, cfLabel, 'Data di nascita', 'dataNascita', 'date');
+  const genderLabel = document.createElement('label');
+  genderLabel.innerHTML = 'Sesso<select name="sesso" required><option value="">Seleziona</option><option value="M">M</option><option value="F">F</option></select>';
+  cfLabel.before(genderLabel);
+  const birthCity = addField(form, cfLabel, 'Comune di nascita', 'comuneNascita', 'text', 'autocomplete="off" placeholder="Es. Torino"');
+  const birthProvince = addField(form, cfLabel, 'Provincia di nascita', 'provinciaNascita', 'text', 'maxlength="2" placeholder="TO"');
+
+  const calcButton = document.createElement('button');
+  calcButton.type = 'button';
+  calcButton.className = 'secondary-action bf-cf-calc';
+  calcButton.textContent = 'Calcola codice fiscale';
+  cf.insertAdjacentElement('afterend', calcButton);
+  const help = document.createElement('small');
+  help.className = 'bf-cf-help';
+  help.textContent = 'Per i nati all’estero inserisci direttamente il codice fiscale.';
+  calcButton.insertAdjacentElement('afterend', help);
+
+  calcButton.onclick = async () => {
+    const municipality = findMunicipality(await getMunicipalityRows(), birthCity.value, birthProvince.value);
+    if (!municipality?.cadastralCode) {
+      help.textContent = 'Comune di nascita non trovato: controlla Comune e provincia oppure inserisci il codice fiscale manualmente.';
+      return;
+    }
+    birthProvince.value = municipality.code || birthProvince.value;
+    try {
+      cf.value = makeFiscalCode({ nome: form.elements.nome.value, cognome: form.elements.cognome.value, dataNascita: birthDate.value, sesso: form.elements.sesso.value, cadastralCode: municipality.cadastralCode });
+      help.textContent = 'Codice fiscale calcolato automaticamente. Verificalo prima di proseguire.';
+    } catch (error) {
+      help.textContent = error.message;
+    }
+  };
+
+  fillAddressDefaults(form);
+  form.elements.comuneFatturazione?.addEventListener('change', () => {
+    if (form.elements.cap) form.elements.cap.value = '';
+    fillAddressDefaults(form);
+  });
+}
+
+function run() {
+  document.querySelectorAll('.bf-billing-form').forEach(enhanceForm);
+}
+
+new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+run();
