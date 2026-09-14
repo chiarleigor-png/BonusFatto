@@ -1,35 +1,55 @@
-export default async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+const ALLOWED_PLANS = new Set(['base', 'report', 'whatsapp', 'tari']);
 
-  const sessionId = String(req.query?.session_id || '');
-  if (!sessionId.startsWith('demo_')) {
-    return res.status(400).json({ error: 'Sessione demo non valida.' });
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ error: 'Metodo non consentito.' });
+  }
+
+  const secret = String(process.env.STRIPE_SECRET_KEY || '').trim();
+  if (!secret) {
+    return res.status(503).json({ error: 'Verifica pagamento temporaneamente non disponibile: configurazione Stripe mancante.' });
+  }
+
+  const sessionId = String(req.query?.session_id || '').trim();
+  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
+    return res.status(400).json({ error: 'Sessione di pagamento non valida.' });
   }
 
   try {
-    const encoded = sessionId.slice(5);
-    const decoded = Buffer.from(encoded, 'base64url').toString('utf8');
-    const data = JSON.parse(decoded);
+    const stripeResponse = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+      headers: { Authorization: `Bearer ${secret}` },
+    });
+    const session = await stripeResponse.json();
 
-    if (!['base', 'report'].includes(data.plan)) {
-      return res.status(400).json({ error: 'Piano demo non riconosciuto.' });
+    if (!stripeResponse.ok || !session?.id) {
+      return res.status(400).json({ error: 'Sessione Stripe non trovata.' });
     }
 
-    const isee = Number(data.isee);
-    const figli = Number(data.figli);
-    if (!data.comune || !Number.isFinite(isee) || !Number.isInteger(figli)) {
-      return res.status(400).json({ error: 'Dati della sessione demo non validi.' });
+    const metadata = session.metadata || {};
+    const plan = String(metadata.plan || '');
+    const comune = String(metadata.comune || '');
+    const isee = Number(metadata.isee);
+    const figli = Number(metadata.figli);
+    const paid = session.payment_status === 'paid' && session.status === 'complete';
+
+    if (!ALLOWED_PLANS.has(plan) || !comune || !Number.isFinite(isee) || !Number.isInteger(figli)) {
+      return res.status(400).json({ error: 'Dati della sessione Stripe incompleti.' });
+    }
+
+    if (!paid) {
+      return res.status(402).json({ paid: false, error: 'Pagamento non ancora completato.' });
     }
 
     return res.status(200).json({
-      paid: false,
-      demo: true,
-      plan: data.plan,
-      comune: String(data.comune),
+      paid: true,
+      plan,
+      comune,
       isee,
       figli,
     });
-  } catch {
-    return res.status(400).json({ error: 'Impossibile leggere la sessione demo.' });
+  } catch (error) {
+    console.error('Stripe verification failed', error?.message || error);
+    return res.status(502).json({ error: 'Impossibile verificare il pagamento con Stripe.' });
   }
 }
