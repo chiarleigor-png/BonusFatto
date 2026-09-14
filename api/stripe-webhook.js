@@ -1,5 +1,6 @@
 import tls from 'node:tls';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createBonusFattoReport } from '../lib/reportPdf.js';
 
 export const config = {
   api: {
@@ -125,7 +126,11 @@ async function smtpCommand(socket, command, expected = [250]) {
   return response;
 }
 
-async function sendMail(to, subject, body) {
+function wrapBase64(buffer) {
+  return Buffer.from(buffer).toString('base64').match(/.{1,76}/g)?.join('\r\n') || '';
+}
+
+async function sendMail(to, subject, body, attachment = null) {
   const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
   const user = validRecipient(process.env.SMTP_USER);
   const password = String(process.env.SMTP_PASSWORD || '');
@@ -150,18 +155,50 @@ async function sendMail(to, subject, body) {
     await smtpCommand(socket, 'DATA', [354]);
 
     const safeSubject = clean(subject, 180).replace(/[\r\n]+/g, ' ');
-    const message = [
+    const textBody = String(body || '').replace(/^\./gm, '..');
+    const commonHeaders = [
       `From: BonusFatto <${user}>`,
       `To: ${recipient}`,
       `Subject: ${safeSubject}`,
       'MIME-Version: 1.0',
-      'Content-Type: text/plain; charset=UTF-8',
-      'Content-Transfer-Encoding: 8bit',
-      '',
-      String(body || '').replace(/^\./gm, '..'),
-      '.',
-      '',
-    ].join('\r\n');
+    ];
+
+    let message;
+    if (attachment?.data) {
+      const boundary = `----BonusFatto-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const filename = clean(attachment.filename || 'BonusFatto_Relazione.pdf', 160).replace(/["\r\n]/g, '_');
+      const contentType = clean(attachment.contentType || 'application/octet-stream', 80);
+      message = [
+        ...commonHeaders,
+        `Content-Type: multipart/mixed; boundary="${boundary}"`,
+        '',
+        `--${boundary}`,
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        '',
+        textBody,
+        '',
+        `--${boundary}`,
+        `Content-Type: ${contentType}; name="${filename}"`,
+        'Content-Transfer-Encoding: base64',
+        `Content-Disposition: attachment; filename="${filename}"`,
+        '',
+        wrapBase64(attachment.data),
+        `--${boundary}--`,
+        '.',
+        '',
+      ].join('\r\n');
+    } else {
+      message = [
+        ...commonHeaders,
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        '',
+        textBody,
+        '.',
+        '',
+      ].join('\r\n');
+    }
 
     socket.write(message);
     response = await readSmtpResponse(socket);
@@ -196,7 +233,7 @@ function adminEmail(order) {
   };
 }
 
-function customerEmail(order) {
+function customerEmail(order, hasAttachment = false) {
   const firstName = clean(order.customer_name, 120) || 'Cliente';
   const code = clean(order.order_code, 80);
   const commonHeader = [
@@ -218,12 +255,15 @@ function customerEmail(order) {
 
   if (order.plan === 'report') {
     return {
-      subject: `BonusFatto - ordine ${code} confermato`,
+      subject: `BonusFatto - relazione PDF e ordine ${code}`,
       body: [
         ...commonHeader,
         'Hai acquistato Analisi + relazione PDF.',
-        'Al rientro su BonusFatto.it trovi il risultato completo, la relazione personalizzata salvabile in PDF e il testo email/PEC predisposto per l’Ufficio Tributi.',
-        'Se hai già chiuso la pagina dopo il pagamento, conserva questa email: il tuo ordine risulta regolarmente pagato nei nostri sistemi.',
+        hasAttachment
+          ? 'Trovi in allegato la tua relazione BonusFatto personalizzata in formato PDF, già predisposta con i dati del tuo ordine.'
+          : 'La tua relazione BonusFatto personalizzata è disponibile nella pagina post-pagamento.',
+        'Nel documento trovi il riepilogo delle opportunità individuate, la sezione TARI, le verifiche ancora necessarie e il testo email/PEC personalizzato da utilizzare con l’Ufficio Tributi del Comune.',
+        'Puoi inoltre scaricare nuovamente la relazione dalla pagina BonusFatto aperta dopo il pagamento.',
         ...commonFooter,
       ].join('\r\n'),
     };
@@ -328,6 +368,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true, duplicate: true });
     }
 
+    let reportPdf = null;
+    if (plan === 'report') {
+      reportPdf = await createBonusFattoReport(pendingOrder);
+      if (!Buffer.isBuffer(reportPdf) || reportPdf.length < 500) throw new Error('PDF relazione non generato correttamente.');
+    }
+
     const paidOrder = await markPaid(session);
     if (!paidOrder) return res.status(200).json({ received: true, duplicate: true });
 
@@ -339,14 +385,21 @@ export default async function handler(req, res) {
       console.error('BonusFatto internal order email failed', mailError?.message || mailError);
     }
 
-    const customer = customerEmail(paidOrder);
+    const customer = customerEmail(paidOrder, Boolean(reportPdf));
+    const attachment = reportPdf
+      ? {
+          filename: `BonusFatto_Relazione_${clean(paidOrder.order_code, 80).replace(/[^A-Za-z0-9_-]/g, '')}.pdf`,
+          contentType: 'application/pdf',
+          data: reportPdf,
+        }
+      : null;
     try {
-      await sendMail(paidOrder.customer_email, customer.subject, customer.body);
+      await sendMail(paidOrder.customer_email, customer.subject, customer.body, attachment);
     } catch (mailError) {
       console.error('BonusFatto customer order email failed', mailError?.message || mailError);
     }
 
-    return res.status(200).json({ received: true, processed: true, order_code: paidOrder.order_code });
+    return res.status(200).json({ received: true, processed: true, order_code: paidOrder.order_code, report_attached: Boolean(reportPdf) });
   } catch (error) {
     console.error('BonusFatto Stripe webhook failed', error?.message || error);
     return res.status(500).json({ error: 'Errore elaborazione webhook.' });
