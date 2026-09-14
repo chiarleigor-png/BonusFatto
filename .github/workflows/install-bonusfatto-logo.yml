@@ -19,11 +19,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f .tmp/bonusfatto-logo.patch
-          git apply --binary .tmp/bonusfatto-logo.patch
+          test -f .tmp/bonusfatto-logo.hex
           mkdir -p public/brand
-          mv bonusfatto-logo-user-small.jpg public/brand/bonusfatto-logo-official.jpg
-          rm -f .tmp/bonusfatto-logo.patch
+          xxd -r -p .tmp/bonusfatto-logo.hex > public/brand/bonusfatto-logo-official.jpg
+          rm -f .tmp/bonusfatto-logo.hex .tmp/bonusfatto-logo.patch
           rm -f public/brand/bonusfatto-logo.part1 public/brand/bonusfatto-logo.part2 public/brand/bonusfatto-logo.part3 public/brand/bonusfatto-logo.part4 public/brand/bonusfatto-logo.part5
           cat > src/brandLogo.js <<'EOF'
           import './brandLogo.css';
