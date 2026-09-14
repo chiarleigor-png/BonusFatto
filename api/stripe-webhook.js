@@ -14,6 +14,11 @@ function clean(value, max = 500) {
   return String(value ?? '').trim().slice(0, max);
 }
 
+function validRecipient(value) {
+  const email = clean(value, 160).toLowerCase();
+  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+}
+
 async function readRawBody(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -120,11 +125,12 @@ async function smtpCommand(socket, command, expected = [250]) {
   return response;
 }
 
-async function sendOrderEmail(order) {
+async function sendMail(to, subject, body) {
   const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
-  const user = clean(process.env.SMTP_USER, 255);
+  const user = validRecipient(process.env.SMTP_USER);
   const password = String(process.env.SMTP_PASSWORD || '');
-  if (!host || !user || !password) throw new Error('Configurazione SMTP incompleta.');
+  const recipient = validRecipient(to);
+  if (!host || !user || !password || !recipient) throw new Error('Configurazione SMTP o destinatario non validi.');
 
   const socket = tls.connect({ host, port: 465, servername: host, rejectUnauthorized: true });
   await new Promise((resolve, reject) => {
@@ -140,12 +146,37 @@ async function sendOrderEmail(order) {
     await smtpCommand(socket, Buffer.from(user).toString('base64'), [334]);
     await smtpCommand(socket, Buffer.from(password).toString('base64'), [235]);
     await smtpCommand(socket, `MAIL FROM:<${user}>`, [250]);
-    await smtpCommand(socket, `RCPT TO:<${user}>`, [250, 251]);
+    await smtpCommand(socket, `RCPT TO:<${recipient}>`, [250, 251]);
     await smtpCommand(socket, 'DATA', [354]);
 
-    const amount = (Number(order.amount_cents || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
-    const subject = `Nuovo ordine BonusFatto - ${order.order_code}`;
-    const body = [
+    const safeSubject = clean(subject, 180).replace(/[\r\n]+/g, ' ');
+    const message = [
+      `From: BonusFatto <${user}>`,
+      `To: ${recipient}`,
+      `Subject: ${safeSubject}`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/plain; charset=UTF-8',
+      'Content-Transfer-Encoding: 8bit',
+      '',
+      String(body || '').replace(/^\./gm, '..'),
+      '.',
+      '',
+    ].join('\r\n');
+
+    socket.write(message);
+    response = await readSmtpResponse(socket);
+    if (response.code !== 250) throw new Error(`SMTP ${response.code}`);
+    await smtpCommand(socket, 'QUIT', [221]);
+  } finally {
+    socket.end();
+  }
+}
+
+function adminEmail(order) {
+  const amount = (Number(order.amount_cents || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  return {
+    subject: `Nuovo ordine BonusFatto - ${order.order_code}`,
+    body: [
       'Nuovo ordine BonusFatto',
       '',
       `Codice ordine: ${order.order_code}`,
@@ -161,27 +192,82 @@ async function sendOrderEmail(order) {
       `Stripe Session: ${order.stripe_session_id}`,
       '',
       'Stato pratica: PAGATO',
-    ].join('\r\n');
+    ].join('\r\n'),
+  };
+}
 
-    const message = [
-      `From: BonusFatto <${user}>`,
-      `To: ${user}`,
-      `Subject: ${subject}`,
-      'MIME-Version: 1.0',
-      'Content-Type: text/plain; charset=UTF-8',
-      'Content-Transfer-Encoding: 8bit',
-      '',
-      body.replace(/^\./gm, '..'),
-      '.',
-      '',
-    ].join('\r\n');
-    socket.write(message);
-    response = await readSmtpResponse(socket);
-    if (response.code !== 250) throw new Error(`SMTP ${response.code}`);
-    await smtpCommand(socket, 'QUIT', [221]);
-  } finally {
-    socket.end();
+function customerEmail(order) {
+  const firstName = clean(order.customer_name, 120) || 'Cliente';
+  const code = clean(order.order_code, 80);
+  const commonHeader = [
+    `Ciao ${firstName},`,
+    '',
+    'il pagamento su BonusFatto.it è stato ricevuto correttamente.',
+    `Codice ordine: ${code}`,
+    `Servizio acquistato: ${order.service_name}`,
+    '',
+  ];
+
+  const commonFooter = [
+    '',
+    'Conserva questa email come conferma dell’acquisto.',
+    '',
+    'BonusFatto.it',
+    'info@bonusfatto.it',
+  ];
+
+  if (order.plan === 'report') {
+    return {
+      subject: `BonusFatto - ordine ${code} confermato`,
+      body: [
+        ...commonHeader,
+        'Hai acquistato Analisi + relazione PDF.',
+        'Al rientro su BonusFatto.it trovi il risultato completo, la relazione personalizzata salvabile in PDF e il testo email/PEC predisposto per l’Ufficio Tributi.',
+        'Se hai già chiuso la pagina dopo il pagamento, conserva questa email: il tuo ordine risulta regolarmente pagato nei nostri sistemi.',
+        ...commonFooter,
+      ].join('\r\n'),
+    };
   }
+
+  if (order.plan === 'whatsapp') {
+    const phoneLine = order.whatsapp ? `Numero indicato: ${order.whatsapp}` : 'Numero WhatsApp: quello indicato in fase di acquisto.';
+    const consentLine = order.whatsapp_consent ? 'Il consenso agli avvisi WhatsApp risulta registrato.' : 'Verificheremo il consenso agli avvisi prima dell’attivazione.';
+    return {
+      subject: `BonusFatto - Bonus Alert attivato (${code})`,
+      body: [
+        ...commonHeader,
+        'Hai acquistato Bonus Alert WhatsApp per 12 mesi.',
+        phoneLine,
+        consentLine,
+        'Riceverai su WhatsApp gli avvisi collegati a scadenze e nuovi bonus previsti dal servizio acquistato.',
+        ...commonFooter,
+      ].join('\r\n'),
+    };
+  }
+
+  if (order.plan === 'tari') {
+    return {
+      subject: `BonusFatto - pratica TARI aperta (${code})`,
+      body: [
+        ...commonHeader,
+        'La tua pratica TARI è stata aperta correttamente.',
+        'Il prossimo passaggio è la raccolta dei documenti necessari e della delega firmata per consentire a BonusFatto di predisporre e trasmettere la richiesta al Comune attraverso il canale previsto.',
+        'Riceverai le istruzioni per documenti e delega sullo stesso indirizzo email utilizzato per l’acquisto.',
+        ...commonFooter,
+      ].join('\r\n'),
+    };
+  }
+
+  return {
+    subject: `BonusFatto - ordine ${code} confermato`,
+    body: [
+      ...commonHeader,
+      'Hai acquistato l’Analisi completa.',
+      'Il risultato dettagliato è disponibile immediatamente al rientro su BonusFatto.it dopo il pagamento.',
+      'Se hai già chiuso la pagina, conserva questa email come conferma del pagamento: l’ordine risulta registrato correttamente.',
+      ...commonFooter,
+    ].join('\r\n'),
+  };
 }
 
 export default async function handler(req, res) {
@@ -245,10 +331,19 @@ export default async function handler(req, res) {
     const paidOrder = await markPaid(session);
     if (!paidOrder) return res.status(200).json({ received: true, duplicate: true });
 
+    const smtpUser = validRecipient(process.env.SMTP_USER);
+    const internal = adminEmail(paidOrder);
     try {
-      await sendOrderEmail(paidOrder);
+      await sendMail(smtpUser, internal.subject, internal.body);
     } catch (mailError) {
-      console.error('BonusFatto order email failed', mailError?.message || mailError);
+      console.error('BonusFatto internal order email failed', mailError?.message || mailError);
+    }
+
+    const customer = customerEmail(paidOrder);
+    try {
+      await sendMail(paidOrder.customer_email, customer.subject, customer.body);
+    } catch (mailError) {
+      console.error('BonusFatto customer order email failed', mailError?.message || mailError);
     }
 
     return res.status(200).json({ received: true, processed: true, order_code: paidOrder.order_code });
