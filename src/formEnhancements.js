@@ -1,3 +1,5 @@
+import { fetchMunicipalities, normalizeText } from './geography.js';
+
 export function formEnhancementsReady() {
-  return true;
+  return Boolean(fetchMunicipalities && normalizeText);
 }
