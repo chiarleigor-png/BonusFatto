@@ -1,9 +1,43 @@
 import tls from 'node:tls';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const ALLOWED_PLANS = new Set(['base', 'report', 'whatsapp', 'tari']);
+const WEBHOOK_TOLERANCE_SECONDS = 300;
 
 function clean(value, max = 500) {
   return String(value ?? '').trim().slice(0, max);
+}
+
+async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  return Buffer.concat(chunks);
+}
+
+function verifyStripeSignature(rawBody, signatureHeader, secret) {
+  const parts = String(signatureHeader || '').split(',').map((part) => part.trim());
+  const timestampPart = parts.find((part) => part.startsWith('t='));
+  const signatures = parts.filter((part) => part.startsWith('v1=')).map((part) => part.slice(3));
+  const timestamp = Number(timestampPart?.slice(2));
+
+  if (!Number.isInteger(timestamp) || signatures.length === 0) return false;
+  if (Math.abs(Math.floor(Date.now() / 1000) - timestamp) > WEBHOOK_TOLERANCE_SECONDS) return false;
+
+  const signedPayload = `${timestamp}.${rawBody.toString('utf8')}`;
+  const expected = createHmac('sha256', secret).update(signedPayload, 'utf8').digest('hex');
+  const expectedBuffer = Buffer.from(expected, 'hex');
+
+  return signatures.some((signature) => {
+    if (!/^[a-f0-9]{64}$/i.test(signature)) return false;
+    const actualBuffer = Buffer.from(signature, 'hex');
+    return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer);
+  });
 }
 
 async function stripeSession(secret, sessionId) {
@@ -157,9 +191,30 @@ export default async function handler(req, res) {
   }
 
   const stripeSecret = clean(process.env.STRIPE_SECRET_KEY, 1200);
-  if (!stripeSecret) return res.status(503).json({ error: 'Configurazione Stripe mancante.' });
+  const webhookSecret = clean(process.env.STRIPE_WEBHOOK_SECRET, 1200);
+  if (!stripeSecret || !webhookSecret) {
+    return res.status(503).json({ error: 'Configurazione Stripe incompleta.' });
+  }
 
-  const event = req.body || {};
+  let rawBody;
+  try {
+    rawBody = await readRawBody(req);
+  } catch {
+    return res.status(400).json({ error: 'Payload webhook non leggibile.' });
+  }
+
+  const signature = req.headers['stripe-signature'];
+  if (!verifyStripeSignature(rawBody, signature, webhookSecret)) {
+    return res.status(400).json({ error: 'Firma webhook Stripe non valida.' });
+  }
+
+  let event;
+  try {
+    event = JSON.parse(rawBody.toString('utf8'));
+  } catch {
+    return res.status(400).json({ error: 'Payload webhook non valido.' });
+  }
+
   if (event.type !== 'checkout.session.completed') {
     return res.status(200).json({ received: true, ignored: true });
   }
