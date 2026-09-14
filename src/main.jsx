@@ -12,6 +12,7 @@ import './legalSite.js';
 import './guideNav.js';
 import './brandLogo.js';
 import './formEnhancements.js';
+import './reportDelivery.js';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
