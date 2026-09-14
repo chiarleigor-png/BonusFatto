@@ -2,39 +2,42 @@ import './brandLogo.css';
 
 const LOGO = '/brand/bonusfatto-logo-official.jpg';
 
-function setImg(img, className) {
-  img.className = className;
+function createLockup(className) {
+  const lockup = document.createElement('span');
+  lockup.className = `bf-brand-lockup ${className}`;
+  lockup.setAttribute('aria-label', 'BonusFatto.it');
+
+  const mark = document.createElement('span');
+  mark.className = 'bf-brand-mark';
+
+  const img = document.createElement('img');
   img.src = LOGO;
-  img.alt = 'BonusFatto.it';
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+  mark.appendChild(img);
+
+  const name = document.createElement('span');
+  name.className = 'bf-brand-name';
+  name.innerHTML = '<span class="bf-brand-blue">Bonus</span><span class="bf-brand-green">Fatto</span><span class="bf-brand-blue">.it</span>';
+
+  lockup.append(mark, name);
+  return lockup;
 }
 
 function applyOfficialLogo() {
   const brand = document.querySelector('.site-header .brand');
-  if (brand) {
+  if (brand && !brand.querySelector('.bf-header-lockup')) {
     brand.classList.add('bf-official-brand');
-    let img = brand.querySelector('.bf-official-logo');
-    if (!img) {
-      brand.replaceChildren();
-      img = document.createElement('img');
-      brand.appendChild(img);
-    }
-    setImg(img, 'bf-official-logo');
+    brand.replaceChildren(createLockup('bf-header-lockup'));
   }
 
   const legalBrand = document.querySelector('.bf-footer-brand');
-  if (legalBrand && !legalBrand.querySelector('.bf-footer-logo')) {
+  if (legalBrand && !legalBrand.querySelector('.bf-footer-lockup')) {
     legalBrand.classList.add('bf-logo-ready');
-    const img = document.createElement('img');
-    setImg(img, 'bf-footer-logo');
-    legalBrand.prepend(img);
+    legalBrand.prepend(createLockup('bf-footer-lockup'));
   }
 
-  const compactFooter = document.querySelector('.site-footer');
-  if (compactFooter && !compactFooter.querySelector('.bf-mini-logo')) {
-    const img = document.createElement('img');
-    setImg(img, 'bf-mini-logo');
-    compactFooter.prepend(img);
-  }
+  document.querySelectorAll('.site-footer .bf-mini-logo, .site-footer .bf-brand-lockup').forEach((node) => node.remove());
 }
 
 const observer = new MutationObserver(applyOfficialLogo);
