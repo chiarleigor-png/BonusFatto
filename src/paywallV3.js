@@ -1,5 +1,24 @@
 import { openBillingForm } from './billingForm.js';
 
+const childrenStorageKey = 'bonusfatto_checkout_children';
+
+function validChildren(value) {
+  if (value == null || String(value).trim() === '') return null;
+  const children = Number(value);
+  return Number.isSafeInteger(children) && children >= 0 ? children : null;
+}
+
+document.addEventListener('submit', (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement)) return;
+  const label = Array.from(form.querySelectorAll('label')).find((item) => item.textContent.includes('Figli a carico'));
+  const select = label?.control || label?.querySelector('select');
+  if (!(select instanceof HTMLSelectElement)) return;
+  const children = validChildren(select.value);
+  if (children === null) sessionStorage.removeItem(childrenStorageKey);
+  else sessionStorage.setItem(childrenStorageKey, String(children));
+}, true);
+
 function euroNumber(value) {
   const n = Number(String(value || '').replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.'));
   return Number.isFinite(n) ? n : 0;
@@ -8,7 +27,7 @@ function euroNumber(value) {
 function payload(shell) {
   const lead = shell.querySelector('.paywall-heading .lead')?.textContent || '';
   const parts = lead.split('·').map((item) => item.trim());
-  return { comune: parts[0] || '', isee: euroNumber((parts[1] || '').replace(/^ISEE\s*/i, '')), figli: 0 };
+  return { comune: parts[0] || '', isee: euroNumber((parts[1] || '').replace(/^ISEE\s*/i, '')), figli: validChildren(sessionStorage.getItem(childrenStorageKey)) ?? 0 };
 }
 
 function previewNames(shell) {
