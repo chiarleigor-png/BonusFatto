@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto';
 const PLANS = {
   base: {
     name: 'BonusFatto - Analisi completa',
-    amount: 100,
+    amount: 499,
   },
   report: {
     name: 'BonusFatto - Relazione PDF + modello email/PEC TARI',
