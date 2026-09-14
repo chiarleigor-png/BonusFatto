@@ -7,7 +7,7 @@ const PLANS = {
   },
   report: {
     name: 'BonusFatto - Relazione PDF + modello email/PEC TARI',
-    amount: 990,
+    amount: 100,
   },
   whatsapp: {
     name: 'BonusFatto - Bonus Alert WhatsApp 12 mesi',
