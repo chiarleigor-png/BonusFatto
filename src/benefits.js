@@ -1,3 +1,5 @@
+import { getLocalTariBand, getPiemonteTariRule } from './tariPiemonte.js';
+
 export const euro = (n) =>
   new Intl.NumberFormat('it-IT', {
     style: 'currency',
@@ -77,6 +79,25 @@ export function calculate({ isee, children, municipality }) {
       250,
       'annuo',
       'Stima orientativa complessiva. Nel 2026 la soglia ordinaria ISEE è 9.796 euro, elevata a 20.000 euro per nuclei con almeno 4 figli a carico. Gli importi effettivi dipendono dalle regole ARERA e dalle caratteristiche delle forniture.',
+    );
+  }
+
+  const localTariRule = getPiemonteTariRule(municipality.name);
+  const localTariBand = getLocalTariBand(localTariRule, isee);
+  if (localTariBand) {
+    const deadlineExpired = localTariRule.deadline
+      ? new Date(localTariRule.deadline).getTime() < Date.now()
+      : null;
+    const deadlineText = localTariRule.deadlineLabel
+      ? ` Scadenza indicata dalla fonte: ${localTariRule.deadlineLabel}${deadlineExpired ? ' (scaduta)' : ''}.`
+      : ' La scadenza 2026 deve essere verificata sulla fonte ufficiale.';
+    add(
+      `tari-local-${municipality.name.toLowerCase().replace(/\s+/g, '-')}`,
+      `Riduzione TARI comunale – ${municipality.name}`,
+      'Casa',
+      (tariBase * localTariBand.percent) / 100,
+      'annuo',
+      `Agevolazione comunale 2026 verificata: riduzione del ${localTariBand.percent}% per la fascia ISEE inserita. Il valore in euro è una stima calcolata sulla TARI media usata dal simulatore (${euro(tariBase)}), non sull'importo reale della bolletta.${deadlineText}${localTariRule.note ? ` ${localTariRule.note}` : ''} Fonte ufficiale: ${localTariRule.sourceUrl}`,
     );
   }
 
@@ -167,6 +188,8 @@ export function calculate({ isee, children, municipality }) {
     tariBase,
     tariEstimatedSaving: (tariBase * tariPercent) / 100,
     tariNationalEligible: socialThreshold,
+    tariLocalRule: localTariRule,
+    tariLocalPercent: localTariBand?.percent ?? 0,
     total: benefits.reduce((sum, b) => sum + (b.amount ?? 0), 0),
     recurring: benefits.filter((b) => b.period === 'annuo').reduce((sum, b) => sum + (b.amount ?? 0), 0),
     conditional: benefits
