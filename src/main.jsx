@@ -11,6 +11,7 @@ import './paywallV3.js';
 import './legalSite.js';
 import './guideNav.js';
 import './brandLogo.js';
+import './formEnhancements.js';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
