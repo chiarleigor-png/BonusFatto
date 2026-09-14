@@ -1,0 +1,77 @@
+name: Install official BonusFatto logo
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install official logo asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .tmp/bonusfatto-logo.patch
+          git apply --binary .tmp/bonusfatto-logo.patch
+          mkdir -p public/brand
+          mv bonusfatto-logo-user-small.jpg public/brand/bonusfatto-logo-official.jpg
+          rm -f .tmp/bonusfatto-logo.patch
+          rm -f public/brand/bonusfatto-logo.part1 public/brand/bonusfatto-logo.part2 public/brand/bonusfatto-logo.part3 public/brand/bonusfatto-logo.part4 public/brand/bonusfatto-logo.part5
+          cat > src/brandLogo.js <<'EOF'
+          import './brandLogo.css';
+
+          const LOGO = '/brand/bonusfatto-logo-official.jpg';
+
+          function setImg(img, className) {
+            img.className = className;
+            img.src = LOGO;
+            img.alt = 'BonusFatto.it';
+          }
+
+          function applyOfficialLogo() {
+            const brand = document.querySelector('.site-header .brand');
+            if (brand) {
+              brand.classList.add('bf-official-brand');
+              let img = brand.querySelector('.bf-official-logo');
+              if (!img) {
+                brand.replaceChildren();
+                img = document.createElement('img');
+                brand.appendChild(img);
+              }
+              setImg(img, 'bf-official-logo');
+            }
+
+            const legalBrand = document.querySelector('.bf-footer-brand');
+            if (legalBrand && !legalBrand.querySelector('.bf-footer-logo')) {
+              legalBrand.classList.add('bf-logo-ready');
+              const img = document.createElement('img');
+              setImg(img, 'bf-footer-logo');
+              legalBrand.prepend(img);
+            }
+
+            const compactFooter = document.querySelector('.site-footer');
+            if (compactFooter && !compactFooter.querySelector('.bf-mini-logo')) {
+              const img = document.createElement('img');
+              setImg(img, 'bf-mini-logo');
+              compactFooter.prepend(img);
+            }
+          }
+
+          const observer = new MutationObserver(applyOfficialLogo);
+          observer.observe(document.documentElement, { childList: true, subtree: true });
+          window.addEventListener('DOMContentLoaded', applyOfficialLogo);
+          applyOfficialLogo();
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Install official BonusFatto logo asset"
+          git push
