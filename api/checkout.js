@@ -2,8 +2,10 @@ import { randomBytes } from 'node:crypto';
 
 const PLANS = {
   base: { name: 'BonusFatto - Analisi veloce immediata', amount: 299 },
+  isee: { name: 'BonusFatto - Analisi con ISEE immediata', amount: 690 },
   report: { name: 'BonusFatto - Relazione PDF personalizzata', amount: 490 },
   whatsapp: { name: 'BonusFatto - Bonus Alert WhatsApp 12 mesi', amount: 690 },
+  pec: { name: 'BonusFatto - Invio PEC al Comune', amount: 1490 },
   tari: { name: 'BonusFatto - Gestione completa pratica TARI', amount: 1990 },
 };
 
@@ -59,7 +61,8 @@ export default async function handler(req, res) {
 
   const code = orderCode(), origin = siteOrigin(req), params = new URLSearchParams();
   params.append('mode','payment'); params.append('payment_method_types[0]','card'); params.append('locale','it');
-  params.append('success_url',`${origin}/?session_id={CHECKOUT_SESSION_ID}`); params.append('cancel_url',`${origin}/?checkout=cancelled`);
+  const successPath = plan === 'isee' ? '/isee/' : plan === 'pec' ? '/pec/' : '/';
+  params.append('success_url',`${origin}${successPath}?session_id={CHECKOUT_SESSION_ID}`); params.append('cancel_url',`${origin}/?checkout=cancelled`);
   params.append('line_items[0][quantity]','1'); params.append('line_items[0][price_data][currency]','eur'); params.append('line_items[0][price_data][unit_amount]',String(selectedPlan.amount)); params.append('line_items[0][price_data][product_data][name]',selectedPlan.name); params.append('customer_email',email);
   appendMetadata(params,'source','bonusfatto'); appendMetadata(params,'plan',plan); appendMetadata(params,'comune',municipality); appendMetadata(params,'isee',iseeNumber); appendMetadata(params,'figli',childrenNumber); appendMetadata(params,'order_code',code); appendProfileMetadata(params,profile);
 
