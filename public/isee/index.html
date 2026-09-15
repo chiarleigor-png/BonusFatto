@@ -52,19 +52,18 @@
 </div>
 
 <script type="module">
-const params=new URLSearchParams(location.search);const sessionId=params.get('session_id');let sessionData=null;
-const verify=document.getElementById('verify'),flow=document.getElementById('flow');
+const sessionId=new URLSearchParams(location.search).get('session_id');
+const verify=document.getElementById('verify');const flow=document.getElementById('flow');const fileInput=document.getElementById('file');const extractStatus=document.getElementById('extractStatus');const comune=document.getElementById('comune');const isee=document.getElementById('isee');const children=document.getElementById('children');const agesEl=document.getElementById('ages');const utilities=document.getElementById('utilities');const over60=document.getElementById('over60');const disability=document.getElementById('disability');const unemployed=document.getElementById('unemployed');const housing=document.getElementById('housing');const renovation=document.getElementById('renovation');const analyze=document.getElementById('analyze');const errorBox=document.getElementById('error');const result=document.getElementById('result');const summary=document.getElementById('summary');const benefits=document.getElementById('benefits');
 async function init(){
   try{
     const r=await fetch(`/api/verify-checkout?session_id=${encodeURIComponent(sessionId||'')}`);const d=await r.json();if(!r.ok||d.plan!=='isee')throw new Error(d.error||'Pagamento non valido.');
-    sessionData=d;verify.textContent='Pagamento verificato ✓';verify.className='status ok';flow.hidden=false;
-    comune.value=d.comune;isee.value=d.isee;children.value=d.figli;
+    verify.textContent='Pagamento verificato ✓';verify.className='status ok';flow.hidden=false;comune.value=d.comune;isee.value=d.isee;children.value=d.figli;
   }catch(e){verify.textContent=e.message;verify.className='status error';}
 }
 init();
 
-file.addEventListener('change',async()=>{
-  const f=file.files?.[0];if(!f)return;extractStatus.textContent='Lettura del PDF…';extractStatus.className='status';
+fileInput.addEventListener('change',async()=>{
+  const f=fileInput.files?.[0];if(!f)return;extractStatus.textContent='Lettura del PDF…';extractStatus.className='status';
   try{
     const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
     pdfjs.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
@@ -72,23 +71,22 @@ file.addEventListener('change',async()=>{
     for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const c=await p.getTextContent();text+=' '+c.items.map(x=>x.str).join(' ');}
     const near=[...text.matchAll(/ISEE[^0-9]{0,80}([0-9]{1,3}(?:\.[0-9]{3})*,[0-9]{2}|[0-9]+(?:,[0-9]{2})?)/gi)];
     const raw=near[0]?.[1];if(raw){const n=Number(raw.replace(/\./g,'').replace(',','.'));if(Number.isFinite(n)){isee.value=n;extractStatus.textContent=`ISEE rilevato: ${n.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}`;extractStatus.className='status ok';return;}}
-    extractStatus.textContent='Non sono riuscito a leggere automaticamente il valore: inseriscilo nel campo ISEE qui sotto.';extractStatus.className='status';
-  }catch(e){extractStatus.textContent='PDF non leggibile automaticamente: inserisci il valore ISEE nel campo qui sotto.';extractStatus.className='status';}
+    extractStatus.textContent='Non sono riuscito a leggere automaticamente il valore: inseriscilo nel campo ISEE qui sotto.';
+  }catch{extractStatus.textContent='PDF non leggibile automaticamente: inserisci il valore ISEE nel campo qui sotto.';}
 });
 
 analyze.addEventListener('click',async()=>{
-  error.textContent='';const n=Number(isee.value),c=Number(children.value);if(!Number.isFinite(n)||n<0||!Number.isInteger(c)||c<0){error.textContent='Controlla ISEE e numero figli.';return;}
+  errorBox.textContent='';const n=Number(isee.value),c=Number(children.value);if(!Number.isFinite(n)||n<0||!Number.isInteger(c)||c<0){errorBox.textContent='Controlla ISEE e numero figli.';return;}
   const ages=agesEl.value.split(',').map(x=>Number(x.trim())).filter(Number.isFinite);
-  const profile={children:c,childAges:ages,electricitySupply:utilities.value==='yes'?'eligible':'none',gasSupply:utilities.value==='yes'?'eligible':'none',waterSupply:utilities.value==='yes'?'eligible':'none',over60:over60.value,over65:'no',disability:disability.value,unemployed:unemployed.value,housing:housing.value,renovation:renovation.value};
+  const profile={children:c,childAges:ages,electricitySupply:utilities.value,gasSupply:utilities.value,waterSupply:utilities.value,over60:over60.value,over65:'no',disability:disability.value,unemployed:unemployed.value,housing:housing.value,renovation:renovation.value};
   analyze.disabled=true;analyze.textContent='Analisi in corso…';
   try{
     const r=await fetch('/api/analyze-isee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,isee:n,children:c,comune:comune.value,profile})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Analisi non disponibile.');
     summary.textContent=`${d.benefits.length} agevolazioni individuate per il tuo profilo`;
-    benefits.innerHTML=d.benefits.map(b=>`<div class="benefit"><strong>${escapeHtml(b.name)}</strong><div class="amount">${b.amount==null?'Importo non determinabile':Number(b.amount).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}${b.period?` · ${escapeHtml(b.period)}`:''}</div><div class="small">${escapeHtml(b.description||'')}</div></div>`).join('');
+    benefits.innerHTML=d.benefits.map(b=>`<div class="benefit"><strong>${escapeHtml(b.name)}</strong><div class="amount">${b.amount==null?'Importo non determinabile':typeof b.amount==='number'?Number(b.amount).toLocaleString('it-IT',{style:'currency',currency:'EUR'}):escapeHtml(b.amount)}${b.period?` · ${escapeHtml(b.period)}`:''}</div><div class="small">${escapeHtml(b.description||'')}</div></div>`).join('');
     result.style.display='block';result.scrollIntoView({behavior:'smooth'});
-  }catch(e){error.textContent=e.message;}finally{analyze.disabled=false;analyze.textContent='Mostrami i bonus';}
+  }catch(e){errorBox.textContent=e.message;}finally{analyze.disabled=false;analyze.textContent='Mostrami i bonus';}
 });
-const agesEl=document.getElementById('ages');
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 </script>
 </body>
