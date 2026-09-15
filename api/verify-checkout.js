@@ -1,4 +1,4 @@
-const ALLOWED_PLANS = new Set(['base', 'report', 'whatsapp', 'tari']);
+const ALLOWED_PLANS = new Set(['base', 'isee', 'report', 'whatsapp', 'pec', 'tari']);
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -47,6 +47,7 @@ export default async function handler(req, res) {
       comune,
       isee,
       figli,
+      customer_email: session.customer_details?.email || session.customer_email || '',
     });
   } catch (error) {
     console.error('Stripe verification failed', error?.message || error);
