@@ -8,6 +8,7 @@ export function openBillingForm(plan, payload) {
     tari: ['Gestione completa pratica TARI', '19,90 €'],
   }[plan] || ['Analisi veloce — immediata', '2,99 €'];
 
+  const defaultBillingCity = payload.comune && payload.comune !== 'Da indicare' ? payload.comune : '';
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
   backdrop.innerHTML = `
@@ -24,7 +25,7 @@ export function openBillingForm(plan, payload) {
           <label>Codice fiscale<input name="codiceFiscale" maxlength="16" required /></label>
           <label class="full">Indirizzo di fatturazione<input name="indirizzo" required /></label>
           <label>CAP<input name="cap" maxlength="5" required /></label>
-          <label>Comune<input name="comuneFatturazione" value="${payload.comune || ''}" required /></label>
+          <label>Comune<input name="comuneFatturazione" value="${defaultBillingCity}" required /></label>
           <label>Provincia<input name="provincia" maxlength="2" placeholder="TO" required /></label>
           <label class="full">PEC <small>(facoltativa)</small><input type="email" name="pec" /></label>
           ${plan === 'whatsapp' ? '<label class="full">Numero WhatsApp<input type="tel" name="whatsapp" placeholder="+39 333 1234567" required /></label>' : ''}
@@ -51,6 +52,12 @@ export function openBillingForm(plan, payload) {
     const submit = form.querySelector('button[type="submit"]');
     const billing = Object.fromEntries(new FormData(form).entries());
     billing.waConsent = form.elements.waConsent ? form.elements.waConsent.checked : false;
+    const checkoutPayload = { plan, ...payload, billing };
+    if (plan === 'isee' && (!checkoutPayload.comune || checkoutPayload.comune === 'Da indicare')) {
+      checkoutPayload.comune = billing.comuneFatturazione;
+      checkoutPayload.isee = 0;
+      checkoutPayload.figli = 0;
+    }
 
     submit.disabled = true;
     submit.textContent = 'Apertura pagamento…';
@@ -58,7 +65,7 @@ export function openBillingForm(plan, payload) {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, ...payload, billing }),
+        body: JSON.stringify(checkoutPayload),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');
