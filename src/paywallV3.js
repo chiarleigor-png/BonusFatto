@@ -102,10 +102,10 @@ function enhancePaywall() {
   const stack = document.createElement('section');
   stack.className = 'bf-offer-stack';
   stack.append(
-    makeOffer({ tag: 'ANALISI COMPLETA', title: 'Sblocca il risultato completo', price: '4,99 €', plan: 'base', description: 'Visualizza tutti i bonus individuati con importi stimabili, requisiti, documenti e indicazioni operative.', items: ['Tutte le agevolazioni individuate', 'Importi stimabili e requisiti', 'Checklist documenti e scadenze'], button: 'Sblocca analisi · 4,99 €' }),
-    makeOffer({ type: 'report', tag: 'DOSSIER OPERATIVO', title: 'Relazione PDF + modello email/PEC TARI', price: '9,90 €', plan: 'report', description: 'Relazione personalizzata e testo pronto da inviare al Comune per chiedere o verificare la riduzione/esenzione TARI collegata all’ISEE, quando prevista.', items: ['Relazione PDF personalizzata', 'Riepilogo bonus e prossimi passi', 'Modello email/PEC per il Comune sulla TARI'], button: 'Ottieni dossier · 9,90 €' }),
-    makeOffer({ type: 'whatsapp', tag: 'BONUS ALERT WHATSAPP', title: 'Scadenze e nuovi bonus via WhatsApp', price: '9,99 €', plan: 'whatsapp', description: 'Inserisci il tuo numero WhatsApp e ricevi per 12 mesi avvisi sulle principali scadenze e sui nuovi bonus compatibili con il profilo indicato.', items: ['Avvisi principali sulle scadenze', 'Segnalazioni nuovi bonus', 'Servizio per 12 mesi con consenso dedicato'], button: 'Attiva Bonus Alert · 9,99 €' }),
-    makeOffer({ type: 'tari-service', tag: 'PRESENTAZIONE PRATICA TARI', title: 'Pensiamo noi alla richiesta al Comune', price: '24,90 €', plan: 'tari', description: 'BonusFatto predispone la richiesta, verifica gli allegati e la trasmette per tuo conto all’Ufficio Tributi del Comune attraverso il canale previsto, inclusa PEC quando ammessa.', items: ['Predisposizione della richiesta', 'Verifica degli allegati', 'Trasmissione per tuo conto al Comune', 'Copia della pratica e ricevute di invio'], button: 'Presenta pratica TARI · 24,90 €' })
+    makeOffer({ tag: 'ANALISI VELOCE', title: 'Risultato immediato in circa 30 secondi', price: '2,99 €', plan: 'base', description: 'Sblocca subito l’analisi dei bonus compatibili con i dati inseriti.', items: ['Risultato immediato', 'Tutte le agevolazioni individuate', 'Importi stimabili, requisiti e prossimi passi'], button: 'Sblocca analisi · 2,99 €' }),
+    makeOffer({ type: 'report', tag: 'RELAZIONE PERSONALIZZATA', title: 'Relazione PDF pronta da conservare', price: '4,90 €', plan: 'report', description: 'Ricevi una relazione personalizzata con riepilogo bonus, TARI e modello email/PEC per il Comune.', items: ['Relazione PDF personalizzata', 'Riepilogo bonus e prossimi passi', 'Modello email/PEC TARI'], button: 'Ottieni relazione · 4,90 €' }),
+    makeOffer({ type: 'whatsapp', tag: 'BONUS ALERT WHATSAPP', title: 'Scadenze e nuovi bonus via WhatsApp', price: '6,90 €', plan: 'whatsapp', description: 'Ricevi per 12 mesi avvisi sulle principali scadenze e sui nuovi bonus coerenti con il profilo indicato.', items: ['Avvisi principali sulle scadenze', 'Segnalazioni nuovi bonus', 'Servizio per 12 mesi con consenso dedicato'], button: 'Attiva Bonus Alert · 6,90 €' }),
+    makeOffer({ type: 'tari-service', tag: 'GESTIONE COMPLETA PRATICA TARI', title: 'Pensiamo noi alla richiesta al Comune', price: '19,90 €', plan: 'tari', description: 'BonusFatto predispone la richiesta, verifica gli allegati e la trasmette per tuo conto all’Ufficio Tributi attraverso il canale previsto, inclusa PEC quando ammessa.', items: ['Predisposizione della richiesta', 'Verifica degli allegati', 'Trasmissione per tuo conto al Comune', 'Copia della pratica e ricevute disponibili'], button: 'Gestisci pratica TARI · 19,90 €' })
   );
 
   const grid = shell.querySelector('.plan-grid');
@@ -131,6 +131,16 @@ function saferTotal() {
   if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = 'Vedi dettaglio';
 }
 
-function run() { enhancePaywall(); saferTotal(); }
+function updateLaunchPricingLabels() {
+  document.querySelectorAll('.stats > div').forEach((box) => {
+    const label = box.querySelector('span')?.textContent?.trim();
+    const value = box.querySelector('strong');
+    const note = box.querySelector('p');
+    if (label === 'CHECKOUT' && value) { value.textContent = '2,99 €'; if (note) note.textContent = 'analisi veloce'; }
+    if (label === 'REPORT' && value) { value.textContent = '4,90 €'; if (note) note.textContent = 'relazione PDF'; }
+  });
+}
+
+function run() { enhancePaywall(); saferTotal(); updateLaunchPricingLabels(); }
 new MutationObserver(run).observe(document.documentElement, { subtree: true, childList: true });
 run();
