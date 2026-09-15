@@ -9,7 +9,7 @@ export const config = {
   },
 };
 
-const ALLOWED_PLANS = new Set(['base', 'report', 'whatsapp', 'tari']);
+const ALLOWED_PLANS = new Set(['base', 'isee', 'report', 'whatsapp', 'pec', 'tari']);
 const WEBHOOK_TOLERANCE_SECONDS = 300;
 
 function clean(value, max = 500) {
@@ -254,16 +254,29 @@ function customerEmail(order, hasAttachment = false) {
     'info@bonusfatto.it',
   ];
 
+  if (order.plan === 'isee') {
+    return {
+      subject: `BonusFatto - Analisi con ISEE ${code}`,
+      body: [
+        ...commonHeader,
+        'Hai acquistato Analisi con ISEE - immediata.',
+        'Al termine del pagamento vieni portato alla pagina dedicata dove puoi caricare l’attestazione ISEE 2026 e completare l’analisi con poche domande mirate.',
+        'Se hai chiuso la pagina, puoi riaprire il collegamento dalla cronologia del browser immediatamente dopo il pagamento.',
+        ...commonFooter,
+      ].join('\r\n'),
+    };
+  }
+
   if (order.plan === 'report') {
     return {
       subject: `BonusFatto - relazione PDF e ordine ${code}`,
       body: [
         ...commonHeader,
-        'Hai acquistato Analisi + relazione PDF.',
+        'Hai acquistato la Relazione PDF personalizzata.',
         hasAttachment
           ? 'Trovi in allegato la tua relazione BonusFatto personalizzata in formato PDF, già predisposta con i dati del tuo ordine.'
           : 'La tua relazione BonusFatto personalizzata è disponibile nella pagina post-pagamento.',
-        'Nel documento trovi il riepilogo delle opportunità individuate, la sezione TARI, le verifiche ancora necessarie e il testo email/PEC personalizzato da utilizzare con l’Ufficio Tributi del Comune.',
+        'Nel documento trovi il riepilogo delle opportunità individuate, la sezione TARI e il testo email/PEC personalizzato da utilizzare con l’Ufficio Tributi del Comune.',
         'Puoi inoltre scaricare nuovamente la relazione dalla pagina BonusFatto aperta dopo il pagamento.',
         ...commonFooter,
       ].join('\r\n'),
@@ -281,6 +294,19 @@ function customerEmail(order, hasAttachment = false) {
         phoneLine,
         consentLine,
         'Riceverai su WhatsApp gli avvisi collegati a scadenze e nuovi bonus previsti dal servizio acquistato.',
+        ...commonFooter,
+      ].join('\r\n'),
+    };
+  }
+
+  if (order.plan === 'pec') {
+    return {
+      subject: `BonusFatto - servizio invio PEC ${code}`,
+      body: [
+        ...commonHeader,
+        'Hai acquistato il servizio Invio PEC al Comune.',
+        'Dopo il pagamento vieni portato alla pagina dove inserire destinatario PEC, oggetto, testo e allegati.',
+        'BonusFatto prenderà in carico l’invio e ti trasmetterà all’indirizzo email dell’ordine le ricevute disponibili.',
         ...commonFooter,
       ].join('\r\n'),
     };
@@ -321,7 +347,7 @@ function customerEmail(order, hasAttachment = false) {
     subject: `BonusFatto - ordine ${code} confermato`,
     body: [
       ...commonHeader,
-      'Hai acquistato l’Analisi completa.',
+      'Hai acquistato l’Analisi veloce.',
       'Il risultato dettagliato è disponibile immediatamente al rientro su BonusFatto.it dopo il pagamento.',
       'Se hai già chiuso la pagina, conserva questa email come conferma del pagamento: l’ordine risulta registrato correttamente.',
       ...commonFooter,
@@ -423,7 +449,7 @@ export default async function handler(req, res) {
             contentType: 'application/pdf',
             data: tariDelegationPdf,
           }
-      : null;
+        : null;
     try {
       const tariSmtp = plan === 'tari'
         ? {
