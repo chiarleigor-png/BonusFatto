@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BonusFatto - Test questionario avanzato 2026</title>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color:#252722;background:#f3f0e7}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px}.card{width:min(680px,100%);background:#fffdf7;border-radius:24px;padding:30px;box-shadow:0 24px 70px #0002}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.brand{font-weight:900;font-size:20px}.brand span{color:#6f934f}.count{font-size:13px;color:#6b7068}.bar{height:8px;background:#e7e8df;border-radius:99px;overflow:hidden;margin:18px 0 28px}.bar i{display:block;height:100%;background:#657f56;width:0;transition:.2s}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:#697163;text-transform:uppercase}h1{font-size:30px;line-height:1.12;margin:8px 0 10px}p{line-height:1.5;color:#656a63}.options{display:grid;gap:10px;margin-top:20px}.opt{border:1px solid #dfe1d7;background:#fff;border-radius:14px;padding:15px;text-align:left;font:inherit;cursor:pointer}.opt:hover,.opt.sel{border-color:#657f56;background:#f1f6ec;font-weight:700}.input{width:100%;border:1px solid #d8dbd2;border-radius:14px;padding:14px;font:inherit;margin-top:18px}.ages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}.ages label{font-size:12px;font-weight:700}.ages input{width:100%;margin-top:5px;border:1px solid #d8dbd2;border-radius:12px;padding:12px}.actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.btn{border:0;border-radius:999px;padding:12px 19px;font-weight:800;cursor:pointer}.back{background:#ebece6}.next{background:#252d27;color:white}.btn:disabled{opacity:.4}.error{color:#a34135;font-size:13px}.summary{display:grid;gap:8px;margin-top:18px}.summary div{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #eceee7;padding:9px 0;font-size:14px}.done{background:#eef5e9;border-radius:16px;padding:16px;margin-top:18px}@media(max-width:560px){.card{padding:22px 18px}.ages{grid-template-columns:1fr}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="top"><div class="brand">BonusFatto<span>.it</span></div><div class="count" id="count"></div></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div id="app"></div>
+</main>
+<script>
+const A={children:3};
+const base=[
+{id:'household',q:'Quante persone fanno parte del nucleo familiare?',h:'Serve per alcune agevolazioni collegate alla composizione del nucleo e ai consumi.',t:'num',min:1,max:15},
+{id:'childAges',q:'Quanti anni hanno i figli a carico?',h:'L’età incide su Assegno unico, Carta acquisti, nido, Bonus mamme e altre misure.',t:'ages',when:a=>a.children>0},
+{id:'event2026',q:'Nel 2026 c’è stata una nascita, adozione o affidamento preadottivo?',h:'Serve per Bonus nuovi nati e Assegno di maternità dei Comuni.',t:'choice',o:[['no','No'],['birth','Sì, nascita'],['adoption','Sì, adozione'],['foster','Sì, affidamento preadottivo']],when:a=>a.children>0},
+{id:'nursery',q:'Un figlio tra 0 e 3 anni frequenta un asilo nido o servizio educativo ammesso?',h:'Per il contributo servono età idonea e spese documentate.',t:'choice',o:[['yes','Sì'],['no','No']],when:a=>a.children>0},
+{id:'disability',q:'Nel nucleo è presente una persona con disabilità?',h:'Può incidere su ADI, AUU e altre prestazioni specifiche.',t:'choice',o:[['yes','Sì'],['no','No']]},
+{id:'over65',q:'Nel nucleo c’è almeno una persona di 65 anni o più?',h:'Dato utile per Carta acquisti e altre misure dedicate.',t:'choice',o:[['yes','Sì'],['no','No']]},
+{id:'housing',q:'Qual è la situazione dell’abitazione principale?',h:'Affitto o proprietà incidono su alcune misure e detrazioni.',t:'choice',o:[['rent','In affitto'],['owner','Di proprietà / diritto reale'],['other','Altra situazione']]},
+{id:'unemployed',q:'Nel nucleo c’è una persona tra 18 e 59 anni senza lavoro e disponibile a formazione o inserimento lavorativo?',h:'Serve per intercettare correttamente il Supporto per la Formazione e il Lavoro.',t:'choice',o:[['yes','Sì'],['no','No']]},
+{id:'disadvantage',q:'Un componente è in condizione di svantaggio certificata e inserito in un programma di cura o assistenza?',h:'Può rilevare per l’Assegno di Inclusione.',t:'choice',o:[['yes','Sì'],['no','No'],['unknown','Non so']]},
+{id:'motherWork',q:'La madre dei figli è attualmente lavoratrice?',h:'Serve per verificare il Bonus mamme 2026.',t:'choice',o:[['employee','Sì, dipendente'],['self','Sì, autonoma'],['domestic','Sì, lavoro domestico'],['no','No']],when:a=>a.children>=2},
+{id:'motherIncome',q:'Il reddito annuo da lavoro della madre è entro 40.000 euro?',h:'Non è l’ISEE: qui conta il reddito personale da lavoro.',t:'choice',o:[['yes','Sì'],['no','No'],['unknown','Non so']],when:a=>['employee','self','domestic'].includes(a.motherWork)},
+{id:'maternityBenefit',q:'Per l’evento 2026 è già riconosciuta un’indennità economica di maternità?',h:'Serve per valutare l’Assegno di maternità dei Comuni.',t:'choice',o:[['yes','Sì'],['no','No'],['unknown','Non so']],when:a=>a.event2026&&a.event2026!=='no'},
+{id:'renovation',q:'Nel 2026 hai sostenuto o prevedi spese di ristrutturazione sull’abitazione?',h:'Così la detrazione viene segnalata solo quando pertinente.',t:'choice',o:[['yes','Sì'],['no','No']]}
+];
+let i=0;const app=document.getElementById('app'),bar=document.getElementById('bar'),count=document.getElementById('count');
+function steps(){return base.filter(s=>!s.when||s.when(A))}
+function label(v){const m={yes:'Sì',no:'No',unknown:'Non so',rent:'Affitto',owner:'Proprietà',other:'Altro',employee:'Dipendente',self:'Autonoma',domestic:'Lavoro domestico',birth:'Nascita',adoption:'Adozione',foster:'Affidamento'};return m[v]||v}
+function render(){const s=steps();if(i>=s.length)return finish();const x=s[i];count.textContent=`Domanda ${i+1} di ${s.length}`;bar.style.width=`${Math.round((i+1)/s.length*100)}%`;let body='';if(x.t==='choice')body='<div class="options">'+x.o.map(([v,l])=>`<button class="opt ${A[x.id]===v?'sel':''}" data-v="${v}">${l}</button>`).join('')+'</div>';if(x.t==='num')body=`<input class="input" id="num" type="number" min="${x.min}" max="${x.max}" value="${A[x.id]||''}" placeholder="Es. 5">`;if(x.t==='ages')body='<div class="ages">'+Array.from({length:A.children},(_,n)=>`<label>Figlio ${n+1}<input class="age" type="number" min="0" max="40" value="${(A.childAges||[])[n]??''}" placeholder="Età"></label>`).join('')+'</div>';app.innerHTML=`<div class="eyebrow">Profilo bonus 2026</div><h1>${x.q}</h1><p>${x.h}</p>${body}<p class="error" id="err" hidden>Completa la risposta per continuare.</p><div class="actions"><button class="btn back" id="back" ${i===0?'disabled':''}>Indietro</button><button class="btn next" id="next">Continua</button></div>`;document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{A[x.id]=b.dataset.v;render()});document.getElementById('back').onclick=()=>{if(i>0){i--;render()}};document.getElementById('next').onclick=()=>{let ok=true;if(x.t==='num'){const n=Number(document.getElementById('num').value);ok=Number.isInteger(n)&&n>=x.min&&n<=x.max;if(ok)A[x.id]=n}if(x.t==='ages'){const v=[...document.querySelectorAll('.age')].map(e=>Number(e.value));ok=v.length===A.children&&v.every(n=>Number.isFinite(n)&&n>=0&&n<=40);if(ok)A.childAges=v}if(x.t==='choice')ok=!!A[x.id];if(!ok){document.getElementById('err').hidden=false;return}i++;render()}}
+function finish(){count.textContent='Profilo completato';bar.style.width='100%';const rows=Object.entries(A).filter(([k])=>k!=='children').map(([k,v])=>`<div><span>${k}</span><strong>${Array.isArray(v)?v.join(', '):label(v)}</strong></div>`).join('');app.innerHTML=`<div class="eyebrow">Test completato</div><h1>Profilo bonus raccolto ✅</h1><p>Questa è solo la pagina di collaudo del questionario: non modifica il calcolo, il checkout, le email o le pratiche TARI del sito.</p><div class="summary">${rows}</div><div class="done">Quando la sequenza è approvata, colleghiamo questi dati al motore BonusFatto.</div><div class="actions"><button class="btn back" onclick="location.reload()">Ricomincia</button></div>`}
+render();
+</script>
+</body>
+</html>
