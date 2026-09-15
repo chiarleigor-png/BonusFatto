@@ -103,13 +103,15 @@ function enhancePaywall() {
   stack.className = 'bf-offer-stack';
   stack.append(
     makeOffer({ tag: 'ANALISI VELOCE', title: 'Risultato immediato in circa 30 secondi', price: '2,99 €', plan: 'base', description: 'Sblocca subito l’analisi dei bonus compatibili con i dati inseriti.', items: ['Risultato immediato', 'Tutte le agevolazioni individuate', 'Importi stimabili, requisiti e prossimi passi'], button: 'Sblocca analisi · 2,99 €' }),
+    makeOffer({ type: 'isee', tag: 'ANALISI CON ISEE · IMMEDIATA', title: 'Carica il tuo ISEE 2026', price: '6,90 €', plan: 'isee', description: 'Carica l’attestazione ISEE: BonusFatto legge i dati disponibili e completa l’analisi con poche domande mirate.', items: ['Caricamento attestazione ISEE', 'Lettura automatica dei dati disponibili', 'Analisi immediata più precisa'], button: 'Analizza il mio ISEE · 6,90 €' }),
     makeOffer({ type: 'report', tag: 'RELAZIONE PERSONALIZZATA', title: 'Relazione PDF pronta da conservare', price: '4,90 €', plan: 'report', description: 'Ricevi una relazione personalizzata con riepilogo bonus, TARI e modello email/PEC per il Comune.', items: ['Relazione PDF personalizzata', 'Riepilogo bonus e prossimi passi', 'Modello email/PEC TARI'], button: 'Ottieni relazione · 4,90 €' }),
     makeOffer({ type: 'whatsapp', tag: 'BONUS ALERT WHATSAPP', title: 'Scadenze e nuovi bonus via WhatsApp', price: '6,90 €', plan: 'whatsapp', description: 'Ricevi per 12 mesi avvisi sulle principali scadenze e sui nuovi bonus coerenti con il profilo indicato.', items: ['Avvisi principali sulle scadenze', 'Segnalazioni nuovi bonus', 'Servizio per 12 mesi con consenso dedicato'], button: 'Attiva Bonus Alert · 6,90 €' }),
+    makeOffer({ type: 'pec', tag: 'INVIO PEC AL COMUNE', title: 'Prepariamo e inviamo la PEC per te', price: '14,90 €', plan: 'pec', description: 'Dopo il pagamento inserisci destinatario, oggetto, testo e allegati. BonusFatto prende in carico l’invio e ti trasmette le ricevute disponibili.', items: ['Compilazione guidata', 'Controllo formale dei dati', 'Invio PEC da parte nostra', 'Ricevute disponibili'], button: 'Affida a noi la PEC · 14,90 €' }),
     makeOffer({ type: 'tari-service', tag: 'GESTIONE COMPLETA PRATICA TARI', title: 'Pensiamo noi alla richiesta al Comune', price: '19,90 €', plan: 'tari', description: 'BonusFatto predispone la richiesta, verifica gli allegati e la trasmette per tuo conto all’Ufficio Tributi attraverso il canale previsto, inclusa PEC quando ammessa.', items: ['Predisposizione della richiesta', 'Verifica degli allegati', 'Trasmissione per tuo conto al Comune', 'Copia della pratica e ricevute disponibili'], button: 'Gestisci pratica TARI · 19,90 €' })
   );
 
   const grid = shell.querySelector('.plan-grid');
-  if (grid) { grid.before(preview); grid.after(stack); } else { shell.append(preview, stack); }
+  if (grid) { grid.style.display = 'none'; grid.before(preview); grid.after(stack); } else { shell.append(preview, stack); }
   const data = payload(shell);
   stack.querySelectorAll('.bf-offer-button').forEach((button) => button.onclick = () => openBillingForm(button.dataset.plan, data));
 }
@@ -138,6 +140,9 @@ function updateLaunchPricingLabels() {
     const note = box.querySelector('p');
     if (label === 'CHECKOUT' && value) { value.textContent = '2,99 €'; if (note) note.textContent = 'analisi veloce'; }
     if (label === 'REPORT' && value) { value.textContent = '4,90 €'; if (note) note.textContent = 'relazione PDF'; }
+  });
+  document.querySelectorAll('.news-box span').forEach((node) => {
+    if (node.textContent.includes('pacchetto da 9,90')) node.textContent = 'Puoi scegliere anche Analisi con ISEE immediata a 6,90 €.';
   });
 }
 
