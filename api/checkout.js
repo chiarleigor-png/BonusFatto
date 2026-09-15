@@ -1,10 +1,10 @@
 import { randomBytes } from 'node:crypto';
 
 const PLANS = {
-  base: { name: 'BonusFatto - Analisi completa', amount: 499 },
-  report: { name: 'BonusFatto - Relazione PDF + modello email/PEC TARI', amount: 100 },
-  whatsapp: { name: 'BonusFatto - Bonus Alert WhatsApp 12 mesi', amount: 999 },
-  tari: { name: 'BonusFatto - Presentazione pratica TARI', amount: 2490 },
+  base: { name: 'BonusFatto - Analisi veloce immediata', amount: 299 },
+  report: { name: 'BonusFatto - Relazione PDF personalizzata', amount: 490 },
+  whatsapp: { name: 'BonusFatto - Bonus Alert WhatsApp 12 mesi', amount: 690 },
+  tari: { name: 'BonusFatto - Gestione completa pratica TARI', amount: 1990 },
 };
 
 function siteOrigin(req) {
