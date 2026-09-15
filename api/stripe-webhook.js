@@ -1,6 +1,7 @@
 import tls from 'node:tls';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createBonusFattoReport } from '../lib/reportPdf.js';
+import { createTariDelegationPdf } from '../lib/tariDelegationPdf.js';
 
 export const config = {
   api: {
@@ -130,10 +131,10 @@ function wrapBase64(buffer) {
   return Buffer.from(buffer).toString('base64').match(/.{1,76}/g)?.join('\r\n') || '';
 }
 
-async function sendMail(to, subject, body, attachment = null) {
+async function sendMail(to, subject, body, attachment = null, smtpAccount = null) {
   const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
-  const user = validRecipient(process.env.SMTP_USER);
-  const password = String(process.env.SMTP_PASSWORD || '');
+  const user = validRecipient(smtpAccount?.user || process.env.SMTP_USER);
+  const password = String(smtpAccount?.password || process.env.SMTP_PASSWORD || '');
   const recipient = validRecipient(to);
   if (!host || !user || !password || !recipient) throw new Error('Configurazione SMTP o destinatario non validi.');
 
@@ -287,13 +288,31 @@ function customerEmail(order, hasAttachment = false) {
 
   if (order.plan === 'tari') {
     return {
-      subject: `BonusFatto - pratica TARI aperta (${code})`,
+      subject: `BonusFatto - delega da firmare per la pratica TARI ${code}`,
       body: [
         ...commonHeader,
         'La tua pratica TARI è stata aperta correttamente.',
-        'Il prossimo passaggio è la raccolta dei documenti necessari e della delega firmata per consentire a BonusFatto di predisporre e trasmettere la richiesta al Comune attraverso il canale previsto.',
-        'Riceverai le istruzioni per documenti e delega sullo stesso indirizzo email utilizzato per l’acquisto.',
-        ...commonFooter,
+        hasAttachment
+          ? 'In allegato trovi la delega già precompilata con i dati disponibili del tuo ordine.'
+          : 'Ti contatteremo da questa casella per completare la delega necessaria.',
+        '',
+        'Per proseguire:',
+        '1. stampa la delega allegata;',
+        '2. controlla i dati e completa gli eventuali campi mancanti;',
+        '3. firma a penna nello spazio indicato;',
+        '4. rispondi direttamente a questa email allegando:',
+        '   - la delega firmata, completa e leggibile;',
+        '   - il documento di identità in corso di validità, fronte e retro;',
+        '   - l’eventuale documentazione TARI disponibile (avviso, bolletta, codice utenza o comunicazioni del Comune).',
+        '',
+        `Indica sempre il codice pratica ${code} nell’oggetto delle comunicazioni.`,
+        'Dopo la verifica degli allegati predisporremo la richiesta e la trasmetteremo all’Ufficio Tributi attraverso il canale previsto dal Comune, inclusa PEC quando ammessa. Ti invieremo copia della pratica e delle ricevute disponibili.',
+        '',
+        'Questa email conferma il pagamento e l’apertura della pratica; non attesta ancora la completezza dei documenti né l’avvenuta presentazione al Comune.',
+        '',
+        'BonusFatto.it',
+        'Servizio gestito da LU.CA. S.r.l.s.',
+        'pratiche@bonusfatto.it',
       ].join('\r\n'),
     };
   }
@@ -369,9 +388,14 @@ export default async function handler(req, res) {
     }
 
     let reportPdf = null;
+    let tariDelegationPdf = null;
     if (plan === 'report') {
       reportPdf = await createBonusFattoReport(pendingOrder);
       if (!Buffer.isBuffer(reportPdf) || reportPdf.length < 500) throw new Error('PDF relazione non generato correttamente.');
+    }
+    if (plan === 'tari') {
+      tariDelegationPdf = await createTariDelegationPdf(pendingOrder);
+      if (!Buffer.isBuffer(tariDelegationPdf) || tariDelegationPdf.length < 500) throw new Error('PDF delega TARI non generato correttamente.');
     }
 
     const paidOrder = await markPaid(session);
@@ -385,21 +409,40 @@ export default async function handler(req, res) {
       console.error('BonusFatto internal order email failed', mailError?.message || mailError);
     }
 
-    const customer = customerEmail(paidOrder, Boolean(reportPdf));
+    const customerAttachment = reportPdf || tariDelegationPdf;
+    const customer = customerEmail(paidOrder, Boolean(customerAttachment));
     const attachment = reportPdf
       ? {
           filename: `BonusFatto_Relazione_${clean(paidOrder.order_code, 80).replace(/[^A-Za-z0-9_-]/g, '')}.pdf`,
           contentType: 'application/pdf',
           data: reportPdf,
         }
+      : tariDelegationPdf
+        ? {
+            filename: `BonusFatto_Delega_TARI_${clean(paidOrder.order_code, 80).replace(/[^A-Za-z0-9_-]/g, '')}.pdf`,
+            contentType: 'application/pdf',
+            data: tariDelegationPdf,
+          }
       : null;
     try {
-      await sendMail(paidOrder.customer_email, customer.subject, customer.body, attachment);
+      const tariSmtp = plan === 'tari'
+        ? {
+            user: validRecipient(process.env.PRACTICHE_SMTP_USER),
+            password: String(process.env.PRACTICHE_SMTP_PASSWORD || ''),
+          }
+        : null;
+      await sendMail(paidOrder.customer_email, customer.subject, customer.body, attachment, tariSmtp);
     } catch (mailError) {
       console.error('BonusFatto customer order email failed', mailError?.message || mailError);
     }
 
-    return res.status(200).json({ received: true, processed: true, order_code: paidOrder.order_code, report_attached: Boolean(reportPdf) });
+    return res.status(200).json({
+      received: true,
+      processed: true,
+      order_code: paidOrder.order_code,
+      report_attached: Boolean(reportPdf),
+      tari_delegation_attached: Boolean(tariDelegationPdf),
+    });
   } catch (error) {
     console.error('BonusFatto Stripe webhook failed', error?.message || error);
     return res.status(500).json({ error: 'Errore elaborazione webhook.' });
