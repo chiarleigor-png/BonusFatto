@@ -146,6 +146,18 @@ function updateLaunchPricingLabels() {
   });
 }
 
-function run() { enhancePaywall(); saferTotal(); updateLaunchPricingLabels(); }
+function injectIseeHomeCta() {
+  const hero = document.querySelector('.hero-copy');
+  if (!hero || hero.querySelector('.bf-isee-direct')) return;
+  const a = document.createElement('a');
+  a.className = 'bf-isee-direct';
+  a.href = '/isee-start/';
+  a.textContent = 'Oppure carica il tuo ISEE · Analisi immediata 6,90 €';
+  a.style.cssText = 'display:inline-flex;margin:12px 0 4px;padding:12px 16px;border-radius:12px;background:#eef7f1;color:#215f40;font-weight:800;text-decoration:none;border:1px solid #c9dfd0';
+  const desc = hero.querySelector('.hero-description');
+  if (desc) desc.insertAdjacentElement('afterend', a); else hero.appendChild(a);
+}
+
+function run() { enhancePaywall(); saferTotal(); updateLaunchPricingLabels(); injectIseeHomeCta(); }
 new MutationObserver(run).observe(document.documentElement, { subtree: true, childList: true });
 run();
