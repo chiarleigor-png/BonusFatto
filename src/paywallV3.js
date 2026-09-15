@@ -1,11 +1,22 @@
 import { openBillingForm } from './billingForm.js';
 
 const childrenStorageKey = 'bonusfatto_checkout_children';
+const profileStorageKey = 'bonusfatto_profile_2026';
 
 function validChildren(value) {
   if (value == null || String(value).trim() === '') return null;
   const children = Number(value);
   return Number.isSafeInteger(children) && children >= 0 ? children : null;
+}
+
+function readProfile() {
+  try {
+    const raw = localStorage.getItem(profileStorageKey);
+    const profile = raw ? JSON.parse(raw) : null;
+    return profile && typeof profile === 'object' ? profile : null;
+  } catch {
+    return window.__bonusFattoProfile2026 || null;
+  }
 }
 
 document.addEventListener('submit', (event) => {
@@ -27,7 +38,12 @@ function euroNumber(value) {
 function payload(shell) {
   const lead = shell.querySelector('.paywall-heading .lead')?.textContent || '';
   const parts = lead.split('·').map((item) => item.trim());
-  return { comune: parts[0] || '', isee: euroNumber((parts[1] || '').replace(/^ISEE\s*/i, '')), figli: validChildren(sessionStorage.getItem(childrenStorageKey)) ?? 0 };
+  return {
+    comune: parts[0] || '',
+    isee: euroNumber((parts[1] || '').replace(/^ISEE\s*/i, '')),
+    figli: validChildren(sessionStorage.getItem(childrenStorageKey)) ?? 0,
+    profile: readProfile(),
+  };
 }
 
 function previewNames(shell) {
@@ -110,9 +126,9 @@ function saferTotal() {
   const note = card.querySelector(':scope > p');
   if (label) label.textContent = 'BENEFICIO ANNUALE STIMATO DAI DATI DISPONIBILI';
   if (total && annual) total.textContent = `circa ${annual}`;
-  if (note) note.textContent = 'Stima orientativa: l’importo effettivo può essere inferiore o non spettare in presenza di ulteriori requisiti.';
+  if (note) note.textContent = 'Stima orientativa: l’importo effettivo può dipendere dalle verifiche dell’ente e dalle condizioni dichiarate.';
   if (rows[1]?.querySelector('span')) rows[1].querySelector('span').textContent = 'Ulteriori massimali / una tantum';
-  if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = 'Da verificare';
+  if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = 'Vedi dettaglio';
 }
 
 function run() { enhancePaywall(); saferTotal(); }
