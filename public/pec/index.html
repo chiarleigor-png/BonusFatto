@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invio PEC · BonusFatto</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#20231f;background:#f5f1e7}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:auto;padding:24px}.brand{font-weight:800;font-size:24px;color:#1f5c41}.brand b{color:#2f7b52}.card{background:#fff;border:1px solid #ddd8cc;border-radius:24px;padding:24px;box-shadow:0 16px 50px rgba(0,0,0,.06);margin-top:18px}h1{font-size:34px;margin:0 0 8px}.lead{color:#60675f;line-height:1.5}.badge{display:inline-flex;padding:7px 11px;border-radius:999px;background:#e9f5ee;color:#236242;font-size:12px;font-weight:800}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-weight:700;font-size:14px}input,textarea{width:100%;margin-top:7px;padding:12px;border:1px solid #cfd4cb;border-radius:12px;font:inherit;background:#fff}textarea{min-height:180px;resize:vertical}button{border:0;border-radius:12px;padding:13px 18px;background:#256a48;color:#fff;font-weight:800;font-size:16px;cursor:pointer}.small{font-size:12px;color:#6f756d}.status{margin-top:12px;font-weight:700}.error{color:#a33}.ok{color:#256a48}.note{background:#f8f6ef;border-radius:14px;padding:14px;color:#5b625a;line-height:1.45}@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}h1{font-size:29px}.wrap{padding:14px}.card{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Bonus<b>Fatto.it</b></div>
+  <div class="card">
+    <span class="badge">INVIO PEC AL COMUNE</span>
+    <h1>Prepara la PEC da inviare</h1>
+    <p class="lead">Compila i dati della comunicazione e allega i documenti. BonusFatto prenderà in carico l’invio dalla casella PEC aziendale e ti trasmetterà le ricevute disponibili.</p>
+    <div id="verify" class="status">Verifica pagamento…</div>
+  </div>
+
+  <div class="card" id="flow" hidden>
+    <div class="grid">
+      <label class="full">PEC destinatario<input id="recipient" type="email" placeholder="ufficio.tributi@pec.comune.it"></label>
+      <label class="full">Oggetto<input id="subject" placeholder="Richiesta agevolazione TARI 2026"></label>
+      <label class="full">Testo della PEC<textarea id="message" placeholder="Scrivi qui il testo da inviare al Comune"></textarea></label>
+      <label class="full">Allegati <span class="small">PDF/JPG/PNG, massimo 5 file</span><input id="attachments" type="file" multiple accept="application/pdf,image/jpeg,image/png"></label>
+    </div>
+    <div class="note" style="margin-top:16px"><strong>Prima dell’invio</strong><br>Controlleremo che destinatario, oggetto e allegati siano presenti. L’invio sarà eseguito da BonusFatto e le ricevute disponibili saranno inoltrate all’email usata per l’acquisto.</div>
+    <div style="margin-top:18px"><button id="submitBtn">Invia richiesta a BonusFatto</button></div>
+    <div id="status" class="status"></div>
+  </div>
+</div>
+<script type="module">
+const sessionId=new URLSearchParams(location.search).get('session_id');
+const verify=document.getElementById('verify');const flow=document.getElementById('flow');const recipient=document.getElementById('recipient');const subject=document.getElementById('subject');const message=document.getElementById('message');const attachments=document.getElementById('attachments');const submitBtn=document.getElementById('submitBtn');const status=document.getElementById('status');
+let data=null;
+async function init(){try{const r=await fetch(`/api/verify-checkout?session_id=${encodeURIComponent(sessionId||'')}`);const d=await r.json();if(!r.ok||d.plan!=='pec')throw new Error(d.error||'Pagamento non valido.');data=d;verify.textContent='Pagamento verificato ✓';verify.className='status ok';flow.hidden=false;subject.value=`Richiesta agevolazioni TARI 2026 – Comune ${d.comune}`;message.value=`Gentile Ufficio Tributi del Comune di ${d.comune},\n\ncon la presente chiedo informazioni e, ove previsto, l’applicazione delle agevolazioni TARI 2026 compatibili con il mio ISEE.\n\nResto a disposizione per eventuali integrazioni documentali.\n\nCordiali saluti.`;}catch(e){verify.textContent=e.message;verify.className='status error'}}init();
+function toBase64(file){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]||'');fr.onerror=reject;fr.readAsDataURL(file)})}
+submitBtn.addEventListener('click',async()=>{status.textContent='';status.className='status';if(!recipient.value.trim()||!subject.value.trim()||!message.value.trim()){status.textContent='Compila destinatario, oggetto e testo.';status.className='status error';return}const files=[...attachments.files].slice(0,5);if(files.some(f=>f.size>4_500_000)){status.textContent='Ogni allegato deve essere inferiore a 4,5 MB.';status.className='status error';return}submitBtn.disabled=true;submitBtn.textContent='Presa in carico…';try{const encoded=[];for(const f of files)encoded.push({name:f.name,type:f.type,data:await toBase64(f)});const r=await fetch('/api/pec-submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,recipient:recipient.value,subject:subject.value,message:message.value,attachments:encoded})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Invio non disponibile.');status.textContent=d.message;status.className='status ok';submitBtn.textContent='Richiesta presa in carico ✓';}catch(e){status.textContent=e.message;status.className='status error';submitBtn.disabled=false;submitBtn.textContent='Invia richiesta a BonusFatto';}});
+</script>
+</body></html>
