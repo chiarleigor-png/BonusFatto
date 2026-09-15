@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analisi con ISEE · BonusFatto</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#20231f;background:#f5f1e7}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:auto;padding:24px}.brand{font-weight:800;font-size:24px;color:#1f5c41}.brand b{color:#2f7b52}.card{background:#fff;border:1px solid #ddd8cc;border-radius:24px;padding:24px;box-shadow:0 16px 50px rgba(0,0,0,.06);margin-top:18px}h1{font-size:34px;margin:0 0 8px}h2{font-size:21px}.lead{color:#60675f;line-height:1.5}.badge{display:inline-flex;padding:7px 11px;border-radius:999px;background:#e9f5ee;color:#236242;font-size:12px;font-weight:800}.drop{border:2px dashed #afbaa8;border-radius:20px;padding:28px;text-align:center;background:#faf9f5}.drop input{margin-top:12px}.status{margin-top:12px;font-weight:700}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-weight:700;font-size:14px}input,select{width:100%;margin-top:7px;padding:12px;border:1px solid #cfd4cb;border-radius:12px;font:inherit;background:#fff}button{border:0;border-radius:12px;padding:13px 18px;background:#256a48;color:#fff;font-weight:800;font-size:16px;cursor:pointer}.secondary{background:#ecefe9;color:#253029}.result{display:none}.benefit{border-top:1px solid #e7e5df;padding:15px 0}.benefit:first-child{border-top:0}.amount{font-weight:800}.small{font-size:12px;color:#6f756d}.error{color:#a33}.ok{color:#256a48}@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}h1{font-size:29px}.wrap{padding:14px}.card{padding:18px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Bonus<b>Fatto.it</b></div>
+  <div class="card">
+    <span class="badge">ANALISI CON ISEE · IMMEDIATA</span>
+    <h1>Carica il tuo ISEE 2026</h1>
+    <p class="lead">Leggiamo automaticamente il valore ISEE disponibile nel PDF. Poi ti chiediamo solo poche informazioni che l’attestazione non contiene.</p>
+    <div id="verify" class="status">Verifica pagamento…</div>
+  </div>
+
+  <div class="card" id="flow" hidden>
+    <div class="drop">
+      <strong>Carica l’attestazione ISEE 2026 in PDF</strong><br>
+      <span class="small">Il file viene letto nel tuo browser per ricavare il valore ISEE. Se il PDF non contiene testo selezionabile potrai inserire il valore manualmente.</span><br>
+      <input id="file" type="file" accept="application/pdf" />
+      <div id="extractStatus" class="status"></div>
+    </div>
+
+    <h2>Conferma i dati</h2>
+    <div class="grid">
+      <label>Comune<input id="comune" readonly></label>
+      <label>ISEE (€)<input id="isee" type="number" min="0" step="0.01"></label>
+      <label>Numero figli a carico<input id="children" type="number" min="0" max="10" step="1"></label>
+      <label>Età dei figli <span class="small">se presenti, separate da virgola</span><input id="ages" placeholder="Es. 8, 4"></label>
+      <label>Utenze domestiche intestate a un componente del nucleo?<select id="utilities"><option value="yes">Sì</option><option value="no">No</option></select></label>
+      <label>Nel nucleo c’è una persona con almeno 60 anni?<select id="over60"><option value="no">No</option><option value="yes">Sì</option></select></label>
+      <label>Nel nucleo c’è una persona con disabilità?<select id="disability"><option value="no">No</option><option value="yes">Sì</option></select></label>
+      <label>C’è un componente 18–59 anni senza lavoro e disponibile a formazione/lavoro?<select id="unemployed"><option value="no">No</option><option value="yes">Sì</option></select></label>
+      <label>Casa principale<select id="housing"><option value="rent">Affitto</option><option value="owner">Proprietà / diritto reale</option><option value="other">Altro</option></select></label>
+      <label>Hai sostenuto spese di ristrutturazione nel 2026?<select id="renovation"><option value="no">No</option><option value="yes">Sì</option></select></label>
+    </div>
+    <div style="margin-top:18px"><button id="analyze">Mostrami i bonus</button></div>
+    <div id="error" class="status error"></div>
+  </div>
+
+  <div class="card result" id="result">
+    <span class="badge">RISULTATO IMMEDIATO</span>
+    <h2 id="summary"></h2>
+    <div id="benefits"></div>
+    <div style="margin-top:18px"><button class="secondary" onclick="location.href='/'">Torna a BonusFatto</button></div>
+  </div>
+</div>
+
+<script type="module">
+const params=new URLSearchParams(location.search);const sessionId=params.get('session_id');let sessionData=null;
+const verify=document.getElementById('verify'),flow=document.getElementById('flow');
+async function init(){
+  try{
+    const r=await fetch(`/api/verify-checkout?session_id=${encodeURIComponent(sessionId||'')}`);const d=await r.json();if(!r.ok||d.plan!=='isee')throw new Error(d.error||'Pagamento non valido.');
+    sessionData=d;verify.textContent='Pagamento verificato ✓';verify.className='status ok';flow.hidden=false;
+    comune.value=d.comune;isee.value=d.isee;children.value=d.figli;
+  }catch(e){verify.textContent=e.message;verify.className='status error';}
+}
+init();
+
+file.addEventListener('change',async()=>{
+  const f=file.files?.[0];if(!f)return;extractStatus.textContent='Lettura del PDF…';extractStatus.className='status';
+  try{
+    const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+    const data=new Uint8Array(await f.arrayBuffer());const pdf=await pdfjs.getDocument({data}).promise;let text='';
+    for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const c=await p.getTextContent();text+=' '+c.items.map(x=>x.str).join(' ');}
+    const near=[...text.matchAll(/ISEE[^0-9]{0,80}([0-9]{1,3}(?:\.[0-9]{3})*,[0-9]{2}|[0-9]+(?:,[0-9]{2})?)/gi)];
+    const raw=near[0]?.[1];if(raw){const n=Number(raw.replace(/\./g,'').replace(',','.'));if(Number.isFinite(n)){isee.value=n;extractStatus.textContent=`ISEE rilevato: ${n.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}`;extractStatus.className='status ok';return;}}
+    extractStatus.textContent='Non sono riuscito a leggere automaticamente il valore: inseriscilo nel campo ISEE qui sotto.';extractStatus.className='status';
+  }catch(e){extractStatus.textContent='PDF non leggibile automaticamente: inserisci il valore ISEE nel campo qui sotto.';extractStatus.className='status';}
+});
+
+analyze.addEventListener('click',async()=>{
+  error.textContent='';const n=Number(isee.value),c=Number(children.value);if(!Number.isFinite(n)||n<0||!Number.isInteger(c)||c<0){error.textContent='Controlla ISEE e numero figli.';return;}
+  const ages=agesEl.value.split(',').map(x=>Number(x.trim())).filter(Number.isFinite);
+  const profile={children:c,childAges:ages,electricitySupply:utilities.value==='yes'?'eligible':'none',gasSupply:utilities.value==='yes'?'eligible':'none',waterSupply:utilities.value==='yes'?'eligible':'none',over60:over60.value,over65:'no',disability:disability.value,unemployed:unemployed.value,housing:housing.value,renovation:renovation.value};
+  analyze.disabled=true;analyze.textContent='Analisi in corso…';
+  try{
+    const r=await fetch('/api/analyze-isee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sessionId,isee:n,children:c,comune:comune.value,profile})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Analisi non disponibile.');
+    summary.textContent=`${d.benefits.length} agevolazioni individuate per il tuo profilo`;
+    benefits.innerHTML=d.benefits.map(b=>`<div class="benefit"><strong>${escapeHtml(b.name)}</strong><div class="amount">${b.amount==null?'Importo non determinabile':Number(b.amount).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}${b.period?` · ${escapeHtml(b.period)}`:''}</div><div class="small">${escapeHtml(b.description||'')}</div></div>`).join('');
+    result.style.display='block';result.scrollIntoView({behavior:'smooth'});
+  }catch(e){error.textContent=e.message;}finally{analyze.disabled=false;analyze.textContent='Mostrami i bonus';}
+});
+const agesEl=document.getElementById('ages');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+</body>
+</html>
