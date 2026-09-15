@@ -15,7 +15,7 @@ const PLANS = {
   },
   tari: {
     name: 'BonusFatto - Presentazione pratica TARI',
-    amount: 2490,
+    amount: 100,
   },
 };
 
