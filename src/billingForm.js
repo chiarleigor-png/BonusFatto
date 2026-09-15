@@ -1,8 +1,10 @@
 export function openBillingForm(plan, payload) {
   const info = {
     base: ['Analisi veloce — immediata', '2,99 €'],
+    isee: ['Analisi con ISEE — immediata', '6,90 €'],
     report: ['Relazione PDF personalizzata', '4,90 €'],
     whatsapp: ['Bonus Alert WhatsApp', '6,90 €'],
+    pec: ['Invio PEC al Comune', '14,90 €'],
     tari: ['Gestione completa pratica TARI', '19,90 €'],
   }[plan] || ['Analisi veloce — immediata', '2,99 €'];
 
@@ -28,7 +30,7 @@ export function openBillingForm(plan, payload) {
           ${plan === 'whatsapp' ? '<label class="full">Numero WhatsApp<input type="tel" name="whatsapp" placeholder="+39 333 1234567" required /></label>' : ''}
         </div>
         ${plan === 'whatsapp' ? '<label class="bf-billing-consent"><input type="checkbox" name="waConsent" required /><span>Acconsento a ricevere su WhatsApp gli avvisi relativi a scadenze e nuovi bonus del servizio acquistato.</span></label>' : ''}
-        ${plan === 'tari' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> riceverai via email la delega precompilata da firmare e le istruzioni per inviare i documenti necessari a pratiche@bonusfatto.it.</p>' : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
+        ${plan === 'isee' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> verrai portato direttamente alla pagina per caricare la tua attestazione ISEE 2026 e ottenere l’analisi immediata.</p>' : plan === 'pec' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> compilerai destinatario, oggetto, testo e allegati della PEC. BonusFatto prenderà in carico l’invio e ti trasmetterà le ricevute disponibili.</p>' : plan === 'tari' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> riceverai via email la delega precompilata da firmare e le istruzioni per inviare i documenti necessari a pratiche@bonusfatto.it.</p>' : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
