@@ -133,8 +133,8 @@ function wrapBase64(buffer) {
 
 async function sendMail(to, subject, body, attachment = null, smtpAccount = null) {
   const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
-  const user = validRecipient(smtpAccount?.user || process.env.SMTP_USER);
-  const password = String(smtpAccount?.password || process.env.SMTP_PASSWORD || '');
+  const user = validRecipient(smtpAccount ? smtpAccount.user : process.env.SMTP_USER);
+  const password = String(smtpAccount ? smtpAccount.password : process.env.SMTP_PASSWORD || '');
   const recipient = validRecipient(to);
   if (!host || !user || !password || !recipient) throw new Error('Configurazione SMTP o destinatario non validi.');
 
