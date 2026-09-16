@@ -1,73 +1,51 @@
-import { getLocalTariBand, getPiemonteTariRule } from './tariPiemonte.js';
+import { calculate as calculateCore } from './benefitsCore.js';
+export * from './benefitsCore.js';
 
-export const euro = (n) => {
-  if (n === 'spetta') return 'Spetta';
-  if (n === 'compatibile') return 'Compatibile';
-  const value = Number(n);
-  if (!Number.isFinite(value)) return 'Da definire';
-  return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
-};
-
-export const MEDIA_TARI = { Roma:360, Milano:400, Torino:380, Napoli:340, Bologna:370, Firenze:350, Genova:360, Costarainera:285, Imperia:290 };
-export const DEADLINES = {
-  Roma:{date:'2026-02-28T23:59:59+01:00',label:'28 febbraio 2026',url:'https://www.comune.roma.it/web/it/notizia/esenzione-tari-2026-domande-entro-28-febbraio.page'},
-  Fiumicino:{date:'2026-03-16T23:59:59+01:00',label:'16 marzo 2026',url:'https://www.comune.fiumicino.rm.it/index.php/it/news/bando-agevolazioni-tari-2026'}
-};
-
-const PROFILE_KEY='bonusfatto_profile_2026';
-function readStoredProfile(){if(typeof window==='undefined')return{};if(window.__bonusFattoProfile2026)return window.__bonusFattoProfile2026;try{return JSON.parse(window.localStorage.getItem(PROFILE_KEY)||'{}')||{}}catch{return{}}}
-export function countdown(date,now=Date.now()){const remaining=Math.max(0,Math.floor((new Date(date).getTime()-now)/1000));return{expired:remaining===0,days:Math.floor(remaining/86400),hours:Math.floor(remaining/3600)%24,minutes:Math.floor(remaining/60)%60,seconds:remaining%60}}
-
-function round1(n){return Math.round(n*10)/10}
-function auuMinorBase(isee){const minIsee=17468.51,maxIsee=46582.71,maxAmount=203.8,minAmount=58.3;if(isee<=minIsee)return maxAmount;if(isee>=maxIsee)return minAmount;const ratio=(isee-minIsee)/(maxIsee-minIsee);return round1(maxAmount-(maxAmount-minAmount)*ratio)}
-function adiScale(profile,children,childAges){const minors=childAges.filter(a=>a<18).length||Math.max(0,children);let scale=1;scale+=Math.min(minors,2)*.15+Math.max(0,minors-2)*.10;if(profile.over60==='yes')scale+=.4;if(profile.disability==='yes')scale+=.5;if(profile.disadvantage==='yes')scale+=.3;if(childAges.some(a=>a<3)||children>=3||profile.disability==='yes')scale+=.4;return Math.min(scale,profile.disability==='yes'?2.3:2.2)}
-function adiMovableLimit(profile,household,childAges){const n=Math.max(1,Number(household)||1);const minors=childAges.filter(a=>a<18).length;let limit=Math.min(6000+Math.max(0,n-1)*2000,10000);limit+=Math.max(0,minors-2)*1000;if(profile.disability==='yes')limit+=5000;return limit}
-
-export function calculate({isee,children,municipality,profile:inputProfile}){
-  if(!Number.isFinite(isee)||isee<0||!Number.isInteger(children)||children<0||children>5||!municipality?.name)throw new Error('Controlla ISEE, figli e Comune.');
-  const stored=inputProfile&&typeof inputProfile==='object'?inputProfile:readStoredProfile();
-  const profile=Number(stored?.children)===children?stored:{};
-  const childAges=Array.isArray(profile.childAges)?profile.childAges.map(Number).filter(Number.isFinite):[];
-  const hasYoungChild=childAges.some(a=>a>=0&&a<3),hasNidoAgeChild=childAges.some(a=>a>=0&&a<=3),youngestAge=childAges.length?Math.min(...childAges):null;
-  const event2026=['birth','adoption','foster'].includes(profile.event2026)?profile.event2026:null;
-  const socialThreshold=isee<=9796||(children>=4&&isee<=20000);
-  const tariPercent=socialThreshold?25:0,tariBase=MEDIA_TARI[municipality.name]??350,benefits=[];
-  const add=(id,name,category,amount,period,description,options={})=>benefits.push({id,name,category,amount,period,description,eligibility:options.eligibility??'verifica',amountType:options.amountType??(amount==null?'non-stimabile':'massimo'),countInTotal:options.countInTotal??false,sourceUrl:options.sourceUrl??null});
-
-  if(socialThreshold){
-    add('tari','Bonus sociale rifiuti (TARI)','Casa',(tariBase*25)/100,'annuo',`Riduzione nazionale del 25% sulla TARI dovuta. La stima usa una TARI media di ${euro(tariBase)}; il valore reale dipende dalla posizione TARI effettiva. Con DSU/ISEE valido il beneficio è automatico se ricorrono i requisiti dell’utenza.`,{eligibility:'spetta-profilo',amountType:'stima',countInTotal:true,sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});
-    const supplies=[['luce',profile.electricitySupply],['gas',profile.gasSupply],['acqua',profile.waterSupply]];
-    const eligible=supplies.filter(([,v])=>v==='yes').map(([k])=>k);const unknown=supplies.filter(([,v])=>v==='unknown'||v==null).map(([k])=>k);
-    if(eligible.length){add('utilities','Bonus sociali luce, gas e acqua','Bollette','spetta','automatico · 12 mesi',`ISEE entro la soglia 2026. In base alle risposte sulle forniture, il bonus risulta spettante per: ${eligible.join(', ')}. Il riconoscimento è automatico dopo DSU/ISEE valido; l’importo in euro varia in base alle caratteristiche delle forniture e non viene trasformato in una cifra fissa dal simulatore.${unknown.length?` Da chiarire solo: ${unknown.join(', ')}.`:''}`,{eligibility:'spetta-profilo',amountType:'variabile',sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});}else if(unknown.length){add('utilities','Bonus sociali luce, gas e acqua','Bollette','compatibile','utenze da confermare',`Il requisito economico 2026 è soddisfatto. Per stabilire quali bonus bollette spettano occorre confermare i requisiti delle forniture indicate come “Non so”: ${unknown.join(', ')}.`,{eligibility:'compatibile',amountType:'variabile',sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});}
-  }
-
-  const localTariRule=getPiemonteTariRule(municipality.name),localTariBand=getLocalTariBand(localTariRule,isee);
-  if(localTariBand){const deadlineExpired=localTariRule.deadline?new Date(localTariRule.deadline).getTime()<Date.now():null;const deadlineText=localTariRule.deadlineLabel?` Scadenza indicata dalla fonte: ${localTariRule.deadlineLabel}${deadlineExpired?' (scaduta)':''}.`:' La scadenza 2026 deve essere verificata sulla fonte ufficiale.';add(`tari-local-${municipality.name.toLowerCase().replace(/\s+/g,'-')}`,`Riduzione TARI comunale – ${municipality.name}`,'Casa',(tariBase*localTariBand.percent)/100,'annuo',`Agevolazione comunale 2026 verificata: riduzione del ${localTariBand.percent}% per la fascia ISEE inserita. La cifra è una stima sulla TARI media del simulatore (${euro(tariBase)}).${deadlineText}${localTariRule.note?` ${localTariRule.note}`:''}`,{eligibility:'spetta-profilo',amountType:'stima',countInTotal:true,sourceUrl:localTariRule.sourceUrl});}
-
-  if(children>0){const minorCount=childAges.length?childAges.filter(a=>a<18).length:children;if(minorCount>0){const perChild=auuMinorBase(isee),monthly=round1(perChild*minorCount);add('children','Assegno unico e universale (AUU) 2026','Famiglia',monthly,'al mese · quota base',`Per ${minorCount} ${minorCount===1?'figlio minore':'figli minori'} e ISEE ${euro(isee)}, la quota base 2026 stimata dal modello è ${euro(monthly)} al mese (${euro(perChild)} per figlio). Eventuali maggiorazioni per disabilità, età sotto un anno, nuclei numerosi, madre under 21 o genitori entrambi lavoratori si aggiungono se ricorrono e non sono incluse in questa quota base.`,{eligibility:'spetta-profilo',amountType:'quota-base',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.assegno-unico-e-universale-per-i-figli-a-carico-55984.assegno-unico-e-universale-per-i-figli-a-carico.html'});}}
-
-  if(isee<=50000){const max=isee<15000?1500:isee<=30000?1000:500;add('psychologist','Bonus psicologo','Benessere',max,'massimale',`Massimale teorico ${euro(max)}, nel limite di 50 euro per seduta. L’assegnazione dipende da domanda, risorse e graduatoria.`,{eligibility:'graduatoria',amountType:'massimo',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.contributo-per-sostenere-le-spese-relative-a-sessioni-di-psicoterapia-bonus-psicologo.html'});}
-
-  const motherEligibleByAge=children>=3?youngestAge==null||youngestAge<18:youngestAge==null||youngestAge<10;
-  if(children>=2&&['employee','self'].includes(profile.motherWork)&&profile.motherIncome==='yes'&&motherEligibleByAge)add('mothers','Bonus mamme 2026','Famiglia',720,'massimale annuo','Profilo compatibile con i requisiti principali raccolti: numero/età figli, attività lavorativa ammessa e reddito personale da lavoro entro 40.000 euro.',{eligibility:'spetta-profilo',amountType:'massimo',sourceUrl:'https://www.lavoro.gov.it/notizie/pagine/legge-di-bilancio-2026-le-principali-misure-lavoratori-imprese-e-famiglie'});
-
-  if(isee<=15000&&profile.residentAllItaly==='yes'&&profile.dedicatedIncompatible==='no')add('dedicated','Carta Dedicata a Te 2026','Spesa',500,'una tantum 2026',`Profilo compatibile con i requisiti economici e di residenza dichiarati e senza incompatibilità indicate. Il contributo 2026 è di 500 euro. L’assegnazione resta soggetta alle priorità INPS/Comune e al numero di carte disponibili; con ${Number(profile.household||0)} componenti il nucleo viene valutato secondo i criteri di priorità previsti dal decreto.`,{eligibility:'potenzialmente-assegnabile',amountType:'una tantum',sourceUrl:'https://www.gazzettaufficiale.it/eli/id/2026/08/03/26A03853/sg'});
-
-  if(isee<=8230.81&&(hasYoungChild||profile.over65==='yes'))add('purchases','Carta acquisti 2026','Spesa',480,'massimale annuo',`Il profilo rientra nella platea anagrafica (${hasYoungChild?'minore sotto i 3 anni':'persona di almeno 65 anni'}). Restano i requisiti patrimoniali specifici della Carta acquisti.`,{eligibility:'compatibile',amountType:'massimo',sourceUrl:'https://www.lavoro.gov.it/temi-e-priorita/poverta-ed-esclusione-sociale/focus-on/carta-acquisti'});
-
-  if(profile.nursery==='yes'&&hasNidoAgeChild)add('nursery','Bonus asilo nido 2026','Famiglia','compatibile','contributo su spesa documentata','Età e frequenza del servizio risultano compatibili. L’importo dipende dall’ISEE specifico per prestazioni familiari, dalla data di nascita e dalla spesa documentata.',{eligibility:'compatibile',amountType:'variabile',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.bonus-asilo-nido-e-forme-di-supporto-presso-la-propria-abitazione-51105.bonus-asilo-nido-e-forme-di-supporto-presso-la-propria-abitazione.html'});
-  if(event2026&&isee<=40000)add('newborn','Bonus nuovi nati 2026','Famiglia',1000,'una tantum','Evento 2026 compatibile e ISEE entro 40.000 euro: profilo coerente con i principali requisiti economici della misura.',{eligibility:'spetta-profilo',amountType:'una tantum',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.bonus-nuovi-nati.html'});
-  if(event2026&&isee<=20668.26&&profile.maternityBenefit!=='yes')add('maternity-municipality','Assegno di maternità dei Comuni 2026','Famiglia',2065.5,'importo intero','Evento 2026 compatibile, ISEE entro soglia e nessuna indennità economica di maternità indicata. L’importo intero 2026 è 2.065,50 euro; la domanda va presentata al Comune nei termini previsti.',{eligibility:'compatibile',amountType:'massimo',sourceUrl:'https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2026.02.assegno-di-maternit-e-soglia-isee-aggiornamenti-per-il-2026.html'});
-
-  const qualifyingAdi=children>0||profile.disability==='yes'||profile.over60==='yes'||profile.disadvantage==='yes';
-  if(isee<=10140&&qualifyingAdi){const scale=adiScale(profile,children,childAges),income=Number(profile.adiFamilyIncome),movable=Number(profile.adiMovableAssets),realEstate=Number(profile.adiRealEstateAssets),movableLimit=adiMovableLimit(profile,profile.household,childAges),incomeThreshold=6500*scale;const dataComplete=[income,movable,realEstate].every(Number.isFinite)&&profile.adiResidence&&profile.adiVehicles&&profile.adiResignation;if(dataComplete&&profile.adiResidence==='yes'&&profile.adiVehicles==='no'&&profile.adiResignation==='no'&&income<incomeThreshold&&movable<=movableLimit&&realEstate<=30000){const incomePart=Math.max(480,incomeThreshold-income),rentPart=profile.housing==='rent'?Math.min(Number(profile.annualRent)||0,3640):0,annual=incomePart+rentPart,monthly=round1(annual/12);add('adi','Assegno di Inclusione (ADI)','Sostegno economico',monthly,'al mese · stima',`Il profilo supera i controlli raccolti dal questionario: ISEE, condizione del nucleo, residenza/soggiorno dichiarati, reddito familiare, patrimonio mobiliare (limite calcolato ${euro(movableLimit)}), patrimonio immobiliare, veicoli e dimissioni. Scala di equivalenza stimata ${scale.toFixed(2)}; beneficio mensile stimato ${euro(monthly)}${rentPart?`, inclusa quota affitto fino a ${euro(rentPart)} annui`:''}. L’INPS effettua comunque la verifica amministrativa definitiva.`,{eligibility:'spetta-profilo',amountType:'stima',sourceUrl:'https://www.lavoro.gov.it/temi-e-priorita/decreto-lavoro/Pagine/assegno-di-inclusione'});}}
-
-  if(isee<=10140&&profile.unemployed==='yes')add('sfl','Supporto per la Formazione e il Lavoro (SFL)','Lavoro',500,'mensile condizionato','Il profilo segnala un componente 18-59 anni senza lavoro e disponibile a formazione/inserimento. La fruizione richiede l’attivazione nel percorso previsto e gli ulteriori requisiti della misura.',{eligibility:'compatibile',amountType:'mensile',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.supporto-per-la-formazione-e-il-lavoro-sfl-.html'});
-
-  if(profile.renovation==='yes'&&profile.renovationEligible==='yes'&&Number.isFinite(Number(profile.renovationAmount))){const rate=profile.housing==='owner'?0.50:0.36,spend=Number(profile.renovationAmount),deduction=spend*rate;add('renovation','Detrazione ristrutturazioni 2026','Casa',deduction,`detrazione teorica ${Math.round(rate*100)}%`,`Spese 2026 dichiarate: ${euro(spend)}. In base alla situazione abitativa indicata (${profile.housing==='owner'?'proprietà/diritto reale sull’abitazione principale':'situazione diversa dalla proprietà/diritto reale sull’abitazione principale'}) il modello applica l’aliquota ${Math.round(rate*100)}%, per una detrazione teorica complessiva di ${euro(deduction)}. La fruizione effettiva avviene secondo le regole fiscali e nei limiti della capienza d’imposta.`,{eligibility:'spetta-profilo',amountType:'detrazione',sourceUrl:'https://infoprecompilata.agenziaentrate.gov.it/portale/semplificata-mod-oneri-immobili'});}
-
-  const countable=benefits.filter(b=>b.countInTotal&&Number.isFinite(b.amount));
-  return{benefits,profile,tariPercent,tariBase,tariEstimatedSaving:(tariBase*tariPercent)/100,tariNationalEligible:socialThreshold,tariLocalRule:localTariRule,tariLocalPercent:localTariBand?.percent??0,total:countable.reduce((s,b)=>s+b.amount,0),recurring:countable.filter(b=>b.period==='annuo').reduce((s,b)=>s+b.amount,0),conditional:benefits.filter(b=>!b.countInTotal&&Number.isFinite(b.amount)&&b.amount>0).reduce((s,b)=>s+b.amount,0)};
+function round1(value) {
+  return Math.round(Number(value) * 10) / 10;
 }
 
-export function emailTemplate({municipality,isee}){return `Oggetto: Richiesta informazioni agevolazioni TARI 2026 – ISEE ${euro(isee)} – Comune ${municipality.name}\n\nGentile Ufficio Tributi del Comune di ${municipality.name},\n\nsono residente nel Comune e dispongo di un ISEE 2026 pari a ${euro(isee)}.\n\nChiedo cortesemente di conoscere le eventuali agevolazioni, riduzioni o esenzioni TARI comunali ulteriori rispetto al bonus sociale rifiuti nazionale, con indicazione di requisiti, percentuali applicabili, documentazione necessaria, modalità di presentazione e scadenze.\n\nQualora sia prevista una procedura a domanda, chiedo anche il relativo modulo o il collegamento al servizio online.\n\nResto a disposizione per trasmettere la documentazione attraverso i canali ufficiali dell'Ente.\n\nCordiali saluti,\n[Nome e cognome]\n[Codice fiscale]\n[Codice utenza TARI]\n[Recapito]`;}
+function correctSingleMemberAdi(benefit, profile = {}) {
+  const household = Math.max(1, Number(profile.household) || 1);
+  if (benefit.id !== 'adi' || household !== 1) return benefit;
+
+  const income = Number(profile.adiFamilyIncome);
+  if (!Number.isFinite(income)) return benefit;
+
+  // Per un nucleo di un solo componente la scala ADI parte da 1,00.
+  // Le maggiorazioni della scala riguardano gli ulteriori componenti del nucleo.
+  const scale = 1;
+  const incomeThreshold = 6500 * scale;
+  const incomePart = Math.max(480, incomeThreshold - income);
+  const rentPart = profile.housing === 'rent'
+    ? Math.min(Math.max(0, Number(profile.annualRent) || 0), 3640)
+    : 0;
+  const monthly = round1((incomePart + rentPart) / 12);
+
+  return {
+    ...benefit,
+    amount: monthly,
+    period: 'al mese · stima',
+    description: `Il profilo supera i controlli raccolti dal questionario. Per un nucleo composto da una sola persona la scala di equivalenza ADI utilizzata è 1,00. Sulla base del reddito familiare dichiarato, il beneficio mensile stimato è ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(monthly)}${rentPart ? `, inclusa una quota affitto fino a ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(rentPart)} annui` : ''}. L’INPS effettua comunque la verifica amministrativa definitiva.`
+  };
+}
+
+export function calculate(input) {
+  const base = calculateCore(input);
+  const profile = input?.profile && typeof input.profile === 'object' ? input.profile : (base.profile || {});
+
+  let benefits = base.benefits.map((benefit) => correctSingleMemberAdi(benefit, profile));
+
+  const hasAdi = benefits.some((benefit) => benefit.id === 'adi');
+  if (hasAdi && profile.sflSeparateEligible !== 'yes') {
+    benefits = benefits.filter((benefit) => benefit.id !== 'sfl');
+  }
+
+  return {
+    ...base,
+    benefits,
+    conditional: benefits
+      .filter((benefit) => !benefit.countInTotal && Number.isFinite(Number(benefit.amount)) && Number(benefit.amount) > 0)
+      .reduce((sum, benefit) => sum + Number(benefit.amount), 0)
+  };
+}
