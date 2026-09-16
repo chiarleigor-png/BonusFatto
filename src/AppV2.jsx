@@ -394,9 +394,9 @@ export default function AppV2() {
               </div>
               <p className="simulation-caption">Il simulatore distingue le misure nazionali dalle agevolazioni comunali ancora da verificare.</p>
               <div className="stats">
-                <div><Icon name="pin" /><span>COMUNI 2026</span><strong>{dataState === 'live' ? count : '7.894'}<small> comuni</small></strong><p>{dataState === 'live' ? 'elenco aggiornato online' : 'dataset online in caricamento'}</p></div>
-                <div><Icon name="wallet" /><span>CHECKOUT</span><strong>4,99 €</strong><p>analisi completa</p></div>
-                <div><Icon name="file" /><span>REPORT</span><strong>9,90 €</strong><p>PDF + email/PEC</p></div>
+                <div><Icon name="wallet" /><span>ANALISI</span><strong>2,99 € <small>veloce</small></strong><p>6,90 € con ISEE</p></div>
+                <div><Icon name="file" /><span>DOCUMENTI</span><strong>4,90 € <small>PDF</small></strong><p>14,90 € invio PEC</p></div>
+                <div><Icon name="spark" /><span>ASSISTENZA</span><strong>6,90 € <small>WhatsApp</small></strong><p>19,90 € pratica TARI</p></div>
               </div>
               <div className="privacy-line"><span className="privacy-icon"><Icon name="lock" size={18} /></span><p><strong>I tuoi dati restano essenziali.</strong><br />Nessuna registrazione richiesta per il calcolo.</p></div>
             </section>
@@ -413,7 +413,7 @@ export default function AppV2() {
                   <label>Figli a carico<select value={children} onChange={(e) => setChildren(e.target.value)}>{[0,1,2,3,4,5].map((n) => <option value={n} key={n}>{n} {n === 1 ? 'figlio' : 'figli'}</option>)}</select></label>
                 </div>
                 <p className="field-hint">Bonus sociali 2026: soglia ordinaria ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.</p>
-                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Il pacchetto da 9,90 € include anche relazione PDF ed email/PEC.</span></div></div>
+                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi di lancio: analisi da 2,99 €, relazione PDF 4,90 € e servizi TARI acquistabili separatamente.</span></div></div>
                 <label className="checkbox-label"><input type="checkbox" checked={otherTown} onChange={(e) => { setOtherTown(e.target.checked); clearTown(); }} /><span>Abito in un altro comune <small>(facoltativo)</small></span></label>
                 {otherTown ? (
                   <div className="autocomplete">
