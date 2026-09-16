@@ -394,10 +394,10 @@ export default function AppV2() {
               </div>
               <p className="simulation-caption">Il simulatore distingue le misure nazionali dalle agevolazioni comunali ancora da verificare.</p>
               <div className="stats">
-                <div><Icon name="wallet" /><span>ANALISI VELOCE</span><strong>2,99 €</strong><p>risultato in circa 30 secondi</p></div>
-                <div><Icon name="file" /><span>ANALISI CON RELAZIONE</span><strong>da 6,90 €</strong><p>relazione PDF personalizzata +4,90 €</p></div>
-                <div><Icon name="copy" /><span>INVIO PEC TARI</span><strong>14,90 €</strong><p>richiesta al Comune per lo sconto TARI</p></div>
-                <div><Icon name="spark" /><span>ASSISTENZA</span><strong>6,90 € <small>WhatsApp</small></strong><p>19,90 € gestione completa TARI</p></div>
+                <div><Icon name="wallet" /><span>ANALISI VELOCE IN 30 SECONDI</span><strong>2,99 €</strong></div>
+                <div><Icon name="file" /><span>ANALISI CON RELAZIONE</span><strong>6,90 €</strong><p>relazione PDF personalizzata +4,90 €</p></div>
+                <div><Icon name="copy" /><span>INVIO PEC TARI</span><strong>14,90 €</strong><p>inviamo per te la richiesta di riduzione al Comune</p></div>
+                <div><Icon name="spark" /><span>SERVIZIO CONTINUATIVO</span><strong>6,90 €</strong><p>invio aggiornamenti periodici su novità bonus e TARI</p></div>
               </div>
               <div className="privacy-line"><span className="privacy-icon"><Icon name="lock" size={18} /></span><p><strong>I tuoi dati restano essenziali.</strong><br />Nessuna registrazione richiesta per il calcolo.</p></div>
             </section>
