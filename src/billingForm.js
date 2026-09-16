@@ -1,7 +1,7 @@
 export function openBillingForm(plan, payload) {
   const info = {
     base: ['Analisi veloce in 30 secondi', '2,99 €'],
-    report: ['Analisi con relazione', '6,90 €'],
+    report: ['Analisi con relazione', '1,00 € TEST'],
     whatsapp: ['Servizio continuativo', '6,90 €'],
     tari: ['Invio PEC TARI', '14,90 €'],
   }[plan] || ['Analisi veloce in 30 secondi', '2,99 €'];
