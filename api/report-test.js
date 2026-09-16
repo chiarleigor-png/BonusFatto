@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       ensure(120); badge(b.eligibility === 'graduatoria' || b.eligibility === 'potenzialmente-assegnabile' ? 'POTENZIALMENTE ASSEGNABILE' : 'PROFILO COMPATIBILE');
       doc.font('Helvetica-Bold').fontSize(13).fillColor(dark).text(b.name); doc.moveDown(.25);
       let amountText = Number.isFinite(Number(b.amount)) ? `${euro(Number(b.amount))}${b.period ? ` · ${b.period}` : ''}` : b.amount === 'spetta' ? 'Spetta' : b.amount === 'compatibile' ? 'Compatibile' : 'Importo variabile';
-      let description = b.description;
+      let description = String(b.description || '').replace(/con 1 componenti\b/g, 'con 1 componente');
       if (b.id === 'tari') {
         amountText = 'Riduzione del 25% della TARI dovuta';
         description = 'Il profilo economico rientra nella soglia prevista per il bonus sociale rifiuti. Il beneficio corrisponde al 25% della TARI effettivamente dovuta.';
@@ -51,6 +51,7 @@ export default async function handler(req, res) {
       kv([['Esito / importo', amountText], ['Perché compare', description]]);
     }
 
+    doc.addPage();
     title('2. Profilo utilizzato');
     const profileRows = [
       ['Componenti nucleo', profile.household ? `${profile.household} ${Number(profile.household) === 1 ? 'componente' : 'componenti'}` : 'Non indicato'],
