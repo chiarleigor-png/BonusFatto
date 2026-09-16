@@ -1,10 +1,10 @@
 export function openBillingForm(plan, payload) {
   const info = {
-    base: ['Analisi completa', '4,99 €'],
-    report: ['Relazione PDF + modello email/PEC TARI', '9,90 €'],
-    whatsapp: ['Bonus Alert WhatsApp', '9,99 €'],
-    tari: ['Presentazione pratica TARI', '24,90 €'],
-  }[plan] || ['Analisi completa', '4,99 €'];
+    base: ['Analisi veloce in 30 secondi', '2,99 €'],
+    report: ['Analisi con relazione', '6,90 €'],
+    whatsapp: ['Servizio continuativo', '6,90 €'],
+    tari: ['Invio PEC TARI', '14,90 €'],
+  }[plan] || ['Analisi veloce in 30 secondi', '2,99 €'];
 
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
@@ -27,8 +27,8 @@ export function openBillingForm(plan, payload) {
           <label class="full">PEC <small>(facoltativa)</small><input type="email" name="pec" /></label>
           ${plan === 'whatsapp' ? '<label class="full">Numero WhatsApp<input type="tel" name="whatsapp" placeholder="+39 333 1234567" required /></label>' : ''}
         </div>
-        ${plan === 'whatsapp' ? '<label class="bf-billing-consent"><input type="checkbox" name="waConsent" required /><span>Acconsento a ricevere su WhatsApp gli avvisi relativi a scadenze e nuovi bonus del servizio acquistato.</span></label>' : ''}
-        ${plan === 'tari' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> ti verrà richiesto di caricare i documenti necessari e la delega firmata per consentire a BonusFatto di presentare la pratica per tuo conto.</p>' : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
+        ${plan === 'whatsapp' ? '<label class="bf-billing-consent"><input type="checkbox" name="waConsent" required /><span>Acconsento a ricevere su WhatsApp gli aggiornamenti periodici su novità bonus e TARI del servizio acquistato.</span></label>' : ''}
+        ${plan === 'tari' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> ti verranno richiesti i dati e gli eventuali allegati necessari per predisporre e inviare la richiesta al Comune.</p>' : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
