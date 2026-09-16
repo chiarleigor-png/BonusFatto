@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 
 const PLANS = {
   base: { name: 'BonusFatto - Analisi veloce in 30 secondi', amount: 299 },
-  report: { name: 'BonusFatto - Analisi con relazione', amount: 690 },
+  report: { name: 'BonusFatto - Analisi con relazione', amount: 100 },
   whatsapp: { name: 'BonusFatto - Servizio continuativo', amount: 690 },
   tari: { name: 'BonusFatto - Invio PEC TARI', amount: 1490 },
 };
