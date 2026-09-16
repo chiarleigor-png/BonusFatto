@@ -102,10 +102,10 @@ function enhancePaywall() {
   const stack = document.createElement('section');
   stack.className = 'bf-offer-stack';
   stack.append(
-    makeOffer({ tag: 'ANALISI COMPLETA', title: 'Sblocca il risultato completo', price: '4,99 €', plan: 'base', description: 'Visualizza tutti i bonus individuati con importi stimabili, requisiti, documenti e indicazioni operative.', items: ['Tutte le agevolazioni individuate', 'Importi stimabili e requisiti', 'Checklist documenti e scadenze'], button: 'Sblocca analisi · 4,99 €' }),
-    makeOffer({ type: 'report', tag: 'DOSSIER OPERATIVO', title: 'Relazione PDF + modello email/PEC TARI', price: '9,90 €', plan: 'report', description: 'Relazione personalizzata e testo pronto da inviare al Comune per chiedere o verificare la riduzione/esenzione TARI collegata all’ISEE, quando prevista.', items: ['Relazione PDF personalizzata', 'Riepilogo bonus e prossimi passi', 'Modello email/PEC per il Comune sulla TARI'], button: 'Ottieni dossier · 9,90 €' }),
-    makeOffer({ type: 'whatsapp', tag: 'BONUS ALERT WHATSAPP', title: 'Scadenze e nuovi bonus via WhatsApp', price: '9,99 €', plan: 'whatsapp', description: 'Inserisci il tuo numero WhatsApp e ricevi per 12 mesi avvisi sulle principali scadenze e sui nuovi bonus compatibili con il profilo indicato.', items: ['Avvisi principali sulle scadenze', 'Segnalazioni nuovi bonus', 'Servizio per 12 mesi con consenso dedicato'], button: 'Attiva Bonus Alert · 9,99 €' }),
-    makeOffer({ type: 'tari-service', tag: 'PRESENTAZIONE PRATICA TARI', title: 'Pensiamo noi alla richiesta al Comune', price: '24,90 €', plan: 'tari', description: 'BonusFatto predispone la richiesta, verifica gli allegati e la trasmette per tuo conto all’Ufficio Tributi del Comune attraverso il canale previsto, inclusa PEC quando ammessa.', items: ['Predisposizione della richiesta', 'Verifica degli allegati', 'Trasmissione per tuo conto al Comune', 'Copia della pratica e ricevute di invio'], button: 'Presenta pratica TARI · 24,90 €' })
+    makeOffer({ tag: 'ANALISI VELOCE IN 30 SECONDI', title: 'Analisi veloce in 30 secondi', price: '2,99 €', plan: 'base', description: 'Sblocca subito l’analisi rapida dei bonus compatibili con i dati inseriti.', items: ['Agevolazioni individuate', 'Importi stimabili quando disponibili', 'Indicazioni essenziali sui requisiti'], button: 'Avvia analisi · 2,99 €' }),
+    makeOffer({ type: 'report', tag: 'ANALISI CON RELAZIONE', title: 'Analisi con relazione', price: '6,90 €', plan: 'report', description: 'Analisi più completa con relazione personalizzata e riepilogo operativo.', items: ['Analisi delle agevolazioni individuate', 'Relazione personalizzata', 'Riepilogo dei prossimi passi'], button: 'Scegli analisi con relazione · 6,90 €' }),
+    makeOffer({ type: 'tari-service', tag: 'INVIO PEC TARI', title: 'Invio PEC TARI', price: '14,90 €', plan: 'tari', description: 'Inviamo per te la richiesta di riduzione al Comune.', items: ['Predisposizione della richiesta', 'Invio al Comune tramite PEC', 'Copia della comunicazione e delle ricevute disponibili'], button: 'Richiedi invio PEC · 14,90 €' }),
+    makeOffer({ type: 'whatsapp', tag: 'SERVIZIO CONTINUATIVO', title: 'Servizio continuativo', price: '6,90 €', plan: 'whatsapp', description: 'Invio aggiornamenti periodici su novità bonus e TARI.', items: ['Aggiornamenti periodici', 'Novità sui bonus', 'Novità e scadenze TARI'], button: 'Attiva servizio continuativo · 6,90 €' })
   );
 
   const grid = shell.querySelector('.plan-grid');
@@ -131,6 +131,20 @@ function saferTotal() {
   if (rows[1]?.querySelector('b')) rows[1].querySelector('b').textContent = 'Vedi dettaglio';
 }
 
-function run() { enhancePaywall(); saferTotal(); }
+function normalizeVisibleServiceNames() {
+  const banner = document.querySelector('.paid-banner');
+  if (banner && !banner.dataset.bfServiceName) {
+    if (banner.textContent.includes('Analisi + relazione PDF')) banner.innerHTML = banner.innerHTML.replace('Analisi + relazione PDF', 'Analisi con relazione');
+    if (banner.textContent.includes('Analisi completa')) banner.innerHTML = banner.innerHTML.replace('Analisi completa', 'Analisi veloce in 30 secondi');
+    banner.dataset.bfServiceName = 'true';
+  }
+  const locked = document.querySelector('.locked-extra');
+  if (locked && !locked.dataset.bfServiceName) {
+    locked.innerHTML = '<h3>Relazione non inclusa nell’Analisi veloce in 30 secondi</h3><p>Per ricevere anche la relazione personalizzata scegli il servizio Analisi con relazione.</p>';
+    locked.dataset.bfServiceName = 'true';
+  }
+}
+
+function run() { enhancePaywall(); saferTotal(); normalizeVisibleServiceNames(); }
 new MutationObserver(run).observe(document.documentElement, { subtree: true, childList: true });
 run();
