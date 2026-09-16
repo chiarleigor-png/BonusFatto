@@ -1,4 +1,4 @@
-import { createBonusFattoReport } from '../lib/reportPdf.js';
+import { createBonusFattoReport } from '../lib/reportPdfV2.js';
 
 function clean(value,max=1200){ return String(value??'').trim().slice(0,max); }
 function headers(){ const key=clean(process.env.SUPABASE_SERVICE_ROLE_KEY); if(!key) throw new Error('Supabase non configurato'); return {apikey:key,Authorization:`Bearer ${key}`}; }
