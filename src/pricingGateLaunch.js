@@ -7,6 +7,8 @@ const PAID_REPORT_SESSION = 'bonusfatto_paid_report_session';
 const SERVICE_ENTRY = 'bonusfatto_service_entry';
 const REPORT_ENTRY = 'bonusfatto_report_entry';
 const ISEE_FLOW_VERSION = '2026-09-17-final-1';
+const TARI_ISEE_STANDARD_2026 = 9796;
+const TARI_ISEE_LARGE_FAMILY_2026 = 20000;
 
 function readProfile() {
   try {
@@ -45,14 +47,18 @@ function payloadFromGate(shell) {
   return { comune, isee, figli: Number.isInteger(figli) && figli >= 0 ? figli : 0, profile: readProfile() };
 }
 
-function serviceCard({ badge, title, price, priceNote = '', description, plan, featured = false, button }) {
+function tariNationalThreshold(children) {
+  return Number(children) >= 4 ? TARI_ISEE_LARGE_FAMILY_2026 : TARI_ISEE_STANDARD_2026;
+}
+
+function serviceCard({ badge, title, price, priceNote = '', description, plan, featured = false, button, disabled = false }) {
   return `
-    <article class="plan-card${featured ? ' featured' : ''}">
+    <article class="plan-card${featured ? ' featured' : ''}${disabled ? ' is-disabled' : ''}">
       <span class="plan-badge">${badge}</span>
       <h2>${title}</h2>
       <div class="plan-price">${price}${priceNote ? ` <small>${priceNote}</small>` : ''}</div>
       <p>${description}</p>
-      <button class="primary bf-launch-service" type="button" data-plan="${plan}">${button}</button>
+      <button class="primary bf-launch-service" type="button" data-plan="${plan}"${disabled ? ' disabled aria-disabled="true"' : ''}>${button}</button>
     </article>`;
 }
 
@@ -66,6 +72,14 @@ function patchGate() {
 
   const heading = shell.querySelector('.paywall-heading h1');
   if (heading) heading.innerHTML = heading.innerHTML.replace('Abbiamo trovato', 'Abbiamo individuato');
+
+  const payload = payloadFromGate(shell);
+  const tariThreshold = tariNationalThreshold(payload.figli);
+  const tariEligible = Number.isFinite(Number(payload.isee)) && Number(payload.isee) <= tariThreshold;
+  const tariThresholdLabel = payload.figli >= 4 ? '20.000 € con almeno 4 figli a carico' : '9.796 €';
+  const tariDescription = tariEligible
+    ? `Servizio riservato ai profili entro la soglia nazionale 2026: ISEE fino a ${tariThresholdLabel}. Verifichiamo le eventuali agevolazioni TARI comunali ulteriori e, quando previste, trasmettiamo la richiesta al Comune. Il bonus sociale rifiuti nazionale del 25% è automatico.`
+    : `Il profilo inserito supera la soglia nazionale 2026 di ${tariThresholdLabel}. Per questo il servizio online non è acquistabile. Alcuni Comuni possono prevedere agevolazioni locali con criteri diversi.`;
 
   grid.innerHTML = [
     serviceCard({
@@ -88,13 +102,14 @@ function patchGate() {
       button: 'Carica ISEE e prepara l’analisi',
     }),
     serviceCard({
-      badge: 'INVIO TARI AL COMUNE',
-      title: 'Invio pratica TARI',
+      badge: 'RIDUZIONI TARI COMUNALI',
+      title: 'Richiesta agevolazione TARI al Comune',
       price: '14,90 €',
       priceNote: 'una tantum',
-      description: 'Prepariamo la delega, raccogliamo i documenti e trasmettiamo la pratica TARI al Comune tramite il nostro backoffice.',
+      description: tariDescription,
       plan: 'tari',
-      button: 'Avvia pratica TARI · 14,90 €',
+      disabled: !tariEligible,
+      button: tariEligible ? 'Avvia pratica TARI · 14,90 €' : 'Profilo oltre la soglia nazionale',
     }),
     serviceCard({
       badge: 'SERVIZIO CONTINUATIVO',
@@ -107,9 +122,9 @@ function patchGate() {
     }),
   ].join('');
 
-  const payload = payloadFromGate(shell);
   grid.querySelectorAll('.bf-launch-service').forEach((button) => {
     button.addEventListener('click', () => {
+      if (button.disabled) return;
       const plan = button.dataset.plan;
       if (plan === 'report') {
         sessionStorage.removeItem(REPORT_ANALYSIS_KEY);
