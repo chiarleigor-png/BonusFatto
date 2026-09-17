@@ -12,6 +12,7 @@ import './serviceTest.css';
 import './tariPecTest.css';
 import './legalSite.js';
 import './contactPageEnhancement.js';
+import './legalContentProduction.js';
 import './guideNav.js';
 import './brandLogo.js';
 import './formEnhancements.js';
