@@ -2,9 +2,9 @@ import { randomBytes } from 'node:crypto';
 
 const PLANS = {
   base: { name: 'BonusFatto - Analisi veloce in 30 secondi', amount: 299 },
-  report: { name: 'BonusFatto - Analisi con relazione', amount: 100 },
-  whatsapp: { name: 'BonusFatto - Servizio continuativo', amount: 690 },
-  tari: { name: 'BonusFatto - Invio PEC TARI', amount: 1490 },
+  report: { name: 'BonusFatto - Analisi con relazione', amount: 690 },
+  whatsapp: { name: 'BonusFatto - Servizio continuativo 12 mesi', amount: 690 },
+  tari: { name: 'BonusFatto - Invio pratica TARI', amount: 1490 },
 };
 
 function siteOrigin(req) {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
     const session = await stripeResponse.json();
     if (!stripeResponse.ok || !session?.id || !session?.url) { console.error('Stripe checkout error', session?.error?.type || stripeResponse.status); return res.status(502).json({ error:'Stripe non ha potuto creare il pagamento. Riprova tra poco.' }); }
     try {
-      await archiveOrder({ order_code:code,status:'pending',plan,service_name:selectedPlan.name,amount_cents:selectedPlan.amount,currency:'eur',customer_email:email,customer_name:cleanText(billing?.nome,120)||null,customer_surname:cleanText(billing?.cognome,120)||null,fiscal_code:validFiscalCode(billing?.codiceFiscale)||null,billing_address:cleanText(billing?.indirizzo,255)||null,billing_zip:cleanText(billing?.cap,10)||null,billing_city:cleanText(billing?.comuneFatturazione,180)||null,billing_province:cleanText(billing?.provincia,10).toUpperCase()||null,pec:validEmail(billing?.pec)||null,whatsapp:cleanText(billing?.whatsapp,40)||null,whatsapp_consent:Boolean(billing?.waConsent),calculation_municipality:municipality,isee:iseeNumber,children:childrenNumber,stripe_session_id:session.id,stripe_payment_intent_id:null,stripe_payment_status:session.payment_status||'unpaid',source:'bonusfatto' });
+      await archiveOrder({ order_code:code,status:'pending',plan,service_name:selectedPlan.name,amount_cents:selectedPlan.amount,currency:'eur',customer_email:email,customer_name:cleanText(billing?.nome,120)||null,customer_surname:cleanText(billing?.cognome,120)||null,fiscal_code:validFiscalCode(billing?.codiceFiscale)||null,billing_address:cleanText(billing?.indirizzo,255)||null,billing_zip:cleanText(billing?.cap,10)||null,billing_city:cleanText(billing?.comuneFatturazione,180)||null,billing_province:cleanText(billing?.provincia,10).toUpperCase()||null,pec:validEmail(billing?.pec)||null,whatsapp:null,whatsapp_consent:false,calculation_municipality:municipality,isee:iseeNumber,children:childrenNumber,stripe_session_id:session.id,stripe_payment_intent_id:null,stripe_payment_status:session.payment_status||'unpaid',source:'bonusfatto' });
     } catch (archiveError) {
       await expireStripeSession(secret,session.id); console.error('Checkout archived order failed',archiveError?.message||archiveError); return res.status(502).json({ error:'Non è stato possibile registrare l’ordine. Riprova tra poco.' });
     }
