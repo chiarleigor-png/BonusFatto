@@ -23,12 +23,13 @@ function Field({ label, children, full = false }) {
 }
 
 function FileField({ title, description, accept, file, onChange, required = true, multiple = false }) {
+  const hasFile = Array.isArray(file) ? file.length > 0 : Boolean(file);
   return <div className="bfs-upload-box">
     <div className="bfs-upload-copy"><strong>{title}{required ? ' *' : ''}</strong><span>{description}</span></div>
     <label className="bfs-upload-control">
       <input type="file" required={required} accept={accept} multiple={multiple} onChange={onChange} />
-      <span>{file ? '✓' : '+'}</span>
-      <strong>{file ? (Array.isArray(file) ? `${file.length} file selezionati` : file.name) : 'Seleziona file'}</strong>
+      <span>{hasFile ? '✓' : '+'}</span>
+      <strong>{hasFile ? (Array.isArray(file) ? `${file.length} file selezionati` : file.name) : 'Seleziona file'}</strong>
     </label>
   </div>;
 }
@@ -57,7 +58,7 @@ export default function TariPecTestFlow() {
     indirizzoImmobile: '', codiceUtenza: '',
   });
   const [iseeFile, setIseeFile] = useState(null);
-  const [idFile, setIdFile] = useState(null);
+  const [idFiles, setIdFiles] = useState([]);
   const [delegationFile, setDelegationFile] = useState(null);
   const [tariFiles, setTariFiles] = useState([]);
   const [delegationDownloaded, setDelegationDownloaded] = useState(false);
@@ -126,9 +127,10 @@ export default function TariPecTestFlow() {
     event.preventDefault();
     setError('');
     if (!iseeFile) return setError('Allega l’attestazione ISEE 2026.');
-    if (!idFile) return setError('Allega il documento di identità dell’intestatario TARI.');
+    if (!idFiles.length) return setError('Allega il documento di identità dell’intestatario TARI.');
     if (!delegationDownloaded) return setError('Scarica prima la delega precompilata.');
     if (!delegationFile) return setError('Allega la delega firmata.');
+    if (lookupLoading) return setError('Attendi il completamento della ricerca automatica della PEC del Comune.');
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -144,7 +146,7 @@ export default function TariPecTestFlow() {
       <div><span>Comune</span><strong>{form.comuneTari}</strong></div>
       <div><span>ISEE</span><strong>{euro(Number(form.isee))}</strong></div>
       <div><span>Attestazione ISEE</span><strong>{iseeFile.name}</strong></div>
-      <div><span>Documento identità</span><strong>{idFile.name}</strong></div>
+      <div><span>Documento identità</span><strong>{idFiles.map(file => file.name).join(' · ')}</strong></div>
       <div><span>Delega firmata</span><strong>{delegationFile.name}</strong></div>
       <div><span>Allegati TARI facoltativi</span><strong>{tariFiles.length}</strong></div>
     </div>
@@ -189,7 +191,7 @@ export default function TariPecTestFlow() {
       <div className="bfs-section-title"><span>4</span><div><h2>Allegati della pratica</h2><p>I primi tre documenti sono obbligatori. Gli altri allegati TARI sono facoltativi.</p></div></div>
       <div className="bfs-upload-grid">
         <FileField title="Attestazione ISEE 2026" description="Obbligatoria · PDF" accept="application/pdf,.pdf" file={iseeFile} onChange={e => setIseeFile(e.target.files?.[0] || null)} />
-        <FileField title="Documento di identità" description="Obbligatorio · fronte/retro in PDF, JPG o PNG" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" file={idFile} onChange={e => setIdFile(e.target.files?.[0] || null)} />
+        <FileField title="Documento di identità" description="Obbligatorio · 1 PDF oppure immagini separate fronte/retro" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" file={idFiles} multiple onChange={e => setIdFiles(Array.from(e.target.files || []))} />
         <FileField title="Delega firmata" description="Obbligatoria · firma autografa leggibile" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" file={delegationFile} onChange={e => setDelegationFile(e.target.files?.[0] || null)} />
         <FileField title="Documentazione TARI" description="Facoltativa · avviso, bolletta o comunicazioni del Comune" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" file={tariFiles} multiple required={false} onChange={e => setTariFiles(Array.from(e.target.files || []))} />
       </div>
