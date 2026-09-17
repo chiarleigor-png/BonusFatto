@@ -34,8 +34,7 @@ async function command(socket, value, expected) {
 }
 
 export default async function handler(req, res) {
-  const temporaryProbe = req.method === 'GET' && String(req.query?.probe || '') === 'ready';
-  if (req.method !== 'POST' && !temporaryProbe) {
+  if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Metodo non consentito.' });
   }
