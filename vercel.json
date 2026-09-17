@@ -2,14 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "functions": {
-    "api/pec-send-test.js": {
-      "regions": ["fra1"]
-    },
-    "api/pec-health.js": {
-      "regions": ["fra1"]
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
