@@ -1,9 +1,9 @@
 export function openBillingForm(plan, payload) {
   const info = {
     base: ['Analisi veloce in 30 secondi', '2,99 €'],
-    report: ['Analisi con relazione', '1,00 € TEST'],
-    whatsapp: ['Servizio continuativo', '6,90 €'],
-    tari: ['Invio PEC TARI', '14,90 €'],
+    report: ['Analisi con relazione', '6,90 €'],
+    whatsapp: ['Servizio continuativo · 12 mesi', '6,90 €'],
+    tari: ['Invio pratica TARI', '14,90 €'],
   }[plan] || ['Analisi veloce in 30 secondi', '2,99 €'];
 
   const backdrop = document.createElement('div');
@@ -11,7 +11,7 @@ export function openBillingForm(plan, payload) {
   backdrop.innerHTML = `
     <div class="bf-billing-modal" role="dialog" aria-modal="true">
       <div class="bf-billing-head">
-        <div><span class="eyebrow">PRIMA DEL PAGAMENTO</span><h2>${info[0]} · ${info[1]}</h2></div>
+        <div><span class="eyebrow">DATI PER L’ACQUISTO</span><h2>${info[0]} · ${info[1]}</h2></div>
         <button type="button" class="bf-billing-close" aria-label="Chiudi">×</button>
       </div>
       <form class="bf-billing-form">
@@ -25,10 +25,14 @@ export function openBillingForm(plan, payload) {
           <label>Comune<input name="comuneFatturazione" value="${payload.comune || ''}" required /></label>
           <label>Provincia<input name="provincia" maxlength="2" placeholder="TO" required /></label>
           <label class="full">PEC <small>(facoltativa)</small><input type="email" name="pec" /></label>
-          ${plan === 'whatsapp' ? '<label class="full">Numero WhatsApp<input type="tel" name="whatsapp" placeholder="+39 333 1234567" required /></label>' : ''}
         </div>
-        ${plan === 'whatsapp' ? '<label class="bf-billing-consent"><input type="checkbox" name="waConsent" required /><span>Acconsento a ricevere su WhatsApp gli aggiornamenti periodici su novità bonus e TARI del servizio acquistato.</span></label>' : ''}
-        ${plan === 'tari' ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> ti verranno richiesti i dati e gli eventuali allegati necessari per predisporre e inviare la richiesta al Comune.</p>' : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
+        ${plan === 'tari'
+          ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai completare la pratica, scaricare la delega precompilata e caricare ISEE, documento e delega firmata.</p>'
+          : plan === 'whatsapp'
+            ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scegliere se ricevere gli aggiornamenti via email, WhatsApp o entrambi i canali.</p>'
+            : plan === 'report'
+              ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> tornerai alla tua analisi e potrai scaricare la relazione PDF definitiva.</p>'
+              : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
@@ -48,7 +52,7 @@ export function openBillingForm(plan, payload) {
     const error = form.querySelector('.bf-billing-error');
     const submit = form.querySelector('button[type="submit"]');
     const billing = Object.fromEntries(new FormData(form).entries());
-    billing.waConsent = form.elements.waConsent ? form.elements.waConsent.checked : false;
+    billing.waConsent = false;
 
     submit.disabled = true;
     submit.textContent = 'Apertura pagamento…';
