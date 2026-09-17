@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { euro } from './benefits.js';
 
-const ENTRY_KEY = 'bonusfatto_service_test_entry';
+const ENTRY_KEY = 'bonusfatto_service_entry';
 const MAX_UPLOAD_BYTES = 2_700_000;
 
 function safeParse(value, fallback = {}) {
@@ -12,10 +12,10 @@ function Shell({ children }) {
   return <div className="bfs-shell">
     <header className="bfs-header">
       <a className="bfs-brand" href="/"><span className="bfs-mark">B</span><span>Bonus<span>Fatto</span><em>.it</em></span></a>
-      <span className="bfs-test-pill">TEST GRATUITO · 0 €</span>
+      <span className="bfs-test-pill">PRATICA TARI · SERVIZIO ACQUISTATO</span>
     </header>
     <main className="bfs-main">{children}</main>
-    <footer className="bfs-footer"><span>© {new Date().getFullYear()} BonusFatto.it</span><span>Invio PEC TARI</span></footer>
+    <footer className="bfs-footer"><span>© {new Date().getFullYear()} BonusFatto.it</span><span>Invio pratica TARI</span></footer>
   </div>;
 }
 
@@ -56,12 +56,7 @@ function fileToPayload(file, role) {
     reader.onload = () => {
       const value = String(reader.result || '');
       const comma = value.indexOf(',');
-      resolve({
-        role,
-        filename: file.name,
-        contentType: file.type || 'application/octet-stream',
-        data: comma >= 0 ? value.slice(comma + 1) : value,
-      });
+      resolve({ role, filename: file.name, contentType: file.type || 'application/octet-stream', data: comma >= 0 ? value.slice(comma + 1) : value });
     };
     reader.onerror = () => reject(new Error(`Impossibile leggere il file ${file.name}.`));
     reader.readAsDataURL(file);
@@ -71,10 +66,18 @@ function fileToPayload(file, role) {
 export default function TariPecTestFlow() {
   const entry = useMemo(() => safeParse(window.sessionStorage.getItem(ENTRY_KEY), {}), []);
   const [form, setForm] = useState({
-    nome: '', cognome: '', email: '', codiceFiscale: '',
-    indirizzo: '', cap: '', comuneResidenza: entry.comune || '', provinciaResidenza: '',
-    comuneTari: entry.comune || '', isee: Number(entry.isee) || 0,
-    indirizzoImmobile: '', codiceUtenza: '',
+    nome: entry.customerName || '',
+    cognome: entry.customerSurname || '',
+    email: entry.customerEmail || '',
+    codiceFiscale: entry.fiscalCode || '',
+    indirizzo: entry.billingAddress || '',
+    cap: entry.billingZip || '',
+    comuneResidenza: entry.billingCity || entry.comune || '',
+    provinciaResidenza: entry.billingProvince || '',
+    comuneTari: entry.comune || '',
+    isee: Number(entry.isee) || 0,
+    indirizzoImmobile: '',
+    codiceUtenza: '',
   });
   const [iseeFile, setIseeFile] = useState(null);
   const [idFiles, setIdFiles] = useState([]);
@@ -143,7 +146,7 @@ export default function TariPecTestFlow() {
     setDelegationLoading(true);
     try {
       const response = await fetch('/api/tari-delegation-test', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ form }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ form, sessionId: entry.sessionId }),
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -153,7 +156,7 @@ export default function TariPecTestFlow() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'BonusFatto_Delega_TARI_TEST.pdf';
+      a.download = `BonusFatto_Delega_TARI_${entry.orderCode || 'pratica'}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -182,9 +185,7 @@ export default function TariPecTestFlow() {
       ...tariFiles.map((file, index) => ({ file, role: `Documentazione TARI ${index + 1}` })),
     ];
     const totalBytes = descriptors.reduce((sum, item) => sum + Number(item.file?.size || 0), 0);
-    if (totalBytes > MAX_UPLOAD_BYTES) {
-      return setError('Gli allegati superano circa 2,7 MB complessivi. Riduci la dimensione dei file e riprova.');
-    }
+    if (totalBytes > MAX_UPLOAD_BYTES) return setError('Gli allegati superano circa 2,7 MB complessivi. Riduci la dimensione dei file e riprova.');
 
     setSubmitting(true);
     try {
@@ -192,7 +193,7 @@ export default function TariPecTestFlow() {
       const response = await fetch('/api/tari-practice-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form, lookup, attachments }),
+        body: JSON.stringify({ form, lookup, attachments, sessionId: entry.sessionId }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data?.ok) throw new Error(data?.error || 'Invio pratica al backoffice non riuscito.');
@@ -205,13 +206,13 @@ export default function TariPecTestFlow() {
     }
   }
 
-  if (!entry?.comune) return <Shell><section className="bfs-confirmation"><span className="bfs-eyebrow">DATI NON DISPONIBILI</span><h1>Avvia prima il calcolo dalla Home.</h1><a className="bfs-primary-link" href="/">Torna alla Home</a></section></Shell>;
+  if (!entry?.comune || !entry?.sessionId) return <Shell><section className="bfs-confirmation"><span className="bfs-eyebrow">ACCESSO NON DISPONIBILE</span><h1>Completa prima l’acquisto del servizio.</h1><a className="bfs-primary-link" href="/">Torna alla Home</a></section></Shell>;
 
   if (submission) return <Shell><section className="bfs-confirmation">
     <div className="bfs-success-icon">✓</div>
-    <span className="bfs-eyebrow">TEST SUPERATO · PRATICA RICEVUTA DAL BACKOFFICE</span>
+    <span className="bfs-eyebrow">PRATICA RICEVUTA DAL BACKOFFICE</span>
     <h1>La pratica TARI è stata presa in carico.</h1>
-    <p>Dati, delega firmata e allegati sono stati inviati a <strong>pratiche@bonusfatto.it</strong>. Nessuna PEC è stata inviata automaticamente al Comune: il backoffice verificherà la pratica e procederà manualmente all’invio.</p>
+    <p>Dati, delega firmata e allegati sono stati inviati a <strong>pratiche@bonusfatto.it</strong>. Il backoffice verificherà la documentazione e procederà all’invio della PEC al Comune.</p>
     <div className="bfs-summary">
       <div><span>Codice pratica</span><strong>{submission.practiceCode}</strong></div>
       <div><span>Comune</span><strong>{form.comuneTari}</strong></div>
@@ -223,12 +224,12 @@ export default function TariPecTestFlow() {
       <div><span>Allegati TARI facoltativi</span><strong>{tariFiles.length}</strong></div>
     </div>
     <PecStatus lookup={lookup} loading={false} />
-    <div className="bfs-test-warning"><strong>Flusso backoffice:</strong> la PEC viene inviata manualmente soltanto dopo la verifica dei documenti e dell’indirizzo dell’Ufficio Tributi. Le ricevute PEC potranno quindi essere conservate nella pratica.</div>
+    <div className="bfs-test-warning"><strong>Gestione pratica:</strong> la PEC viene inviata dal backoffice dopo la verifica dei documenti e dell’indirizzo dell’Ufficio Tributi. Le ricevute di accettazione e consegna vengono conservate nella pratica.</div>
     <div className="bfs-confirm-actions"><a className="bfs-primary-link" href="/">Torna alla Home</a></div>
   </section></Shell>;
 
   return <Shell><section className="bfs-form-page">
-    <div className="bfs-form-intro"><span className="bfs-eyebrow">INVIO PEC TARI · TEST GRATUITO</span><h1>Prepariamo la pratica TARI completa.</h1><p>Non devi conoscere la PEC del Comune: la cerchiamo automaticamente. Tu inserisci i dati, scarichi la delega, la firmi e alleghi i documenti; la pratica completa arriva al nostro backoffice per la verifica e l’invio manuale della PEC.</p></div>
+    <div className="bfs-form-intro"><span className="bfs-eyebrow">INVIO PRATICA TARI</span><h1>Completiamo la pratica TARI.</h1><p>Non devi conoscere la PEC del Comune: la cerchiamo automaticamente. Inserisci o verifica i dati, scarica la delega, firmala e allega i documenti richiesti.</p></div>
 
     <form className="bfs-card-form" onSubmit={submit}>
       <div className="bfs-section-title"><span>1</span><div><h2>Dati del richiedente</h2><p>Servono per precompilare la delega e intestare correttamente la richiesta.</p></div></div>
@@ -253,7 +254,7 @@ export default function TariPecTestFlow() {
         <Field label="Codice utenza TARI (se disponibile)" full><input value={form.codiceUtenza} onChange={e => set('codiceUtenza', e.target.value)} /></Field>
       </div>
       <PecStatus lookup={lookup} loading={lookupLoading} />
-      <p className="bfs-help-line">La PEC non viene richiesta al cittadino. L’indirizzo individuato viene trasmesso al backoffice e verificato prima dell’invio manuale.</p>
+      <p className="bfs-help-line">La PEC non viene richiesta al cittadino. L’indirizzo individuato viene trasmesso al backoffice e verificato prima dell’invio.</p>
 
       <div className="bfs-divider" />
       <div className="bfs-section-title"><span>3</span><div><h2>Scarica e firma la delega</h2><p>La delega viene compilata automaticamente con i dati inseriti sopra.</p></div></div>
@@ -270,8 +271,8 @@ export default function TariPecTestFlow() {
       </div>
 
       {error && <div className="checkout-error" role="alert">{error}</div>}
-      <div className="bfs-test-warning"><strong>Modalità test:</strong> il pulsante invia realmente la documentazione esclusivamente a <strong>pratiche@bonusfatto.it</strong>. Nessuna PEC viene inviata automaticamente al Comune.</div>
-      <button className="bfs-primary" type="submit" disabled={submitting}>{submitting ? 'Invio pratica al backoffice…' : <>Invia pratica al backoffice · 0 € <strong>→</strong></>}</button>
+      <div className="bfs-test-warning"><strong>Invio al Comune:</strong> la documentazione viene ricevuta da <strong>pratiche@bonusfatto.it</strong>, verificata e quindi trasmessa manualmente tramite PEC all’Ufficio Tributi competente.</div>
+      <button className="bfs-primary" type="submit" disabled={submitting}>{submitting ? 'Invio pratica al backoffice…' : <>Invia pratica al backoffice <strong>→</strong></>}</button>
     </form>
   </section></Shell>;
 }
