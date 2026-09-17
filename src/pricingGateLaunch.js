@@ -141,6 +141,18 @@ function patchGate() {
   });
 }
 
-const observer = new MutationObserver(patchGate);
+function patchLegacySummaryPricing() {
+  document.querySelectorAll('.stats > div p').forEach((node) => {
+    if (node.textContent?.includes('relazione PDF personalizzata +4,90 €')) {
+      node.textContent = 'relazione PDF personalizzata';
+    }
+  });
+}
+
+const observer = new MutationObserver(() => {
+  patchGate();
+  patchLegacySummaryPricing();
+});
 observer.observe(document.documentElement, { childList: true, subtree: true });
 patchGate();
+patchLegacySummaryPricing();
