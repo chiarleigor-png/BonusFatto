@@ -82,12 +82,41 @@ function correctAuu(benefits, input, profile = {}) {
   return [...benefits, corrected];
 }
 
+function correctTari(benefit, base, input) {
+  if (benefit.id === 'tari') {
+    return {
+      ...benefit,
+      amount: 'spetta',
+      displayAmount: 'Riduzione 25%',
+      period: 'sulla TARI dovuta',
+      amountType: 'percentuale',
+      description: 'Il profilo economico rientra nella soglia prevista per il bonus sociale rifiuti. Il beneficio corrisponde al 25% della TARI effettivamente dovuta.'
+    };
+  }
+  if (String(benefit.id || '').startsWith('tari-local-')) {
+    const percent = Number(base?.tariLocalPercent);
+    const municipality = input?.municipality?.name || '';
+    return {
+      ...benefit,
+      amount: 'compatibile',
+      displayAmount: Number.isFinite(percent) ? `Riduzione ${percent}%` : 'Riduzione comunale',
+      period: 'agevolazione comunale 2026',
+      amountType: 'percentuale',
+      description: Number.isFinite(percent)
+        ? `Per la fascia ISEE indicata risulta una riduzione comunale 2026 del ${percent}% nel Comune di ${municipality}.`
+        : `Per la fascia ISEE indicata risulta un’agevolazione TARI comunale 2026 nel Comune di ${municipality}.`
+    };
+  }
+  return benefit;
+}
+
 export function calculate(input) {
   const base = calculateCore(input);
   const profile = input?.profile && typeof input.profile === 'object' ? input.profile : (base.profile || {});
 
   let benefits = base.benefits.map((benefit) => correctSingleMemberAdi(benefit, profile));
   benefits = correctAuu(benefits, input, profile);
+  benefits = benefits.map((benefit) => correctTari(benefit, base, input));
 
   const hasAdi = benefits.some((benefit) => benefit.id === 'adi');
   if (hasAdi && profile.sflSeparateEligible !== 'yes') {
