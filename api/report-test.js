@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     doc.font('Helvetica-Bold').fontSize(28).fillColor(blue).text('Bonus', { continued:true }).fillColor(green).text('Fatto.it');
     doc.moveDown(.3); title('Relazione personalizzata 2026 · TEST GRATUITO');
     body('Documento generato in modalità test gratuita, senza pagamento.');
-    kv([['Comune', safeInput.municipality.name], ['ISEE ordinario', euro(safeInput.isee)], ['ISEE prestazioni familiari/inclusione', profile.familyIsee !== '' && profile.familyIsee != null ? euro(profile.familyIsee) : 'Non distinto / non disponibile'], ['Componenti del nucleo', profile.household ? `${profile.household} ${Number(profile.household) === 1 ? 'componente' : 'componenti'}` : 'Non indicato'], ['Figli/minori rilevati', safeInput.children]]);
+    kv([['Comune', safeInput.municipality.name], ['ISEE ordinario', euro(safeInput.isee)], ['ISEE prestazioni familiari/inclusione', profile.familyIsee !== '' && profile.familyIsee != null ? euro(profile.familyIsee) : 'Non distinto / non disponibile'], ['Componenti del nucleo', profile.household ? `${profile.household} ${Number(profile.household) === 1 ? 'componente' : 'componenti'}` : 'Non indicato'], ['Minori rilevati nel nucleo', safeInput.children]]);
     const summaryY = doc.y;
     doc.roundedRect(48, summaryY, 499, 42, 7).fillAndStroke('#ECFDF3', green);
     doc.fillColor(green).font('Helvetica-Bold').fontSize(9).text('RISULTATO IN SINTESI',60,summaryY+9);
@@ -65,6 +65,10 @@ export default async function handler(req, res) {
       ['Utenza gas attiva', yesNo(profile.gasSupply)],
       ['Utenza acqua attiva', yesNo(profile.waterSupply)]
     ];
+    if (profile.renovation === 'yes') {
+      profileRows.push(['Spese di ristrutturazione dichiarate', euro(Number(profile.renovationAmount) || 0)]);
+      profileRows.push(['Intervento agevolabile', yesNo(profile.renovationEligible)]);
+    }
     if (profile.adiFamilyIncome !== '' && profile.adiFamilyIncome != null) {
       profileRows.push(['Reddito familiare utilizzato per ADI', euro(profile.adiFamilyIncome)]);
       profileRows.push(['Patrimonio mobiliare utilizzato per ADI', euro(profile.adiMovableAssets)]);
