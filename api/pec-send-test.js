@@ -1,5 +1,5 @@
 import tls from 'node:tls';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 const ALLOWED_RECIPIENT_HASH = '9feb31c82e009049e56767cd28f23c232e82566ea7f84f239bece04d0365d5f8';
 const MAX_TOTAL_ATTACHMENT_BYTES = 2_700_000;
@@ -50,14 +50,17 @@ function readSmtpResponse(socket) {
   });
 }
 
-async function command(socket, value, expected) {
+function smtpError(stage, response) {
+  const error = new Error(`SMTP ${response?.code || 'ERR'} @ ${stage}`);
+  error.smtpCode = response?.code || 0;
+  error.smtpStage = stage;
+  return error;
+}
+
+async function command(socket, value, expected, stage) {
   if (value) socket.write(`${value}\r\n`);
   const response = await readSmtpResponse(socket);
-  if (!expected.includes(response.code)) {
-    const error = new Error(`SMTP PEC ${response.code}`);
-    error.smtpCode = response.code;
-    throw error;
-  }
+  if (!expected.includes(response.code)) throw smtpError(stage, response);
   return response;
 }
 
@@ -69,19 +72,27 @@ function wrapBase64(value) {
   return String(value || '').match(/.{1,76}/g)?.join('\r\n') || '';
 }
 
-function smtpDiagnostic(error) {
-  const code = Number(error?.smtpCode || String(error?.message || '').match(/SMTP PEC (\d{3})/)?.[1] || 0);
-  if (code === 535 || code === 534) {
-    return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e soprattutto PEC_PASSWORD. Se sulla PEC è attiva la verifica in 2 passaggi, usa la password dedicata per programmi di posta, non quella della Webmail.';
+function friendlySmtpError(error) {
+  const code = Number(error?.smtpCode || 0);
+  const stage = String(error?.smtpStage || 'connessione');
+
+  if (code === 535) {
+    return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e PEC_PASSWORD.';
   }
-  if (code === 530) return 'Aruba richiede autenticazione SMTP prima dell’invio (SMTP 530).';
-  if (code === 550 || code === 553) return `Aruba ha rifiutato mittente o destinatario (SMTP ${code}).`;
-  if (code) return `Server Aruba raggiunto, ma ha risposto con errore SMTP ${code}.`;
-  const name = String(error?.code || '').toUpperCase();
-  if (name === 'ETIMEDOUT' || /timeout/i.test(String(error?.message || ''))) return 'Connessione ad Aruba scaduta: timeout SMTP/TLS.';
-  if (name === 'ECONNREFUSED') return 'Connessione SMTP Aruba rifiutata dal server.';
-  if (/certificate|tls|ssl/i.test(String(error?.message || ''))) return 'Errore TLS/SSL durante la connessione al server PEC Aruba.';
-  return 'Connessione o autenticazione SMTP Aruba non riuscita.';
+  if (code === 554 && stage === 'MAIL FROM') {
+    return 'Aruba ha autenticato la PEC ma ha rifiutato il mittente (SMTP 554 · MAIL FROM). Verifichiamo che il mittente coincida esattamente con la casella PEC autenticata.';
+  }
+  if (code === 554 && stage === 'RCPT TO') {
+    return 'Aruba ha autenticato la PEC ma ha rifiutato il destinatario di test (SMTP 554 · RCPT TO).';
+  }
+  if (code === 554 && stage === 'DATA') {
+    return 'Aruba ha autenticato mittente e destinatario ma ha rifiutato l’avvio del messaggio (SMTP 554 · DATA).';
+  }
+  if (code === 554 && stage === 'ACCETTAZIONE MESSAGGIO') {
+    return 'Aruba ha accettato login, mittente e destinatario, ma ha rifiutato il contenuto finale del messaggio (SMTP 554 · dopo DATA).';
+  }
+  if (code) return `Server Aruba raggiunto, errore SMTP ${code} nella fase ${stage}.`;
+  return 'Connessione SMTP Aruba non riuscita.';
 }
 
 export default async function handler(req, res) {
@@ -149,9 +160,12 @@ export default async function handler(req, res) {
   ].join('\r\n');
 
   const boundary = `----BonusFattoPEC-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const messageId = `<${randomUUID()}@bonusfatto.it>`;
   const mime = [
-    `From: BonusFatto <${pecUser}>`,
+    `From: ${pecUser}`,
     `To: ${recipient}`,
+    `Date: ${new Date().toUTCString()}`,
+    `Message-ID: ${messageId}`,
     `Subject: ${subject.replace(/[\r\n]+/g, ' ')}`,
     'MIME-Version: 1.0',
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
@@ -172,7 +186,6 @@ export default async function handler(req, res) {
       '',
     ]),
     `--${boundary}--`,
-    '.',
     '',
   ].join('\r\n');
 
@@ -184,32 +197,39 @@ export default async function handler(req, res) {
       socket.once('secureConnect', resolve);
       socket.once('error', reject);
     });
+
     let response = await readSmtpResponse(socket);
-    if (response.code !== 220) {
-      const error = new Error(`SMTP PEC ${response.code}`);
-      error.smtpCode = response.code;
-      throw error;
-    }
-    await command(socket, 'EHLO bonusfatto.it', [250]);
-    await command(socket, 'AUTH LOGIN', [334]);
-    await command(socket, Buffer.from(pecUser).toString('base64'), [334]);
-    await command(socket, Buffer.from(pecPassword).toString('base64'), [235]);
-    await command(socket, `MAIL FROM:<${pecUser}>`, [250]);
-    await command(socket, `RCPT TO:<${recipient}>`, [250, 251]);
-    await command(socket, 'DATA', [354]);
-    socket.write(mime);
+    if (response.code !== 220) throw smtpError('GREETING', response);
+
+    await command(socket, 'EHLO bonusfatto.it', [250], 'EHLO');
+    await command(socket, 'AUTH LOGIN', [334], 'AUTH LOGIN');
+    await command(socket, Buffer.from(pecUser).toString('base64'), [334], 'AUTH USER');
+    await command(socket, Buffer.from(pecPassword).toString('base64'), [235], 'AUTH PASSWORD');
+    await command(socket, `MAIL FROM:<${pecUser}>`, [250], 'MAIL FROM');
+    await command(socket, `RCPT TO:<${recipient}>`, [250, 251], 'RCPT TO');
+    await command(socket, 'DATA', [354], 'DATA');
+
+    socket.write(`${mime}\r\n.\r\n`);
     response = await readSmtpResponse(socket);
-    if (response.code !== 250) {
-      const error = new Error(`SMTP PEC ${response.code}`);
-      error.smtpCode = response.code;
-      throw error;
-    }
-    await command(socket, 'QUIT', [221]);
+    if (response.code !== 250) throw smtpError('ACCETTAZIONE MESSAGGIO', response);
+
+    await command(socket, 'QUIT', [221], 'QUIT');
 
     return res.status(200).json({ ok: true, sender: pecUser, recipient, attachmentCount: safeAttachments.length });
   } catch (error) {
-    console.error('BonusFatto PEC send test failed', error?.message || error);
-    return res.status(502).json({ ok: false, error: `Invio PEC di test non riuscito. ${smtpDiagnostic(error)}` });
+    console.error('BonusFatto PEC send test failed', {
+      message: error?.message || String(error),
+      smtpCode: error?.smtpCode || null,
+      smtpStage: error?.smtpStage || null,
+    });
+    return res.status(502).json({
+      ok: false,
+      error: `Invio PEC di test non riuscito. ${friendlySmtpError(error)}`,
+      diagnostic: {
+        smtpCode: error?.smtpCode || null,
+        smtpStage: error?.smtpStage || null,
+      },
+    });
   } finally {
     if (!socket.destroyed) socket.end();
   }
