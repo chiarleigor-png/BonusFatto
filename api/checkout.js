@@ -4,8 +4,11 @@ const PLANS = {
   base: { name: 'BonusFatto - Analisi veloce in 30 secondi', amount: 299 },
   report: { name: 'BonusFatto - Analisi con relazione', amount: 690 },
   whatsapp: { name: 'BonusFatto - Servizio continuativo 12 mesi', amount: 690 },
-  tari: { name: 'BonusFatto - Invio pratica TARI', amount: 1490 },
+  tari: { name: 'BonusFatto - Richiesta agevolazione TARI al Comune', amount: 1490 },
 };
+
+const TARI_ISEE_STANDARD_2026 = 9796;
+const TARI_ISEE_LARGE_FAMILY_2026 = 20000;
 
 function siteOrigin(req) {
   const configured = String(process.env.BONUSFATTO_SITE_URL || process.env.SITE_URL || '').trim();
@@ -54,6 +57,15 @@ export default async function handler(req, res) {
   if (!selectedPlan) return res.status(400).json({ error:'Piano non valido.' });
   const iseeNumber = Number(isee), childrenNumber = Number(figli), municipality = cleanText(comune,180);
   if (!municipality || !Number.isFinite(iseeNumber) || iseeNumber < 0 || !Number.isInteger(childrenNumber) || childrenNumber < 0) return res.status(400).json({ error:'Dati del calcolo non validi.' });
+
+  if (plan === 'tari') {
+    const threshold = childrenNumber >= 4 ? TARI_ISEE_LARGE_FAMILY_2026 : TARI_ISEE_STANDARD_2026;
+    if (iseeNumber > threshold) {
+      const thresholdLabel = childrenNumber >= 4 ? '20.000 € per nuclei con almeno 4 figli a carico' : '9.796 €';
+      return res.status(422).json({ error:`Il servizio TARI online è riservato ai profili entro la soglia nazionale 2026 (${thresholdLabel}).` });
+    }
+  }
+
   const email = validEmail(billing?.email);
   if (!email) return res.status(400).json({ error:'Inserisci un indirizzo email valido prima di procedere al pagamento.' });
 
