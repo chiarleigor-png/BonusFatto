@@ -5,15 +5,29 @@ function clean(value, max = 400) { return String(value ?? '').trim().slice(0, ma
 function yesNo(v) { return v === 'yes' ? 'Sì' : v === 'no' ? 'No' : 'Non indicato'; }
 function housing(v) { return v === 'owner' ? 'Abitazione principale di proprietà / diritto reale' : v === 'rent' ? 'Abitazione in affitto' : v === 'other' ? 'Altra situazione abitativa' : 'Non indicata'; }
 
+async function verifyPaidSession(sessionId) {
+  const secret = clean(process.env.STRIPE_SECRET_KEY, 1200);
+  const id = clean(sessionId, 255);
+  if (!secret || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) return false;
+  const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${secret}` },
+  });
+  const session = await response.json().catch(() => ({}));
+  return Boolean(response.ok && session?.payment_status === 'paid' && session?.status === 'complete' && session?.metadata?.source === 'bonusfatto' && session?.metadata?.plan === 'report');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'Metodo non consentito.' }); }
   try {
+    const paid = await verifyPaidSession(req.body?.sessionId);
+    if (!paid) return res.status(403).json({ error: 'Pagamento della relazione non verificato.' });
+
     const input = req.body?.input;
     const profile = req.body?.profile || input?.profile || {};
     if (!input || !Number.isFinite(Number(input.isee)) || !input?.municipality?.name) return res.status(400).json({ error: 'Dati analisi non validi.' });
     const safeInput = { isee: Number(input.isee), children: Number(input.children) || 0, municipality: { name: clean(input.municipality.name, 120) }, profile };
     const result = calculate(safeInput);
-    const doc = new PDFDocument({ size: 'A4', margins: { top: 48, bottom: 48, left: 48, right: 48 }, info: { Title: 'BonusFatto - Relazione TEST', Author: 'BonusFatto.it' } });
+    const doc = new PDFDocument({ size: 'A4', margins: { top: 48, bottom: 48, left: 48, right: 48 }, info: { Title: 'BonusFatto - Relazione personalizzata 2026', Author: 'BonusFatto.it' } });
     const chunks = [];
     doc.on('data', (c) => chunks.push(c));
     const done = new Promise((resolve, reject) => { doc.on('end', () => resolve(Buffer.concat(chunks))); doc.on('error', reject); });
@@ -26,8 +40,8 @@ export default async function handler(req, res) {
     const badge = (text) => { ensure(28); const width=Math.min(499,doc.widthOfString(text)+22),y=doc.y; doc.roundedRect(48,y,width,20,5).fillAndStroke('#ECFDF3',green); doc.fillColor(green).font('Helvetica-Bold').fontSize(7.5).text(text,58,y+6,{width:width-20}); doc.y=y+27; };
 
     doc.font('Helvetica-Bold').fontSize(28).fillColor(blue).text('Bonus', { continued:true }).fillColor(green).text('Fatto.it');
-    doc.moveDown(.3); title('Relazione personalizzata 2026 · TEST GRATUITO');
-    body('Documento generato in modalità test gratuita, senza pagamento.');
+    doc.moveDown(.3); title('Relazione personalizzata 2026');
+    body('Documento personalizzato elaborato sui dati ISEE e sulle informazioni fornite durante l’analisi.');
     kv([['Comune', safeInput.municipality.name], ['ISEE ordinario', euro(safeInput.isee)], ['ISEE prestazioni familiari/inclusione', profile.familyIsee !== '' && profile.familyIsee != null ? euro(profile.familyIsee) : 'Non distinto / non disponibile'], ['Componenti del nucleo', profile.household ? `${profile.household} ${Number(profile.household) === 1 ? 'componente' : 'componenti'}` : 'Non indicato'], ['Minori rilevati nel nucleo', safeInput.children]]);
     const summaryY = doc.y;
     doc.roundedRect(48, summaryY, 499, 42, 7).fillAndStroke('#ECFDF3', green);
@@ -75,16 +89,16 @@ export default async function handler(req, res) {
       profileRows.push(['Patrimonio immobiliare utilizzato per ADI', euro(profile.adiRealEstateAssets)]);
     }
     kv(profileRows);
-    body('Questa relazione di test serve esclusivamente a verificare il funzionamento del motore e del flusso di compilazione.');
+    body('Le informazioni riportate derivano dai dati forniti dall’utente e dall’attestazione ISEE caricata. Per le misure soggette a istruttoria dell’ente competente resta necessaria la verifica dei requisiti e della documentazione prevista.');
 
     doc.end();
     const pdf = await done;
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="BonusFatto_Relazione_TEST.pdf"');
+    res.setHeader('Content-Disposition', 'attachment; filename="BonusFatto_Relazione_2026.pdf"');
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).send(pdf);
   } catch (error) {
-    console.error('BonusFatto report test failed', error?.message || error);
-    return res.status(500).json({ error: 'Impossibile generare la relazione di test.' });
+    console.error('BonusFatto report generation failed', error?.message || error);
+    return res.status(500).json({ error: 'Impossibile generare la relazione.' });
   }
 }
