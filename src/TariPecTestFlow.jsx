@@ -91,6 +91,29 @@ export default function TariPecTestFlow() {
   const set = (name, value) => setForm(current => ({ ...current, [name]: value }));
 
   useEffect(() => {
+    const comune = String(form.comuneResidenza || '').trim();
+    if (!comune) return undefined;
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/ipa-pec-test?comune=${encodeURIComponent(comune)}&metadata=1`);
+        const data = await response.json();
+        if (!response.ok || !data?.found) return;
+        setForm(current => {
+          if (String(current.comuneResidenza || '').trim().toLowerCase() !== comune.toLowerCase()) return current;
+          return {
+            ...current,
+            cap: String(data.cap || current.cap || '').trim(),
+            provinciaResidenza: String(data.provincia || current.provinciaResidenza || '').trim().toUpperCase(),
+          };
+        });
+      } catch {
+        // CAP e provincia restano modificabili manualmente se IndicePA non risponde.
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [form.comuneResidenza]);
+
+  useEffect(() => {
     const comune = String(form.comuneTari || '').trim();
     if (!comune) { setLookup(null); return undefined; }
     const timer = setTimeout(async () => {
@@ -216,9 +239,10 @@ export default function TariPecTestFlow() {
         <Field label="Codice fiscale"><input required maxLength="16" value={form.codiceFiscale} onChange={e => set('codiceFiscale', e.target.value.toUpperCase())} /></Field>
         <Field label="Indirizzo di residenza" full><input required value={form.indirizzo} onChange={e => set('indirizzo', e.target.value)} /></Field>
         <Field label="CAP"><input required maxLength="5" value={form.cap} onChange={e => set('cap', e.target.value)} /></Field>
-        <Field label="Comune di residenza"><input required value={form.comuneResidenza} onChange={e => set('comuneResidenza', e.target.value)} /></Field>
+        <Field label="Comune di residenza"><input required value={form.comuneResidenza} onChange={e => setForm(current => ({ ...current, comuneResidenza: e.target.value, cap: '', provinciaResidenza: '' }))} /></Field>
         <Field label="Provincia"><input required maxLength="2" placeholder="TO" value={form.provinciaResidenza} onChange={e => set('provinciaResidenza', e.target.value.toUpperCase())} /></Field>
       </div>
+      <p className="bfs-help-line">CAP e provincia vengono compilati automaticamente in base al Comune di residenza e restano modificabili.</p>
 
       <div className="bfs-divider" />
       <div className="bfs-section-title"><span>2</span><div><h2>Dati della pratica TARI</h2><p>Comune e ISEE arrivano dal calcolo precedente ma restano verificabili.</p></div></div>
