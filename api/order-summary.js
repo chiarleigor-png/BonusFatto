@@ -7,7 +7,8 @@ export default async function handler(req,res){
   const id=clean(req.query?.session_id,255); if(!/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) return res.status(400).json({error:'Sessione non valida.'});
   try{
     const s=await stripeSession(id); if(s.payment_status!=='paid'||s.status!=='complete'||s.metadata?.source!=='bonusfatto') return res.status(403).json({error:'Non autorizzato.'});
-    const r=await fetch(`${base()}/rest/v1/bonusfatto_orders?stripe_session_id=eq.${encodeURIComponent(id)}&select=order_code,plan,customer_name,customer_surname,fiscal_code,customer_email,calculation_municipality,isee,children`,{headers:headers()});
+    const fields='order_code,plan,customer_name,customer_surname,fiscal_code,customer_email,billing_address,billing_zip,billing_city,billing_province,pec,whatsapp,whatsapp_consent,calculation_municipality,isee,children';
+    const r=await fetch(`${base()}/rest/v1/bonusfatto_orders?stripe_session_id=eq.${encodeURIComponent(id)}&select=${fields}`,{headers:headers()});
     const rows=await r.json(); const o=Array.isArray(rows)?rows[0]:null; if(!r.ok||!o) return res.status(404).json({error:'Ordine non trovato.'});
     res.setHeader('Cache-Control','private, no-store, max-age=0'); return res.status(200).json(o);
   }catch(e){ console.error('order summary failed',e?.message||e); return res.status(500).json({error:'Dati ordine non disponibili.'}); }
