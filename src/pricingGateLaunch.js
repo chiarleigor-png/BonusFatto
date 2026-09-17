@@ -3,6 +3,7 @@ import { openBillingForm } from './billingForm.js';
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
 const REPORT_ANALYSIS_KEY = 'bonusfatto_report_analysis';
+const PAID_REPORT_SESSION = 'bonusfatto_paid_report_session';
 const SERVICE_ENTRY = 'bonusfatto_service_entry';
 const REPORT_ENTRY = 'bonusfatto_report_entry';
 const ISEE_FLOW_VERSION = '2026-09-17-final-1';
@@ -112,6 +113,7 @@ function patchGate() {
       const plan = button.dataset.plan;
       if (plan === 'report') {
         sessionStorage.removeItem(REPORT_ANALYSIS_KEY);
+        sessionStorage.removeItem(PAID_REPORT_SESSION);
         sessionStorage.setItem(REPORT_ENTRY, JSON.stringify(payload));
         window.location.assign(`/?isee_preview=1&flow=${encodeURIComponent(ISEE_FLOW_VERSION)}&fresh=1`);
         return;
