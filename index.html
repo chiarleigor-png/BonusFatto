@@ -10,13 +10,21 @@
       content="Scopri i bonus da verificare per la tua famiglia. Simula TARI, bollette e agevolazioni con ISEE e Comune di residenza."
     />
 
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Favicon BonusFatto -->
+    <link rel="icon" type="image/png" href="/favicon.png?v=2" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png?v=2" />
+    <link rel="apple-touch-icon" href="/favicon.png?v=2" />
+
+    <!-- Canonical -->
     <link rel="canonical" href="https://www.bonusfatto.it/" />
 
     <title>BonusFatto.it — I tuoi bonus, in un posto solo</title>
 
-    <meta property="og:title" content="BonusFatto.it — I tuoi bonus, in un posto solo" />
+    <!-- Open Graph -->
+    <meta
+      property="og:title"
+      content="BonusFatto.it — I tuoi bonus, in un posto solo"
+    />
     <meta
       property="og:description"
       content="Scopri i bonus da verificare per la tua famiglia. Simula TARI, bollette e agevolazioni con ISEE e Comune di residenza."
@@ -25,17 +33,34 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="BonusFatto.it" />
     <meta property="og:locale" content="it_IT" />
-    <meta property="og:image" content="https://www.bonusfatto.it/og-image.png" />
-    <meta property="og:image:alt" content="Logo di BonusFatto.it" />
 
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="BonusFatto.it — I tuoi bonus, in un posto solo" />
+    <meta
+      property="og:image"
+      content="https://www.bonusfatto.it/og-image.png?v=2"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://www.bonusfatto.it/og-image.png?v=2"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="BonusFatto.it" />
+
+    <!-- Twitter / social preview -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="BonusFatto.it — I tuoi bonus, in un posto solo"
+    />
     <meta
       name="twitter:description"
       content="Scopri i bonus da verificare per la tua famiglia. Simula TARI, bollette e agevolazioni con ISEE e Comune di residenza."
     />
-    <meta name="twitter:image" content="https://www.bonusfatto.it/og-image.png" />
+    <meta
+      name="twitter:image"
+      content="https://www.bonusfatto.it/og-image.png?v=2"
+    />
 
+    <!-- Evita il flash del contenuto durante il caricamento -->
     <style>
       #root {
         visibility: hidden;
@@ -46,9 +71,12 @@
       }
     </style>
 
+    <!-- Microsoft Clarity -->
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        c[a]=c[a]||function(){
+          (c[a].q=c[a].q||[]).push(arguments)
+        };
         t=l.createElement(r);
         t.async=1;
         t.src="https://www.clarity.ms/tag/"+i;
@@ -60,6 +88,7 @@
 
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/pdfReport.js"></script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
