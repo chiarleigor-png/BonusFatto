@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import './clearLegacyProfile.js';
 import App from './AppV9.jsx';
 import './styles.css';
@@ -19,8 +20,15 @@ import './formEnhancements.js';
 import './reportDelivery.js';
 import './pricingGateLaunch.js';
 
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+const rootElement = document.getElementById('root');
+const root = createRoot(rootElement);
+
+flushSync(() => {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+});
+
+rootElement.classList.add('app-ready');
