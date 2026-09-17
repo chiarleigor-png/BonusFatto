@@ -104,6 +104,9 @@ export default async function handler(req, res) {
     `Codice attivazione: ${code}`,
     `Canale scelto: ${label}`,
     ...(whatsapp ? [`Numero WhatsApp indicato: ${whatsapp}`] : []),
+    `Comune di riferimento: ${comune}`,
+    `ISEE di partenza: ${formatEuro(entry.isee)}`,
+    `Figli indicati: ${figli}`,
     '',
     'In questa fase di test ricevi questa email come conferma reale della registrazione. Gli aggiornamenti periodici automatici non vengono ancora inviati.',
     'Quando il servizio sarà attivo in produzione, riceverai avvisi su novità, scadenze e opportunità Bonus/TARI attraverso i canali selezionati.',
@@ -130,50 +133,54 @@ export default async function handler(req, res) {
 
   try {
     await transporter.verify();
-    const internalInfo = await transporter.sendMail({
-      from: `BonusFatto Pratiche <${smtpUser}>`,
-      to: BACKOFFICE_EMAIL,
-      replyTo: customerEmail,
-      subject: `[BonusFatto] Servizio continuativo ${code} · ${cognome} ${nome}`,
-      text: internalBody,
-      headers: {
-        'X-BonusFatto-Activation': code,
-        'X-BonusFatto-Service': 'CONTINUATIVO',
-      },
-    });
 
-    let confirmationSent = false;
-    let confirmationMessageId = '';
+    let internalSent = false;
+    let internalMessageId = '';
     try {
-      const customerInfo = await transporter.sendMail({
+      const internalInfo = await transporter.sendMail({
         from: `BonusFatto Pratiche <${smtpUser}>`,
-        to: customerEmail,
-        replyTo: BACKOFFICE_EMAIL,
-        subject: `BonusFatto - Servizio continuativo ${code}`,
-        text: customerBody,
+        to: BACKOFFICE_EMAIL,
+        replyTo: customerEmail,
+        subject: `[BonusFatto] Servizio continuativo ${code} · ${cognome} ${nome}`,
+        text: internalBody,
         headers: {
           'X-BonusFatto-Activation': code,
-          'X-BonusFatto-Service': 'CONTINUATIVO-CONFERMA',
+          'X-BonusFatto-Service': 'CONTINUATIVO',
         },
       });
-      confirmationSent = true;
-      confirmationMessageId = clean(customerInfo?.messageId || '', 240);
-    } catch (customerError) {
-      console.error('BonusFatto continuous customer confirmation failed', {
-        message: clean(customerError?.message || String(customerError), 500),
-        responseCode: customerError?.responseCode || null,
-        command: clean(customerError?.command || '', 80),
-        code: clean(customerError?.code || '', 80),
+      internalSent = true;
+      internalMessageId = clean(internalInfo?.messageId || '', 240);
+    } catch (internalError) {
+      console.error('BonusFatto continuous internal delivery failed', {
+        message: clean(internalError?.message || String(internalError), 500),
+        responseCode: internalError?.responseCode || null,
+        command: clean(internalError?.command || '', 80),
+        code: clean(internalError?.code || '', 80),
       });
     }
+
+    const customerInfo = await transporter.sendMail({
+      from: `BonusFatto Pratiche <${smtpUser}>`,
+      to: customerEmail,
+      bcc: BACKOFFICE_EMAIL,
+      replyTo: BACKOFFICE_EMAIL,
+      subject: `BonusFatto - Servizio continuativo ${code}`,
+      text: customerBody,
+      headers: {
+        'X-BonusFatto-Activation': code,
+        'X-BonusFatto-Service': 'CONTINUATIVO-CONFERMA',
+      },
+    });
 
     return res.status(200).json({
       ok: true,
       activationCode: code,
       deliveredTo: BACKOFFICE_EMAIL,
-      confirmationSent,
-      messageId: clean(internalInfo?.messageId || '', 240),
-      confirmationMessageId,
+      internalSent,
+      confirmationSent: true,
+      messageId: internalMessageId,
+      confirmationMessageId: clean(customerInfo?.messageId || '', 240),
+      backofficeCopy: true,
     });
   } catch (error) {
     console.error('BonusFatto continuous activation failed', {
