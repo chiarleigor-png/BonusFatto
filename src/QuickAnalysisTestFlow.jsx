@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { calculate, euro } from './benefits.js';
 
-const ENTRY_KEY = 'bonusfatto_service_test_entry';
+const ENTRY_KEY = 'bonusfatto_service_entry';
 
 function safeParse(value, fallback = {}) {
   try { return JSON.parse(value) || fallback; } catch { return fallback; }
@@ -11,7 +11,7 @@ function Shell({ children }) {
   return <div className="bfs-shell">
     <header className="bfs-header">
       <a className="bfs-brand" href="/"><span className="bfs-mark">B</span><span>Bonus<span>Fatto</span><em>.it</em></span></a>
-      <span className="bfs-test-pill">TEST GRATUITO · 0 €</span>
+      <span className="bfs-test-pill">ANALISI SBLOCCATA</span>
     </header>
     <main className="bfs-main">{children}</main>
     <footer className="bfs-footer"><span>© {new Date().getFullYear()} BonusFatto.it</span><span>Analisi veloce in 30 secondi</span></footer>
@@ -67,7 +67,7 @@ export default function QuickAnalysisTestFlow() {
 
   return <Shell>
     <section className="bfs-result">
-      <div className="bfs-top-actions"><a href="/">← Torna alla Home</a><span>Analisi veloce · 0 €</span></div>
+      <div className="bfs-top-actions"><a href="/">← Torna alla Home</a><span>Analisi veloce · 2,99 €</span></div>
       <div className="bfs-result-hero">
         <div><span className="bfs-eyebrow">ANALISI VELOCE IN 30 SECONDI</span><h1>Il tuo risultato è pronto.</h1><p>Con i dati essenziali inseriti abbiamo individuato <strong>{result.benefits.length} agevolazioni</strong> compatibili o da approfondire.</p></div>
         <div className="bfs-mini-stats"><div><span>COMUNE</span><strong>{entry.comune || '—'}</strong></div><div><span>ISEE</span><strong>{euro(input.isee)}</strong></div><div><span>FIGLI</span><strong>{input.children}</strong></div></div>
