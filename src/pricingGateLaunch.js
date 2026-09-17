@@ -1,9 +1,9 @@
-import { openBillingForm } from './billingForm.js';
-
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
 const REPORT_ANALYSIS_KEY = 'bonusfatto_report_analysis';
+const SERVICE_TEST_ENTRY = 'bonusfatto_service_test_entry';
 const ISEE_FLOW_VERSION = '2026-09-17-final-1';
+const SERVICE_TEST_VERSION = '2026-09-17-services-test-1';
 
 function readProfile() {
   try {
@@ -42,12 +42,12 @@ function payloadFromGate(shell) {
   return { comune, isee, figli: Number.isInteger(figli) && figli >= 0 ? figli : 0, profile: readProfile() };
 }
 
-function serviceCard({ badge, title, price, description, plan, featured = false, button }) {
+function serviceCard({ badge, title, price, priceNote = '', description, plan, featured = false, button }) {
   return `
     <article class="plan-card${featured ? ' featured' : ''}">
       <span class="plan-badge">${badge}</span>
       <h2>${title}</h2>
-      <div class="plan-price">${price} <small>una tantum</small></div>
+      <div class="plan-price">${price}${priceNote ? ` <small>${priceNote}</small>` : ''}</div>
       <p>${description}</p>
       <button class="primary bf-launch-service" type="button" data-plan="${plan}">${button}</button>
     </article>`;
@@ -68,15 +68,17 @@ function patchGate() {
     serviceCard({
       badge: 'ANALISI VELOCE IN 30 SECONDI',
       title: 'Analisi veloce in 30 secondi',
-      price: '2,99 €',
+      price: '0 €',
+      priceNote: 'TEST GRATUITO',
       description: 'Sblocca subito l’analisi rapida dei bonus compatibili con i dati inseriti.',
       plan: 'base',
-      button: 'Continua · 2,99 €',
+      button: 'Prova gratis · 0 €',
     }),
     serviceCard({
       badge: 'ANALISI CON RELAZIONE',
       title: 'Analisi con relazione',
       price: '6,90 €',
+      priceNote: 'una tantum',
       description: 'Carica l’attestazione ISEE, visualizza l’anteprima dei bonus e sblocca poi il risultato completo.',
       plan: 'report',
       featured: true,
@@ -85,18 +87,20 @@ function patchGate() {
     serviceCard({
       badge: 'INVIO PEC TARI',
       title: 'Invio PEC TARI',
-      price: '14,90 €',
+      price: '0 €',
+      priceNote: 'TEST GRATUITO',
       description: 'Inviamo per te la richiesta di riduzione TARI al Comune.',
       plan: 'tari',
-      button: 'Richiedi invio PEC · 14,90 €',
+      button: 'Prova invio PEC · 0 €',
     }),
     serviceCard({
       badge: 'SERVIZIO CONTINUATIVO',
       title: 'Servizio continuativo',
-      price: '6,90 €',
-      description: 'Invio aggiornamenti periodici su novità bonus e TARI.',
+      price: '0 €',
+      priceNote: 'TEST GRATUITO',
+      description: 'Invio aggiornamenti periodici via mail o whatsapp',
       plan: 'whatsapp',
-      button: 'Attiva servizio · 6,90 €',
+      button: 'Prova servizio · 0 €',
     }),
   ].join('');
 
@@ -110,7 +114,10 @@ function patchGate() {
         window.location.assign(`/?isee_preview=1&flow=${encodeURIComponent(ISEE_FLOW_VERSION)}&fresh=1`);
         return;
       }
-      openBillingForm(plan, payload);
+      if (['base', 'tari', 'whatsapp'].includes(plan)) {
+        sessionStorage.setItem(SERVICE_TEST_ENTRY, JSON.stringify(payload));
+        window.location.assign(`/?service_test=${encodeURIComponent(plan)}&flow=${encodeURIComponent(SERVICE_TEST_VERSION)}&fresh=1`);
+      }
     });
   });
 }
