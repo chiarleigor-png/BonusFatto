@@ -17,14 +17,29 @@ function isAllowedRecipient(email) {
   return createHash('sha256').update(email.toLowerCase(), 'utf8').digest('hex') === ALLOWED_RECIPIENT_HASH;
 }
 
+function boolEnv(value, fallback = true) {
+  const raw = clean(value, 20).toLowerCase();
+  if (!raw) return fallback;
+  return !['0', 'false', 'no', 'off'].includes(raw);
+}
+
 function pecEnv() {
   const userRaw = process.env.PEC_USER || process.env.PEC_SMTP_USER || process.env.SMTP_PEC_USER || process.env.PEC_EMAIL || '';
   const passwordRaw = process.env.PEC_PASSWORD || process.env.PEC_SMTP_PASSWORD || process.env.SMTP_PEC_PASSWORD || '';
+  const fromRaw = process.env.PEC_FROM || userRaw;
+  const portRaw = Number(process.env.PEC_SMTP_PORT || 465);
+
   return {
     user: validEmail(userRaw),
     password: String(passwordRaw || ''),
+    from: validEmail(fromRaw),
+    host: clean(process.env.PEC_SMTP_HOST || 'smtps.pec.aruba.it', 200),
+    port: Number.isInteger(portRaw) && portRaw > 0 ? portRaw : 465,
+    secure: boolEnv(process.env.PEC_SMTP_SECURE, true),
+    clientName: clean(process.env.PEC_SMTP_NAME || 'bonusfatto.it', 200),
     hasUser: Boolean(clean(userRaw)),
     hasPassword: Boolean(String(passwordRaw || '').trim()),
+    hasFrom: Boolean(clean(fromRaw)),
   };
 }
 
@@ -39,13 +54,20 @@ function safeContentType(value) {
   return /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/.test(type) ? type : 'application/octet-stream';
 }
 
+function safeSmtpReply(error) {
+  return clean(error?.response || error?.message || '', 500)
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ');
+}
+
 function friendlyMailerError(error) {
   const code = Number(error?.responseCode || 0);
   const command = clean(error?.command || '', 80);
-  if (code === 535) return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e PEC_PASSWORD.';
-  if (code === 554) return `Aruba ha rifiutato il messaggio dopo il comando ${command || 'SMTP'} (SMTP 554). Il client standard ha generato correttamente MIME e allegati: il blocco e lato server Aruba.`;
-  if (code) return `Server Aruba raggiunto, errore SMTP ${code}${command ? ` durante ${command}` : ''}.`;
-  return clean(error?.message || 'Connessione SMTP Aruba non riuscita.', 260);
+  const reply = safeSmtpReply(error);
+  if (code === 535) return `Autenticazione Aruba rifiutata (SMTP 535).${reply ? ` Risposta Aruba: ${reply}` : ''}`;
+  if (code === 554) return `Aruba ha rifiutato il messaggio dopo il comando ${command || 'SMTP'} (SMTP 554).${reply ? ` Risposta Aruba: ${reply}` : ''}`;
+  if (code) return `Server Aruba raggiunto, errore SMTP ${code}${command ? ` durante ${command}` : ''}.${reply ? ` Risposta Aruba: ${reply}` : ''}`;
+  return reply || 'Connessione SMTP Aruba non riuscita.';
 }
 
 export default async function handler(req, res) {
@@ -55,18 +77,19 @@ export default async function handler(req, res) {
   }
 
   const env = pecEnv();
-  if (!env.user || !env.password) {
+  if (!env.user || !env.password || !env.from) {
     const missing = [];
     if (!env.hasUser) missing.push('PEC_USER');
     else if (!env.user) missing.push('PEC_USER non valida');
     if (!env.hasPassword) missing.push('PEC_PASSWORD');
+    if (!env.hasFrom) missing.push('PEC_FROM');
+    else if (!env.from) missing.push('PEC_FROM non valida');
     return res.status(503).json({
       ok: false,
-      error: `Configurazione PEC incompleta: ${missing.join(' + ')}. Verifica che le variabili siano abilitate per Production e poi esegui un nuovo Redeploy.`,
+      error: `Configurazione PEC incompleta: ${missing.join(' + ')}. Verifica le variabili Vercel e poi esegui un nuovo Redeploy.`,
     });
   }
 
-  const pecUser = env.user;
   const recipient = validEmail(req.body?.recipient);
   if (!recipient || !isAllowedRecipient(recipient)) {
     return res.status(403).json({ ok: false, error: 'Destinatario di test non autorizzato.' });
@@ -111,16 +134,16 @@ export default async function handler(req, res) {
   ].join('\n');
 
   const transporter = nodemailer.createTransport({
-    host: 'smtps.pec.aruba.it',
-    port: 465,
-    secure: true,
-    name: 'bonusfatto.it',
+    host: env.host,
+    port: env.port,
+    secure: env.secure,
+    name: env.clientName,
     auth: {
-      user: pecUser,
+      user: env.user,
       pass: env.password,
     },
     tls: {
-      servername: 'smtps.pec.aruba.it',
+      servername: env.host,
       rejectUnauthorized: true,
       minVersion: 'TLSv1.2',
     },
@@ -134,8 +157,8 @@ export default async function handler(req, res) {
   try {
     await transporter.verify();
     const info = await transporter.sendMail({
-      envelope: { from: pecUser, to: [recipient] },
-      from: pecUser,
+      envelope: { from: env.from, to: [recipient] },
+      from: env.from,
       to: recipient,
       subject,
       text,
@@ -147,19 +170,25 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      sender: pecUser,
+      sender: env.from,
       recipient,
       attachmentCount: mailAttachments.length,
       messageId: clean(info?.messageId || '', 200),
       response: clean(info?.response || '', 260),
+      smtp: { host: env.host, port: env.port, secure: env.secure, clientName: env.clientName },
     });
   } catch (error) {
+    const reply = safeSmtpReply(error);
     console.error('BonusFatto PEC Nodemailer test failed', {
       message: clean(error?.message || String(error), 500),
       responseCode: error?.responseCode || null,
       command: error?.command || null,
       code: error?.code || null,
-      response: clean(error?.response || '', 500),
+      response: reply,
+      smtpHost: env.host,
+      smtpPort: env.port,
+      smtpSecure: env.secure,
+      smtpClientName: env.clientName,
     });
     return res.status(502).json({
       ok: false,
@@ -168,6 +197,8 @@ export default async function handler(req, res) {
         responseCode: error?.responseCode || null,
         command: clean(error?.command || '', 80),
         code: clean(error?.code || '', 80),
+        response: reply,
+        smtp: { host: env.host, port: env.port, secure: env.secure, clientName: env.clientName },
       },
     });
   } finally {
