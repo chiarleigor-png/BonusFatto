@@ -31,10 +31,28 @@ function formatEuro(value) {
     : '-';
 }
 
+async function verifyPaidSession(sessionId) {
+  const secret = clean(process.env.STRIPE_SECRET_KEY, 1200);
+  const id = clean(sessionId, 255);
+  if (!secret || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) return false;
+  const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${secret}` },
+  });
+  const session = await response.json().catch(() => ({}));
+  return Boolean(response.ok && session?.payment_status === 'paid' && session?.status === 'complete' && session?.metadata?.source === 'bonusfatto' && session?.metadata?.plan === 'whatsapp');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Metodo non consentito.' });
+  }
+
+  try {
+    const paid = await verifyPaidSession(req.body?.sessionId);
+    if (!paid) return res.status(403).json({ ok: false, error: 'Pagamento del servizio non verificato.' });
+  } catch {
+    return res.status(502).json({ ok: false, error: 'Impossibile verificare il pagamento. Riprova tra poco.' });
   }
 
   const smtpUser = validEmail(process.env.PRACTICHE_SMTP_USER || process.env.SMTP_USER);
@@ -72,8 +90,8 @@ export default async function handler(req, res) {
     'NUOVA ATTIVAZIONE SERVIZIO CONTINUATIVO BONUSFATTO',
     '',
     `Codice attivazione: ${code}`,
-    'Stato: RICHIESTA RICEVUTA - TEST OPERATIVO',
-    `Ricevuta il: ${activatedAt}`,
+    'Stato: SERVIZIO ATTIVO - DURATA 12 MESI',
+    `Attivato il: ${activatedAt}`,
     '',
     'CLIENTE',
     `Nome e cognome: ${nome} ${cognome}`,
@@ -89,9 +107,9 @@ export default async function handler(req, res) {
     '',
     'OPERAZIONE BACKOFFICE',
     '1. conservare il codice attivazione;',
-    '2. associare il recapito ai futuri aggiornamenti BonusFatto;',
-    '3. per WhatsApp verificare il numero prima dell’attivazione del canale definitivo;',
-    '4. il consenso potrà essere revocato dal cliente in qualsiasi momento.',
+    '2. inserire il cliente nell’elenco attivo per 12 mesi;',
+    '3. inviare gli aggiornamenti attraverso i canali selezionati;',
+    '4. registrare eventuali modifiche del canale o revoche del consenso.',
     '',
     'BonusFatto.it - LU.CA. S.r.l.s.',
   ].join('\r\n');
@@ -99,7 +117,7 @@ export default async function handler(req, res) {
   const customerBody = [
     `Ciao ${nome},`,
     '',
-    'la tua richiesta di attivazione del Servizio continuativo BonusFatto è stata ricevuta correttamente.',
+    'il tuo Servizio continuativo BonusFatto è stato attivato correttamente per 12 mesi.',
     '',
     `Codice attivazione: ${code}`,
     `Canale scelto: ${label}`,
@@ -108,9 +126,7 @@ export default async function handler(req, res) {
     `ISEE di partenza: ${formatEuro(entry.isee)}`,
     `Figli indicati: ${figli}`,
     '',
-    'In questa fase di test ricevi questa email come conferma reale della registrazione. Gli aggiornamenti periodici automatici non vengono ancora inviati.',
-    'Quando il servizio sarà attivo in produzione, riceverai avvisi su novità, scadenze e opportunità Bonus/TARI attraverso i canali selezionati.',
-    '',
+    'Riceverai aggiornamenti su novità, scadenze, bonus e TARI attraverso i canali selezionati.',
     'Potrai chiedere in qualsiasi momento la modifica del canale o la revoca del consenso.',
     '',
     'BonusFatto.it',
@@ -164,7 +180,7 @@ export default async function handler(req, res) {
       to: customerEmail,
       bcc: BACKOFFICE_EMAIL,
       replyTo: BACKOFFICE_EMAIL,
-      subject: `BonusFatto - Servizio continuativo ${code}`,
+      subject: `BonusFatto - Servizio continuativo attivato ${code}`,
       text: customerBody,
       headers: {
         'X-BonusFatto-Activation': code,
@@ -189,10 +205,7 @@ export default async function handler(req, res) {
       command: clean(error?.command || '', 80),
       code: clean(error?.code || '', 80),
     });
-    return res.status(502).json({
-      ok: false,
-      error: 'Non è stato possibile registrare il servizio continuativo. Riprova tra poco.',
-    });
+    return res.status(502).json({ ok: false, error: 'Non è stato possibile registrare il servizio continuativo. Riprova tra poco.' });
   } finally {
     transporter.close();
   }
