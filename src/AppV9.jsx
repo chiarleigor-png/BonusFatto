@@ -3,12 +3,14 @@ import IseeReportFlowFinal from './IseeReportFlowFinal.jsx';
 import ServiceTestFlow from './ServiceTestFlow.jsx';
 import QuickAnalysisTestFlow from './QuickAnalysisTestFlow.jsx';
 import TariPecTestFlowConnected from './TariPecTestFlowConnected.jsx';
+import PecSmokeTestFlow from './PecSmokeTestFlow.jsx';
 
 export default function AppV9() {
   const params = new URLSearchParams(window.location.search);
   const serviceTest = params.get('service_test');
   if (serviceTest === 'base') return <QuickAnalysisTestFlow />;
   if (serviceTest === 'tari') return <TariPecTestFlowConnected />;
+  if (serviceTest === 'pec-smoke') return <PecSmokeTestFlow />;
   if (serviceTest === 'whatsapp') return <ServiceTestFlow service={serviceTest} />;
   if (params.get('isee_preview') === '1') return <IseeReportFlowFinal />;
   return <AppV7 />;
