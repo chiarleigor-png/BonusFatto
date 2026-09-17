@@ -1,24 +1,19 @@
-import tls from 'node:tls';
+import nodemailer from 'nodemailer';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { createBonusFattoReport } from '../lib/reportPdf.js';
-import { createTariDelegationPdf } from '../lib/tariDelegationPdf.js';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const config = { api: { bodyParser: false } };
 
 const ALLOWED_PLANS = new Set(['base', 'report', 'whatsapp', 'tari']);
 const WEBHOOK_TOLERANCE_SECONDS = 300;
+const BACKOFFICE_EMAIL = 'pratiche@bonusfatto.it';
 
 function clean(value, max = 500) {
   return String(value ?? '').trim().slice(0, max);
 }
 
-function validRecipient(value) {
-  const email = clean(value, 160).toLowerCase();
-  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+function validEmail(value) {
+  const email = clean(value, 320).toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
 }
 
 async function readRawBody(req) {
@@ -32,18 +27,15 @@ function verifyStripeSignature(rawBody, signatureHeader, secret) {
   const timestampPart = parts.find((part) => part.startsWith('t='));
   const signatures = parts.filter((part) => part.startsWith('v1=')).map((part) => part.slice(3));
   const timestamp = Number(timestampPart?.slice(2));
-
   if (!Number.isInteger(timestamp) || signatures.length === 0) return false;
   if (Math.abs(Math.floor(Date.now() / 1000) - timestamp) > WEBHOOK_TOLERANCE_SECONDS) return false;
 
-  const signedPayload = `${timestamp}.${rawBody.toString('utf8')}`;
-  const expected = createHmac('sha256', secret).update(signedPayload, 'utf8').digest('hex');
+  const expected = createHmac('sha256', secret).update(`${timestamp}.${rawBody.toString('utf8')}`, 'utf8').digest('hex');
   const expectedBuffer = Buffer.from(expected, 'hex');
-
   return signatures.some((signature) => {
     if (!/^[a-f0-9]{64}$/i.test(signature)) return false;
-    const actualBuffer = Buffer.from(signature, 'hex');
-    return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer);
+    const actual = Buffer.from(signature, 'hex');
+    return actual.length === expectedBuffer.length && timingSafeEqual(actual, expectedBuffer);
   });
 }
 
@@ -59,11 +51,7 @@ async function stripeSession(secret, sessionId) {
 function supabaseHeaders() {
   const key = clean(process.env.SUPABASE_SERVICE_ROLE_KEY, 1200);
   if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY mancante.');
-  return {
-    apikey: key,
-    Authorization: `Bearer ${key}`,
-    'Content-Type': 'application/json',
-  };
+  return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
 }
 
 function supabaseBase() {
@@ -98,234 +86,81 @@ async function markPaid(session) {
   return Array.isArray(rows) ? rows[0] || null : null;
 }
 
-function readSmtpResponse(socket) {
-  return new Promise((resolve, reject) => {
-    let buffer = '';
-    const timer = setTimeout(() => cleanup(new Error('Timeout SMTP.')), 10000);
-    const onData = (chunk) => {
-      buffer += chunk.toString('utf8');
-      const lines = buffer.split(/\r?\n/).filter(Boolean);
-      const last = lines[lines.length - 1] || '';
-      if (/^\d{3} /.test(last)) cleanup(null, { code: Number(last.slice(0, 3)), text: buffer });
-    };
-    const onError = (error) => cleanup(error);
-    const cleanup = (error, value) => {
-      clearTimeout(timer);
-      socket.off('data', onData);
-      socket.off('error', onError);
-      error ? reject(error) : resolve(value);
-    };
-    socket.on('data', onData);
-    socket.on('error', onError);
-  });
+function planInstructions(plan) {
+  if (plan === 'base') return 'Al rientro su BonusFatto.it troverai immediatamente la tua Analisi veloce.';
+  if (plan === 'report') return 'Al rientro su BonusFatto.it potrai completare l’analisi e scaricare la relazione PDF definitiva.';
+  if (plan === 'tari') return 'Al rientro su BonusFatto.it potrai completare la pratica TARI, scaricare la delega e caricare i documenti richiesti.';
+  if (plan === 'whatsapp') return 'Al rientro su BonusFatto.it potrai scegliere Email, WhatsApp o entrambi e completare l’attivazione per 12 mesi.';
+  return 'Al rientro su BonusFatto.it troverai il servizio acquistato.';
 }
 
-async function smtpCommand(socket, command, expected = [250]) {
-  if (command) socket.write(`${command}\r\n`);
-  const response = await readSmtpResponse(socket);
-  if (!expected.includes(response.code)) throw new Error(`SMTP ${response.code}: ${response.text}`);
-  return response;
-}
-
-function wrapBase64(buffer) {
-  return Buffer.from(buffer).toString('base64').match(/.{1,76}/g)?.join('\r\n') || '';
-}
-
-async function sendMail(to, subject, body, attachment = null, smtpAccount = null) {
-  const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
-  const user = validRecipient(smtpAccount ? smtpAccount.user : process.env.SMTP_USER);
-  const password = String(smtpAccount ? smtpAccount.password : process.env.SMTP_PASSWORD || '');
-  const recipient = validRecipient(to);
-  if (!host || !user || !password || !recipient) throw new Error('Configurazione SMTP o destinatario non validi.');
-
-  const socket = tls.connect({ host, port: 465, servername: host, rejectUnauthorized: true });
-  await new Promise((resolve, reject) => {
-    socket.once('secureConnect', resolve);
-    socket.once('error', reject);
-  });
-
-  try {
-    let response = await readSmtpResponse(socket);
-    if (response.code !== 220) throw new Error(`SMTP ${response.code}`);
-    await smtpCommand(socket, 'EHLO bonusfatto.it', [250]);
-    await smtpCommand(socket, 'AUTH LOGIN', [334]);
-    await smtpCommand(socket, Buffer.from(user).toString('base64'), [334]);
-    await smtpCommand(socket, Buffer.from(password).toString('base64'), [235]);
-    await smtpCommand(socket, `MAIL FROM:<${user}>`, [250]);
-    await smtpCommand(socket, `RCPT TO:<${recipient}>`, [250, 251]);
-    await smtpCommand(socket, 'DATA', [354]);
-
-    const safeSubject = clean(subject, 180).replace(/[\r\n]+/g, ' ');
-    const textBody = String(body || '').replace(/^\./gm, '..');
-    const commonHeaders = [
-      `From: BonusFatto <${user}>`,
-      `To: ${recipient}`,
-      `Subject: ${safeSubject}`,
-      'MIME-Version: 1.0',
-    ];
-
-    let message;
-    if (attachment?.data) {
-      const boundary = `----BonusFatto-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      const filename = clean(attachment.filename || 'BonusFatto_Relazione.pdf', 160).replace(/["\r\n]/g, '_');
-      const contentType = clean(attachment.contentType || 'application/octet-stream', 80);
-      message = [
-        ...commonHeaders,
-        `Content-Type: multipart/mixed; boundary="${boundary}"`,
-        '',
-        `--${boundary}`,
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
-        '',
-        textBody,
-        '',
-        `--${boundary}`,
-        `Content-Type: ${contentType}; name="${filename}"`,
-        'Content-Transfer-Encoding: base64',
-        `Content-Disposition: attachment; filename="${filename}"`,
-        '',
-        wrapBase64(attachment.data),
-        `--${boundary}--`,
-        '.',
-        '',
-      ].join('\r\n');
-    } else {
-      message = [
-        ...commonHeaders,
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
-        '',
-        textBody,
-        '.',
-        '',
-      ].join('\r\n');
-    }
-
-    socket.write(message);
-    response = await readSmtpResponse(socket);
-    if (response.code !== 250) throw new Error(`SMTP ${response.code}`);
-    await smtpCommand(socket, 'QUIT', [221]);
-  } finally {
-    socket.end();
-  }
-}
-
-function adminEmail(order) {
+function customerMessage(order) {
+  const name = clean(order.customer_name, 120) || 'Cliente';
   const amount = (Number(order.amount_cents || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
   return {
-    subject: `Nuovo ordine BonusFatto - ${order.order_code}`,
-    body: [
-      'Nuovo ordine BonusFatto',
+    subject: `BonusFatto - pagamento confermato ${order.order_code}`,
+    text: [
+      `Ciao ${name},`,
       '',
+      'il pagamento su BonusFatto.it è stato ricevuto correttamente.',
       `Codice ordine: ${order.order_code}`,
-      'Pagamento: RIUSCITO',
       `Servizio: ${order.service_name}`,
       `Importo: ${amount}`,
-      `Cliente: ${[order.customer_name, order.customer_surname].filter(Boolean).join(' ') || '-'}`,
-      `Email: ${order.customer_email || '-'}`,
-      `Comune analizzato: ${order.calculation_municipality || '-'}`,
-      `ISEE: ${Number(order.isee || 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`,
-      `Figli: ${order.children ?? 0}`,
-      `Piano: ${order.plan || '-'}`,
-      `Stripe Session: ${order.stripe_session_id}`,
       '',
-      'Stato pratica: PAGATO',
+      planInstructions(order.plan),
+      '',
+      'Conserva questa email come conferma dell’acquisto.',
+      '',
+      'BonusFatto.it',
+      'Servizio gestito da LU.CA. S.r.l.s.',
+      'info@bonusfatto.it',
     ].join('\r\n'),
   };
 }
 
-function customerEmail(order, hasAttachment = false) {
-  const firstName = clean(order.customer_name, 120) || 'Cliente';
-  const code = clean(order.order_code, 80);
-  const commonHeader = [
-    `Ciao ${firstName},`,
-    '',
-    'il pagamento su BonusFatto.it è stato ricevuto correttamente.',
-    `Codice ordine: ${code}`,
-    `Servizio acquistato: ${order.service_name}`,
-    '',
-  ];
-
-  const commonFooter = [
-    '',
-    'Conserva questa email come conferma dell’acquisto.',
-    '',
-    'BonusFatto.it',
-    'info@bonusfatto.it',
-  ];
-
-  if (order.plan === 'report') {
-    return {
-      subject: `BonusFatto - relazione PDF e ordine ${code}`,
-      body: [
-        ...commonHeader,
-        'Hai acquistato Analisi + relazione PDF.',
-        hasAttachment
-          ? 'Trovi in allegato la tua relazione BonusFatto personalizzata in formato PDF, già predisposta con i dati del tuo ordine.'
-          : 'La tua relazione BonusFatto personalizzata è disponibile nella pagina post-pagamento.',
-        'Nel documento trovi il riepilogo delle opportunità individuate, la sezione TARI, le verifiche ancora necessarie e il testo email/PEC personalizzato da utilizzare con l’Ufficio Tributi del Comune.',
-        'Puoi inoltre scaricare nuovamente la relazione dalla pagina BonusFatto aperta dopo il pagamento.',
-        ...commonFooter,
-      ].join('\r\n'),
-    };
-  }
-
-  if (order.plan === 'whatsapp') {
-    const phoneLine = order.whatsapp ? `Numero indicato: ${order.whatsapp}` : 'Numero WhatsApp: quello indicato in fase di acquisto.';
-    const consentLine = order.whatsapp_consent ? 'Il consenso agli avvisi WhatsApp risulta registrato.' : 'Verificheremo il consenso agli avvisi prima dell’attivazione.';
-    return {
-      subject: `BonusFatto - Bonus Alert attivato (${code})`,
-      body: [
-        ...commonHeader,
-        'Hai acquistato Bonus Alert WhatsApp per 12 mesi.',
-        phoneLine,
-        consentLine,
-        'Riceverai su WhatsApp gli avvisi collegati a scadenze e nuovi bonus previsti dal servizio acquistato.',
-        ...commonFooter,
-      ].join('\r\n'),
-    };
-  }
-
-  if (order.plan === 'tari') {
-    return {
-      subject: `BonusFatto - delega da firmare per la pratica TARI ${code}`,
-      body: [
-        ...commonHeader,
-        'La tua pratica TARI è stata aperta correttamente.',
-        hasAttachment
-          ? 'In allegato trovi la delega già precompilata con i dati disponibili del tuo ordine.'
-          : 'Ti contatteremo da questa casella per completare la delega necessaria.',
-        '',
-        'Per proseguire:',
-        '1. stampa la delega allegata;',
-        '2. controlla i dati e completa gli eventuali campi mancanti;',
-        '3. firma a penna nello spazio indicato;',
-        '4. rispondi direttamente a questa email allegando:',
-        '   - la delega firmata, completa e leggibile;',
-        '   - il documento di identità in corso di validità, fronte e retro;',
-        '   - l’eventuale documentazione TARI disponibile (avviso, bolletta, codice utenza o comunicazioni del Comune).',
-        '',
-        `Indica sempre il codice pratica ${code} nell’oggetto delle comunicazioni.`,
-        'Dopo la verifica degli allegati predisporremo la richiesta e la trasmetteremo all’Ufficio Tributi attraverso il canale previsto dal Comune, inclusa PEC quando ammessa. Ti invieremo copia della pratica e delle ricevute disponibili.',
-        '',
-        'Questa email conferma il pagamento e l’apertura della pratica; non attesta ancora la completezza dei documenti né l’avvenuta presentazione al Comune.',
-        '',
-        'BonusFatto.it',
-        'Servizio gestito da LU.CA. S.r.l.s.',
-        'pratiche@bonusfatto.it',
-      ].join('\r\n'),
-    };
-  }
-
+function internalMessage(order) {
+  const amount = (Number(order.amount_cents || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
   return {
-    subject: `BonusFatto - ordine ${code} confermato`,
-    body: [
-      ...commonHeader,
-      'Hai acquistato l’Analisi completa.',
-      'Il risultato dettagliato è disponibile immediatamente al rientro su BonusFatto.it dopo il pagamento.',
-      'Se hai già chiuso la pagina, conserva questa email come conferma del pagamento: l’ordine risulta registrato correttamente.',
-      ...commonFooter,
+    subject: `[BonusFatto] Nuovo ordine pagato ${order.order_code}`,
+    text: [
+      'NUOVO ORDINE BONUSFATTO',
+      '',
+      `Codice ordine: ${order.order_code}`,
+      `Servizio: ${order.service_name}`,
+      `Piano: ${order.plan}`,
+      `Importo: ${amount}`,
+      `Cliente: ${[order.customer_name, order.customer_surname].filter(Boolean).join(' ') || '-'}`,
+      `Email: ${order.customer_email || '-'}`,
+      `Comune: ${order.calculation_municipality || '-'}`,
+      `ISEE: ${Number(order.isee || 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`,
+      `Figli: ${order.children ?? 0}`,
+      `Stripe Session: ${order.stripe_session_id}`,
+      '',
+      'Stato: PAGATO - IN ATTESA DI COMPLETAMENTO SERVIZIO O CONSEGNA',
     ].join('\r\n'),
+  };
+}
+
+function mailTransport() {
+  const user = validEmail(process.env.SMTP_USER || process.env.PRACTICHE_SMTP_USER);
+  const pass = String(process.env.SMTP_PASSWORD || process.env.PRACTICHE_SMTP_PASSWORD || '');
+  const host = clean(process.env.SMTP_HOST || 'smtps.aruba.it', 255);
+  const port = Number(process.env.SMTP_PORT || 465);
+  if (!user || !pass || !host || !Number.isInteger(port)) return null;
+  return {
+    user,
+    transporter: nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: true },
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 30000,
+      disableFileAccess: true,
+      disableUrlAccess: true,
+    }),
   };
 }
 
@@ -337,112 +172,68 @@ export default async function handler(req, res) {
 
   const stripeSecret = clean(process.env.STRIPE_SECRET_KEY, 1200);
   const webhookSecret = clean(process.env.STRIPE_WEBHOOK_SECRET, 1200);
-  if (!stripeSecret || !webhookSecret) {
-    return res.status(503).json({ error: 'Configurazione Stripe incompleta.' });
-  }
+  if (!stripeSecret || !webhookSecret) return res.status(503).json({ error: 'Configurazione Stripe incompleta.' });
 
   let rawBody;
-  try {
-    rawBody = await readRawBody(req);
-  } catch {
-    return res.status(400).json({ error: 'Payload webhook non leggibile.' });
-  }
+  try { rawBody = await readRawBody(req); }
+  catch { return res.status(400).json({ error: 'Payload webhook non leggibile.' }); }
 
-  const signature = req.headers['stripe-signature'];
-  if (!verifyStripeSignature(rawBody, signature, webhookSecret)) {
+  if (!verifyStripeSignature(rawBody, req.headers['stripe-signature'], webhookSecret)) {
     return res.status(400).json({ error: 'Firma webhook Stripe non valida.' });
   }
 
   let event;
-  try {
-    event = JSON.parse(rawBody.toString('utf8'));
-  } catch {
-    return res.status(400).json({ error: 'Payload webhook non valido.' });
-  }
+  try { event = JSON.parse(rawBody.toString('utf8')); }
+  catch { return res.status(400).json({ error: 'Payload webhook non valido.' }); }
 
-  if (event.type !== 'checkout.session.completed') {
-    return res.status(200).json({ received: true, ignored: true });
-  }
+  if (event.type !== 'checkout.session.completed') return res.status(200).json({ received: true, ignored: true });
 
   const sessionId = clean(event?.data?.object?.id, 255);
-  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
-    return res.status(200).json({ received: true, ignored: true });
-  }
+  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) return res.status(200).json({ received: true, ignored: true });
 
   try {
     const session = await stripeSession(stripeSecret, sessionId);
-    const metadata = session.metadata || {};
-    const source = clean(metadata.source, 50);
-    const plan = clean(metadata.plan, 50);
-
-    if (source !== 'bonusfatto' || !ALLOWED_PLANS.has(plan)) {
-      return res.status(200).json({ received: true, ignored: true });
-    }
-
-    const paid = session.payment_status === 'paid' && session.status === 'complete';
-    if (!paid) return res.status(200).json({ received: true, ignored: true });
+    const plan = clean(session?.metadata?.plan, 50);
+    if (session?.metadata?.source !== 'bonusfatto' || !ALLOWED_PLANS.has(plan)) return res.status(200).json({ received: true, ignored: true });
+    if (session.payment_status !== 'paid' || session.status !== 'complete') return res.status(200).json({ received: true, ignored: true });
 
     const pendingOrder = await getPendingOrder(session.id);
-    if (!pendingOrder) {
-      return res.status(200).json({ received: true, duplicate: true });
-    }
-
-    let reportPdf = null;
-    let tariDelegationPdf = null;
-    if (plan === 'report') {
-      reportPdf = await createBonusFattoReport(pendingOrder);
-      if (!Buffer.isBuffer(reportPdf) || reportPdf.length < 500) throw new Error('PDF relazione non generato correttamente.');
-    }
-    if (plan === 'tari') {
-      tariDelegationPdf = await createTariDelegationPdf(pendingOrder);
-      if (!Buffer.isBuffer(tariDelegationPdf) || tariDelegationPdf.length < 500) throw new Error('PDF delega TARI non generato correttamente.');
-    }
-
+    if (!pendingOrder) return res.status(200).json({ received: true, duplicate: true });
     const paidOrder = await markPaid(session);
     if (!paidOrder) return res.status(200).json({ received: true, duplicate: true });
 
-    const smtpUser = validRecipient(process.env.SMTP_USER);
-    const internal = adminEmail(paidOrder);
-    try {
-      await sendMail(smtpUser, internal.subject, internal.body);
-    } catch (mailError) {
-      console.error('BonusFatto internal order email failed', mailError?.message || mailError);
+    const mail = mailTransport();
+    if (mail) {
+      try {
+        const internal = internalMessage(paidOrder);
+        await mail.transporter.sendMail({
+          from: `BonusFatto <${mail.user}>`,
+          to: BACKOFFICE_EMAIL,
+          replyTo: paidOrder.customer_email || undefined,
+          subject: internal.subject,
+          text: internal.text,
+        });
+      } catch (error) {
+        console.error('BonusFatto internal payment email failed', error?.message || error);
+      }
+
+      try {
+        const customer = customerMessage(paidOrder);
+        await mail.transporter.sendMail({
+          from: `BonusFatto <${mail.user}>`,
+          to: paidOrder.customer_email,
+          replyTo: BACKOFFICE_EMAIL,
+          subject: customer.subject,
+          text: customer.text,
+        });
+      } catch (error) {
+        console.error('BonusFatto customer payment email failed', error?.message || error);
+      } finally {
+        mail.transporter.close();
+      }
     }
 
-    const customerAttachment = reportPdf || tariDelegationPdf;
-    const customer = customerEmail(paidOrder, Boolean(customerAttachment));
-    const attachment = reportPdf
-      ? {
-          filename: `BonusFatto_Relazione_${clean(paidOrder.order_code, 80).replace(/[^A-Za-z0-9_-]/g, '')}.pdf`,
-          contentType: 'application/pdf',
-          data: reportPdf,
-        }
-      : tariDelegationPdf
-        ? {
-            filename: `BonusFatto_Delega_TARI_${clean(paidOrder.order_code, 80).replace(/[^A-Za-z0-9_-]/g, '')}.pdf`,
-            contentType: 'application/pdf',
-            data: tariDelegationPdf,
-          }
-      : null;
-    try {
-      const tariSmtp = plan === 'tari'
-        ? {
-            user: validRecipient(process.env.PRACTICHE_SMTP_USER),
-            password: String(process.env.PRACTICHE_SMTP_PASSWORD || ''),
-          }
-        : null;
-      await sendMail(paidOrder.customer_email, customer.subject, customer.body, attachment, tariSmtp);
-    } catch (mailError) {
-      console.error('BonusFatto customer order email failed', mailError?.message || mailError);
-    }
-
-    return res.status(200).json({
-      received: true,
-      processed: true,
-      order_code: paidOrder.order_code,
-      report_attached: Boolean(reportPdf),
-      tari_delegation_attached: Boolean(tariDelegationPdf),
-    });
+    return res.status(200).json({ received: true, processed: true, order_code: paidOrder.order_code });
   } catch (error) {
     console.error('BonusFatto Stripe webhook failed', error?.message || error);
     return res.status(500).json({ error: 'Errore elaborazione webhook.' });
