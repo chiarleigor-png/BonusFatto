@@ -10,6 +10,7 @@ import './family-hero.css';
 import './results-v3.css';
 import './iseeFlow.css';
 import './serviceTest.css';
+import './tariPecTest.css';
 import './legalSite.js';
 import './guideNav.js';
 import './brandLogo.js';
