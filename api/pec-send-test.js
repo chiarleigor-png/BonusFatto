@@ -17,6 +17,17 @@ function isAllowedRecipient(email) {
   return createHash('sha256').update(email.toLowerCase(), 'utf8').digest('hex') === ALLOWED_RECIPIENT_HASH;
 }
 
+function pecEnv() {
+  const userRaw = process.env.PEC_USER || process.env.PEC_SMTP_USER || process.env.SMTP_PEC_USER || process.env.PEC_EMAIL || '';
+  const passwordRaw = process.env.PEC_PASSWORD || process.env.PEC_SMTP_PASSWORD || process.env.SMTP_PEC_PASSWORD || '';
+  return {
+    user: validEmail(userRaw),
+    password: String(passwordRaw || ''),
+    hasUser: Boolean(clean(userRaw)),
+    hasPassword: Boolean(String(passwordRaw || '').trim()),
+  };
+}
+
 function readSmtpResponse(socket) {
   return new Promise((resolve, reject) => {
     let buffer = '';
@@ -60,10 +71,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Metodo non consentito.' });
   }
 
-  const pecUser = validEmail(process.env.PEC_USER);
-  const pecPassword = String(process.env.PEC_PASSWORD || '');
-  if (!pecUser || !pecPassword) return res.status(503).json({ ok: false, error: 'Credenziali PEC non configurate.' });
+  const env = pecEnv();
+  if (!env.user || !env.password) {
+    const missing = [];
+    if (!env.hasUser) missing.push('PEC_USER');
+    else if (!env.user) missing.push('PEC_USER non valida');
+    if (!env.hasPassword) missing.push('PEC_PASSWORD');
+    return res.status(503).json({
+      ok: false,
+      error: `Configurazione PEC incompleta: ${missing.join(' + ')}. Verifica che le variabili siano abilitate per Production e poi esegui un nuovo Redeploy.`,
+      env: { userConfigured: env.hasUser, passwordConfigured: env.hasPassword },
+    });
+  }
 
+  const pecUser = env.user;
+  const pecPassword = env.password;
   const recipient = validEmail(req.body?.recipient);
   if (!recipient || !isAllowedRecipient(recipient)) {
     return res.status(403).json({ ok: false, error: 'Destinatario di test non autorizzato.' });
@@ -160,7 +182,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, sender: pecUser, recipient, attachmentCount: safeAttachments.length });
   } catch (error) {
     console.error('BonusFatto PEC send test failed', error?.message || error);
-    return res.status(502).json({ ok: false, error: 'Invio PEC di test non riuscito.' });
+    return res.status(502).json({ ok: false, error: 'Invio PEC di test non riuscito. Autenticazione o connessione SMTP Aruba non riuscita.' });
   } finally {
     if (!socket.destroyed) socket.end();
   }
