@@ -11,6 +11,7 @@ import './iseeFlow.css';
 import './serviceTest.css';
 import './tariPecTest.css';
 import './legalSite.js';
+import './contactPageEnhancement.js';
 import './guideNav.js';
 import './brandLogo.js';
 import './formEnhancements.js';
