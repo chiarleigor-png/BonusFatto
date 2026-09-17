@@ -1,4 +1,4 @@
-import tls from 'node:tls';
+import nodemailer from 'nodemailer';
 import { createHash } from 'node:crypto';
 
 const ALLOWED_RECIPIENT_HASH = '9feb31c82e009049e56767cd28f23c232e82566ea7f84f239bece04d0365d5f8';
@@ -28,67 +28,10 @@ function pecEnv() {
   };
 }
 
-function readSmtpResponse(socket) {
-  return new Promise((resolve, reject) => {
-    let buffer = '';
-    const timer = setTimeout(() => cleanup(new Error('Timeout SMTP PEC.')), 20000);
-    const onData = (chunk) => {
-      buffer += chunk.toString('utf8');
-      const lines = buffer.split(/\r?\n/).filter(Boolean);
-      const last = lines[lines.length - 1] || '';
-      if (/^\d{3} /.test(last)) cleanup(null, { code: Number(last.slice(0, 3)), text: buffer });
-    };
-    const onError = (error) => cleanup(error);
-    const cleanup = (error, value) => {
-      clearTimeout(timer);
-      socket.off('data', onData);
-      socket.off('error', onError);
-      error ? reject(error) : resolve(value);
-    };
-    socket.on('data', onData);
-    socket.on('error', onError);
-  });
-}
-
-function smtpError(stage, response) {
-  const error = new Error(`SMTP ${response?.code || 'ERR'} @ ${stage}`);
-  error.smtpCode = response?.code || 0;
-  error.smtpStage = stage;
-  error.smtpReply = clean(response?.text || '', 500);
-  return error;
-}
-
-async function command(socket, value, expected, stage) {
-  if (value) socket.write(`${value}\r\n`);
-  const response = await readSmtpResponse(socket);
-  if (!expected.includes(response.code)) throw smtpError(stage, response);
-  return response;
-}
-
 function safeFilename(value) {
   return clean(value || 'allegato', 120)
     .replace(/["\r\n\\]/g, '_')
     .replace(/[^A-Za-z0-9._() -]/g, '_');
-}
-
-function wrapBase64(value) {
-  return String(value || '').match(/.{1,76}/g)?.join('\r\n') || '';
-}
-
-function encodeUtf8Base64(value) {
-  return Buffer.from(String(value || ''), 'utf8').toString('base64');
-}
-
-function encodeSubject(value) {
-  return `=?UTF-8?B?${encodeUtf8Base64(value)}?=`;
-}
-
-function dotStuff(message) {
-  return String(message || '')
-    .replace(/\r?\n/g, '\r\n')
-    .split('\r\n')
-    .map((line) => line.startsWith('.') ? `.${line}` : line)
-    .join('\r\n');
 }
 
 function safeContentType(value) {
@@ -96,17 +39,13 @@ function safeContentType(value) {
   return /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/.test(type) ? type : 'application/octet-stream';
 }
 
-function friendlySmtpError(error) {
-  const code = Number(error?.smtpCode || 0);
-  const stage = String(error?.smtpStage || 'connessione');
-
+function friendlyMailerError(error) {
+  const code = Number(error?.responseCode || 0);
+  const command = clean(error?.command || '', 80);
   if (code === 535) return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e PEC_PASSWORD.';
-  if (code === 554 && stage === 'MAIL FROM') return 'Aruba ha autenticato la PEC ma ha rifiutato il mittente (SMTP 554 · MAIL FROM).';
-  if (code === 554 && stage === 'RCPT TO') return 'Aruba ha autenticato la PEC ma ha rifiutato il destinatario di test (SMTP 554 · RCPT TO).';
-  if (code === 554 && stage === 'DATA') return 'Aruba ha autenticato mittente e destinatario ma ha rifiutato l’avvio del messaggio (SMTP 554 · DATA).';
-  if (code === 554 && stage === 'ACCETTAZIONE MESSAGGIO') return 'Aruba ha accettato login, mittente e destinatario, ma ha rifiutato il contenuto finale del messaggio (SMTP 554 · dopo DATA).';
-  if (code) return `Server Aruba raggiunto, errore SMTP ${code} nella fase ${stage}.`;
-  return 'Connessione SMTP Aruba non riuscita.';
+  if (code === 554) return `Aruba ha rifiutato il messaggio dopo il comando ${command || 'SMTP'} (SMTP 554). Il client standard ha generato correttamente MIME e allegati: il blocco e lato server Aruba.`;
+  if (code) return `Server Aruba raggiunto, errore SMTP ${code}${command ? ` durante ${command}` : ''}.`;
+  return clean(error?.message || 'Connessione SMTP Aruba non riuscita.', 260);
 }
 
 export default async function handler(req, res) {
@@ -128,7 +67,6 @@ export default async function handler(req, res) {
   }
 
   const pecUser = env.user;
-  const pecPassword = env.password;
   const recipient = validEmail(req.body?.recipient);
   if (!recipient || !isAllowedRecipient(recipient)) {
     return res.status(403).json({ ok: false, error: 'Destinatario di test non autorizzato.' });
@@ -140,7 +78,7 @@ export default async function handler(req, res) {
   const attachments = Array.isArray(req.body?.attachments) ? req.body.attachments.slice(0, 8) : [];
 
   let totalBytes = 0;
-  const safeAttachments = [];
+  const mailAttachments = [];
   for (const item of attachments) {
     const data = String(item?.data || '').replace(/\s+/g, '');
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(data)) continue;
@@ -149,15 +87,15 @@ export default async function handler(req, res) {
     if (totalBytes > MAX_TOTAL_ATTACHMENT_BYTES) {
       return res.status(413).json({ ok: false, error: 'Allegati troppo pesanti per il test. Riduci la dimensione totale sotto circa 2,7 MB.' });
     }
-    safeAttachments.push({
+    mailAttachments.push({
       filename: safeFilename(item?.filename),
+      content: Buffer.from(data, 'base64'),
       contentType: safeContentType(item?.contentType),
-      data,
     });
   }
 
   const subject = `[TEST BonusFatto] Pratica TARI ${comune || ''}`.trim();
-  const textBody = [
+  const text = [
     'TEST INVIO PEC BONUSFATTO',
     '',
     'Questa comunicazione e stata inviata esclusivamente per verificare il flusso tecnico della pratica TARI.',
@@ -165,87 +103,74 @@ export default async function handler(req, res) {
     `ISEE: ${Number.isFinite(isee) ? isee.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }) : '-'}`,
     `PEC comunale individuata dal sistema (NON utilizzata nel test): ${municipalPec || 'non disponibile'}`,
     '',
-    `Allegati inclusi: ${safeAttachments.length}`,
+    `Allegati inclusi: ${mailAttachments.length}`,
     '',
     'Nessuna comunicazione e stata inviata al Comune.',
     '',
     'BonusFatto.it - LU.CA. S.r.l.s.',
-  ].join('\r\n');
+  ].join('\n');
 
-  const boundary = `=_BonusFatto_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  const lines = [
-    `From: <${pecUser}>`,
-    `To: <${recipient}>`,
-    `Date: ${new Date().toUTCString()}`,
-    `Subject: ${encodeSubject(subject)}`,
-    'MIME-Version: 1.0',
-    `Content-Type: multipart/mixed; boundary="${boundary}"`,
-    '',
-    `--${boundary}`,
-    'Content-Type: text/plain; charset="UTF-8"',
-    'Content-Transfer-Encoding: base64',
-    '',
-    wrapBase64(encodeUtf8Base64(textBody)),
-    '',
-  ];
-
-  for (const attachment of safeAttachments) {
-    lines.push(
-      `--${boundary}`,
-      `Content-Type: ${attachment.contentType}; name="${attachment.filename}"`,
-      'Content-Transfer-Encoding: base64',
-      `Content-Disposition: attachment; filename="${attachment.filename}"`,
-      '',
-      wrapBase64(attachment.data),
-      '',
-    );
-  }
-
-  lines.push(`--${boundary}--`, '');
-  const mime = dotStuff(lines.join('\r\n'));
-
-  const host = 'smtps.pec.aruba.it';
-  const socket = tls.connect({ host, port: 465, servername: host, rejectUnauthorized: true, minVersion: 'TLSv1.2' });
+  const transporter = nodemailer.createTransport({
+    host: 'smtps.pec.aruba.it',
+    port: 465,
+    secure: true,
+    name: 'bonusfatto.it',
+    auth: {
+      user: pecUser,
+      pass: env.password,
+    },
+    tls: {
+      servername: 'smtps.pec.aruba.it',
+      rejectUnauthorized: true,
+      minVersion: 'TLSv1.2',
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
+    disableFileAccess: true,
+    disableUrlAccess: true,
+  });
 
   try {
-    await new Promise((resolve, reject) => {
-      socket.once('secureConnect', resolve);
-      socket.once('error', reject);
+    await transporter.verify();
+    const info = await transporter.sendMail({
+      envelope: { from: pecUser, to: [recipient] },
+      from: pecUser,
+      to: recipient,
+      subject,
+      text,
+      attachments: mailAttachments,
+      headers: {
+        'X-BonusFatto-Test': 'TARI-PEC',
+      },
     });
 
-    let response = await readSmtpResponse(socket);
-    if (response.code !== 220) throw smtpError('GREETING', response);
-
-    await command(socket, 'EHLO bonusfatto.it', [250], 'EHLO');
-    await command(socket, 'AUTH LOGIN', [334], 'AUTH LOGIN');
-    await command(socket, Buffer.from(pecUser).toString('base64'), [334], 'AUTH USER');
-    await command(socket, Buffer.from(pecPassword).toString('base64'), [235], 'AUTH PASSWORD');
-    await command(socket, `MAIL FROM:<${pecUser}>`, [250], 'MAIL FROM');
-    await command(socket, `RCPT TO:<${recipient}>`, [250, 251], 'RCPT TO');
-    await command(socket, 'DATA', [354], 'DATA');
-
-    socket.write(`${mime}\r\n.\r\n`);
-    response = await readSmtpResponse(socket);
-    if (response.code !== 250) throw smtpError('ACCETTAZIONE MESSAGGIO', response);
-
-    await command(socket, 'QUIT', [221], 'QUIT');
-    return res.status(200).json({ ok: true, sender: pecUser, recipient, attachmentCount: safeAttachments.length });
+    return res.status(200).json({
+      ok: true,
+      sender: pecUser,
+      recipient,
+      attachmentCount: mailAttachments.length,
+      messageId: clean(info?.messageId || '', 200),
+      response: clean(info?.response || '', 260),
+    });
   } catch (error) {
-    console.error('BonusFatto PEC send test failed', {
-      message: error?.message || String(error),
-      smtpCode: error?.smtpCode || null,
-      smtpStage: error?.smtpStage || null,
-      smtpReply: error?.smtpReply || null,
+    console.error('BonusFatto PEC Nodemailer test failed', {
+      message: clean(error?.message || String(error), 500),
+      responseCode: error?.responseCode || null,
+      command: error?.command || null,
+      code: error?.code || null,
+      response: clean(error?.response || '', 500),
     });
     return res.status(502).json({
       ok: false,
-      error: `Invio PEC di test non riuscito. ${friendlySmtpError(error)}`,
+      error: `Invio PEC di test non riuscito. ${friendlyMailerError(error)}`,
       diagnostic: {
-        smtpCode: error?.smtpCode || null,
-        smtpStage: error?.smtpStage || null,
+        responseCode: error?.responseCode || null,
+        command: clean(error?.command || '', 80),
+        code: clean(error?.code || '', 80),
       },
     });
   } finally {
-    if (!socket.destroyed) socket.end();
+    transporter.close();
   }
 }
