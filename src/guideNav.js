@@ -46,6 +46,8 @@ function addGuideNavigation() {
   if (!current) return;
 
   if (current.tagName === 'A') {
+    if (current.dataset.bfGuideReady === '1') return;
+    current.dataset.bfGuideReady = '1';
     current.classList.add('bf-guide-highlight');
     current.href = '/guide-bonus/';
     current.setAttribute('aria-label', 'Guide Bonus');
@@ -54,6 +56,7 @@ function addGuideNavigation() {
   }
 
   const link = document.createElement('a');
+  link.dataset.bfGuideReady = '1';
   link.className = `${current.className} bf-guide-highlight`;
   link.href = '/guide-bonus/';
   link.setAttribute('aria-label', 'Guide Bonus');
