@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { euro } from './benefits.js';
+import PecSendTestPanel from './PecSendTestPanel.jsx';
 
 const ENTRY_KEY = 'bonusfatto_service_test_entry';
 
@@ -139,9 +140,9 @@ export default function TariPecTestFlow() {
 
   if (submitted) return <Shell><section className="bfs-confirmation">
     <div className="bfs-success-icon">✓</div>
-    <span className="bfs-eyebrow">TEST COMPLETATO · NESSUN INVIO REALE</span>
+    <span className="bfs-eyebrow">TEST PRATICA COMPLETA · NESSUN INVIO AL COMUNE</span>
     <h1>La pratica TARI è completa.</h1>
-    <p>Il test ha verificato dati, delega e allegati obbligatori. Nessuna PEC è stata trasmessa.</p>
+    <p>Dati, delega e allegati obbligatori sono pronti. Ora puoi eseguire l’invio reale di prova dalla PEC LU.CA. esclusivamente alla Gmail autorizzata.</p>
     <div className="bfs-summary">
       <div><span>Comune</span><strong>{form.comuneTari}</strong></div>
       <div><span>ISEE</span><strong>{euro(Number(form.isee))}</strong></div>
@@ -151,7 +152,8 @@ export default function TariPecTestFlow() {
       <div><span>Allegati TARI facoltativi</span><strong>{tariFiles.length}</strong></div>
     </div>
     <PecStatus lookup={lookup} loading={false} />
-    <div className="bfs-test-warning"><strong>Passaggio successivo, dopo i test:</strong> collegheremo l’invio dalla PEC LU.CA. solo per gli indirizzi verificati; i casi dubbi resteranno in coda per controllo manuale.</div>
+    <PecSendTestPanel form={form} lookup={lookup} iseeFile={iseeFile} idFiles={idFiles} delegationFile={delegationFile} tariFiles={tariFiles} />
+    <div className="bfs-test-warning"><strong>Sicurezza test:</strong> la PEC del Comune individuata da IndicePA non viene utilizzata. Il backend accetta soltanto la Gmail autorizzata per questa prova.</div>
     <div className="bfs-confirm-actions"><button className="bfs-secondary" type="button" onClick={() => setSubmitted(false)}>Modifica pratica</button><a className="bfs-primary-link" href="/">Torna alla Home</a></div>
   </section></Shell>;
 
@@ -197,7 +199,7 @@ export default function TariPecTestFlow() {
       </div>
 
       {error && <div className="checkout-error" role="alert">{error}</div>}
-      <div className="bfs-test-warning"><strong>Modalità test:</strong> i file restano nel browser e nessuna PEC viene inviata. Stiamo verificando il percorso completo prima di collegare la PEC LU.CA.</div>
+      <div className="bfs-test-warning"><strong>Modalità test:</strong> completa la pratica normalmente. Nella schermata finale potrai inviare una PEC reale di prova alla Gmail autorizzata; la PEC del Comune non verrà utilizzata.</div>
       <button className="bfs-primary" type="submit">Verifica pratica completa · 0 € <strong>→</strong></button>
     </form>
   </section></Shell>;
