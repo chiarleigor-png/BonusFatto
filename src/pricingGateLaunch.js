@@ -1,9 +1,11 @@
+import { openBillingForm } from './billingForm.js';
+
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
 const REPORT_ANALYSIS_KEY = 'bonusfatto_report_analysis';
-const SERVICE_TEST_ENTRY = 'bonusfatto_service_test_entry';
+const SERVICE_ENTRY = 'bonusfatto_service_entry';
+const REPORT_ENTRY = 'bonusfatto_report_entry';
 const ISEE_FLOW_VERSION = '2026-09-17-final-1';
-const SERVICE_TEST_VERSION = '2026-09-17-services-test-1';
 
 function readProfile() {
   try {
@@ -68,39 +70,39 @@ function patchGate() {
     serviceCard({
       badge: 'ANALISI VELOCE IN 30 SECONDI',
       title: 'Analisi veloce in 30 secondi',
-      price: '0 €',
-      priceNote: 'TEST GRATUITO',
+      price: '2,99 €',
+      priceNote: 'una tantum',
       description: 'Sblocca subito l’analisi rapida dei bonus compatibili con i dati inseriti.',
       plan: 'base',
-      button: 'Prova gratis · 0 €',
+      button: 'Sblocca analisi · 2,99 €',
     }),
     serviceCard({
       badge: 'ANALISI CON RELAZIONE',
       title: 'Analisi con relazione',
       price: '6,90 €',
       priceNote: 'una tantum',
-      description: 'Carica l’attestazione ISEE, visualizza l’anteprima dei bonus e sblocca poi il risultato completo.',
+      description: 'Carica l’attestazione ISEE, completa l’analisi e scarica la relazione PDF personalizzata.',
       plan: 'report',
       featured: true,
-      button: 'Carica ISEE e prepara l’anteprima',
+      button: 'Carica ISEE e prepara l’analisi',
     }),
     serviceCard({
-      badge: 'INVIO PEC TARI',
-      title: 'Invio PEC TARI',
-      price: '0 €',
-      priceNote: 'TEST GRATUITO',
-      description: 'Inviamo per te la richiesta di riduzione TARI al Comune.',
+      badge: 'INVIO TARI AL COMUNE',
+      title: 'Invio pratica TARI',
+      price: '14,90 €',
+      priceNote: 'una tantum',
+      description: 'Prepariamo la delega, raccogliamo i documenti e trasmettiamo la pratica TARI al Comune tramite il nostro backoffice.',
       plan: 'tari',
-      button: 'Prova invio PEC · 0 €',
+      button: 'Avvia pratica TARI · 14,90 €',
     }),
     serviceCard({
       badge: 'SERVIZIO CONTINUATIVO',
       title: 'Servizio continuativo',
-      price: '0 €',
-      priceNote: 'TEST GRATUITO',
-      description: 'Invio aggiornamenti periodici via mail o whatsapp',
+      price: '6,90 €',
+      priceNote: '12 mesi',
+      description: 'Ricevi aggiornamenti periodici su novità, scadenze, bonus e TARI via email e/o WhatsApp.',
       plan: 'whatsapp',
-      button: 'Prova servizio · 0 €',
+      button: 'Attiva per 12 mesi · 6,90 €',
     }),
   ].join('');
 
@@ -110,13 +112,13 @@ function patchGate() {
       const plan = button.dataset.plan;
       if (plan === 'report') {
         sessionStorage.removeItem(REPORT_ANALYSIS_KEY);
-        sessionStorage.setItem('bonusfatto_report_entry', JSON.stringify(payload));
+        sessionStorage.setItem(REPORT_ENTRY, JSON.stringify(payload));
         window.location.assign(`/?isee_preview=1&flow=${encodeURIComponent(ISEE_FLOW_VERSION)}&fresh=1`);
         return;
       }
       if (['base', 'tari', 'whatsapp'].includes(plan)) {
-        sessionStorage.setItem(SERVICE_TEST_ENTRY, JSON.stringify(payload));
-        window.location.assign(`/?service_test=${encodeURIComponent(plan)}&flow=${encodeURIComponent(SERVICE_TEST_VERSION)}&fresh=1`);
+        sessionStorage.setItem(SERVICE_ENTRY, JSON.stringify(payload));
+        openBillingForm(plan, payload);
       }
     });
   });
