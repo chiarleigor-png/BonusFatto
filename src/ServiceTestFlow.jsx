@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { euro } from './benefits.js';
 
-const ENTRY_KEY = 'bonusfatto_service_test_entry';
+const ENTRY_KEY = 'bonusfatto_service_entry';
 
 function safeParse(value, fallback = {}) {
   try { return JSON.parse(value) || fallback; } catch { return fallback; }
@@ -11,7 +11,7 @@ function Shell({ children }) {
   return <div className="bfs-shell">
     <header className="bfs-header">
       <a className="bfs-brand" href="/"><span className="bfs-mark">B</span><span>Bonus<span>Fatto</span><em>.it</em></span></a>
-      <span className="bfs-test-pill">TEST GRATUITO · 0 €</span>
+      <span className="bfs-test-pill">SERVIZIO CONTINUATIVO · 12 MESI</span>
     </header>
     <main className="bfs-main">{children}</main>
     <footer className="bfs-footer"><span>© {new Date().getFullYear()} BonusFatto.it</span><span>Servizio continuativo</span></footer>
@@ -31,7 +31,12 @@ function channelLabel(channel) {
 export default function ServiceTestFlow() {
   const entry = useMemo(() => safeParse(window.sessionStorage.getItem(ENTRY_KEY), {}), []);
   const [form, setForm] = useState({
-    nome: '', cognome: '', email: '', whatsapp: '', channel: 'email', consent: false,
+    nome: entry.customerName || '',
+    cognome: entry.customerSurname || '',
+    email: entry.customerEmail || '',
+    whatsapp: '',
+    channel: 'email',
+    consent: false,
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -57,7 +62,7 @@ export default function ServiceTestFlow() {
       const response = await fetch('/api/continuous-service-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form, entry }),
+        body: JSON.stringify({ form, entry, sessionId: entry.sessionId }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data?.ok) throw new Error(data?.error || 'Attivazione del servizio non riuscita.');
@@ -70,11 +75,13 @@ export default function ServiceTestFlow() {
     }
   }
 
+  if (!entry?.sessionId) return <Shell><section className="bfs-confirmation"><span className="bfs-eyebrow">ACCESSO NON DISPONIBILE</span><h1>Completa prima l’acquisto del servizio.</h1><a className="bfs-primary-link" href="/">Torna alla Home</a></section></Shell>;
+
   if (submission) return <Shell><section className="bfs-confirmation">
     <div className="bfs-success-icon">✓</div>
-    <span className="bfs-eyebrow">TEST SUPERATO · ATTIVAZIONE REGISTRATA</span>
-    <h1>Il Servizio continuativo è stato registrato.</h1>
-    <p>La richiesta è arrivata realmente a <strong>pratiche@bonusfatto.it</strong>{submission.confirmationSent ? ' e abbiamo inviato anche una mail di conferma al tuo indirizzo.' : '.'}</p>
+    <span className="bfs-eyebrow">SERVIZIO ATTIVATO</span>
+    <h1>Il Servizio continuativo è attivo.</h1>
+    <p>La richiesta è stata registrata e inviata a <strong>pratiche@bonusfatto.it</strong>{submission.confirmationSent ? ' e ti abbiamo inviato anche una mail di conferma.' : '.'}</p>
     <div className="bfs-summary">
       <div><span>Codice attivazione</span><strong>{submission.activationCode}</strong></div>
       <div><span>Cliente</span><strong>{form.nome} {form.cognome}</strong></div>
@@ -85,15 +92,15 @@ export default function ServiceTestFlow() {
       {Number.isFinite(Number(entry?.isee)) && <div><span>ISEE di partenza</span><strong>{euro(Number(entry.isee))}</strong></div>}
       <div><span>Conferma email cliente</span><strong>{submission.confirmationSent ? 'Inviata ✓' : 'Da verificare'}</strong></div>
     </div>
-    <div className="bfs-test-warning"><strong>Modalità test:</strong> la registrazione e la mail di conferma sono reali. Non partono ancora aggiornamenti periodici automatici né messaggi WhatsApp: il test verifica correttamente attivazione, recapiti e consenso.</div>
+    <div className="bfs-test-warning"><strong>Durata del servizio:</strong> 12 mesi. Gli aggiornamenti su novità, scadenze, bonus e TARI verranno gestiti attraverso i canali che hai selezionato. Potrai modificare la preferenza o revocare il consenso in qualsiasi momento.</div>
     <div className="bfs-confirm-actions"><a className="bfs-primary-link" href="/">Torna alla Home</a></div>
   </section></Shell>;
 
   return <Shell><section className="bfs-form-page">
     <div className="bfs-form-intro">
-      <span className="bfs-eyebrow">SERVIZIO CONTINUATIVO · TEST GRATUITO</span>
+      <span className="bfs-eyebrow">SERVIZIO CONTINUATIVO · 12 MESI</span>
       <h1>Ricevi gli aggiornamenti nel canale che preferisci.</h1>
-      <p>Registriamo realmente la richiesta e il consenso. Riceverai una mail di conferma; gli aggiornamenti periodici automatici saranno attivati nella versione definitiva del servizio.</p>
+      <p>Completa l’attivazione scegliendo come ricevere gli aggiornamenti periodici su novità, scadenze, bonus e TARI.</p>
     </div>
 
     {entry?.comune && <div className="bfs-note">Profilo di partenza: <strong>{entry.comune}</strong> · ISEE <strong>{euro(Number(entry.isee) || 0)}</strong>{Number.isFinite(Number(entry.figli)) ? <> · Figli <strong>{Number(entry.figli)}</strong></> : null}</div>}
@@ -118,8 +125,8 @@ export default function ServiceTestFlow() {
       <label className="bfs-consent"><input type="checkbox" required checked={form.consent} onChange={e => set('consent', e.target.checked)} /><span>Acconsento a ricevere aggiornamenti periodici su novità, scadenze, bonus e TARI tramite i canali selezionati. Potrò revocare il consenso in qualsiasi momento.</span></label>
 
       {error && <div className="checkout-error" role="alert">{error}</div>}
-      <div className="bfs-test-warning"><strong>Modalità test:</strong> l’attivazione viene inviata realmente al backoffice e riceverai una mail di conferma. Non verranno ancora inviati messaggi WhatsApp o aggiornamenti periodici automatici.</div>
-      <button className="bfs-primary" type="submit" disabled={submitting}>{submitting ? 'Registrazione in corso…' : <>Attiva servizio di test · 0 € <strong>→</strong></>}</button>
+      <div className="bfs-test-warning"><strong>Attivazione:</strong> la preferenza e il consenso vengono registrati nel backoffice. Riceverai una mail di conferma dell’attivazione.</div>
+      <button className="bfs-primary" type="submit" disabled={submitting}>{submitting ? 'Registrazione in corso…' : <>Attiva servizio <strong>→</strong></>}</button>
     </form>
   </section></Shell>;
 }
