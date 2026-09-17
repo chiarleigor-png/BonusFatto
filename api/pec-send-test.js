@@ -1,5 +1,5 @@
 import tls from 'node:tls';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash } from 'node:crypto';
 
 const ALLOWED_RECIPIENT_HASH = '9feb31c82e009049e56767cd28f23c232e82566ea7f84f239bece04d0365d5f8';
 const MAX_TOTAL_ATTACHMENT_BYTES = 2_700_000;
@@ -31,7 +31,7 @@ function pecEnv() {
 function readSmtpResponse(socket) {
   return new Promise((resolve, reject) => {
     let buffer = '';
-    const timer = setTimeout(() => cleanup(new Error('Timeout SMTP PEC.')), 15000);
+    const timer = setTimeout(() => cleanup(new Error('Timeout SMTP PEC.')), 20000);
     const onData = (chunk) => {
       buffer += chunk.toString('utf8');
       const lines = buffer.split(/\r?\n/).filter(Boolean);
@@ -54,6 +54,7 @@ function smtpError(stage, response) {
   const error = new Error(`SMTP ${response?.code || 'ERR'} @ ${stage}`);
   error.smtpCode = response?.code || 0;
   error.smtpStage = stage;
+  error.smtpReply = clean(response?.text || '', 500);
   return error;
 }
 
@@ -65,32 +66,45 @@ async function command(socket, value, expected, stage) {
 }
 
 function safeFilename(value) {
-  return clean(value || 'allegato', 160).replace(/["\r\n]/g, '_');
+  return clean(value || 'allegato', 120)
+    .replace(/["\r\n\\]/g, '_')
+    .replace(/[^A-Za-z0-9._() -]/g, '_');
 }
 
 function wrapBase64(value) {
   return String(value || '').match(/.{1,76}/g)?.join('\r\n') || '';
 }
 
+function encodeUtf8Base64(value) {
+  return Buffer.from(String(value || ''), 'utf8').toString('base64');
+}
+
+function encodeSubject(value) {
+  return `=?UTF-8?B?${encodeUtf8Base64(value)}?=`;
+}
+
+function dotStuff(message) {
+  return String(message || '')
+    .replace(/\r?\n/g, '\r\n')
+    .split('\r\n')
+    .map((line) => line.startsWith('.') ? `.${line}` : line)
+    .join('\r\n');
+}
+
+function safeContentType(value) {
+  const type = clean(value || 'application/octet-stream', 100).toLowerCase();
+  return /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/.test(type) ? type : 'application/octet-stream';
+}
+
 function friendlySmtpError(error) {
   const code = Number(error?.smtpCode || 0);
   const stage = String(error?.smtpStage || 'connessione');
 
-  if (code === 535) {
-    return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e PEC_PASSWORD.';
-  }
-  if (code === 554 && stage === 'MAIL FROM') {
-    return 'Aruba ha autenticato la PEC ma ha rifiutato il mittente (SMTP 554 · MAIL FROM). Verifichiamo che il mittente coincida esattamente con la casella PEC autenticata.';
-  }
-  if (code === 554 && stage === 'RCPT TO') {
-    return 'Aruba ha autenticato la PEC ma ha rifiutato il destinatario di test (SMTP 554 · RCPT TO).';
-  }
-  if (code === 554 && stage === 'DATA') {
-    return 'Aruba ha autenticato mittente e destinatario ma ha rifiutato l’avvio del messaggio (SMTP 554 · DATA).';
-  }
-  if (code === 554 && stage === 'ACCETTAZIONE MESSAGGIO') {
-    return 'Aruba ha accettato login, mittente e destinatario, ma ha rifiutato il contenuto finale del messaggio (SMTP 554 · dopo DATA).';
-  }
+  if (code === 535) return 'Autenticazione Aruba rifiutata (SMTP 535). Verifica PEC_USER e PEC_PASSWORD.';
+  if (code === 554 && stage === 'MAIL FROM') return 'Aruba ha autenticato la PEC ma ha rifiutato il mittente (SMTP 554 · MAIL FROM).';
+  if (code === 554 && stage === 'RCPT TO') return 'Aruba ha autenticato la PEC ma ha rifiutato il destinatario di test (SMTP 554 · RCPT TO).';
+  if (code === 554 && stage === 'DATA') return 'Aruba ha autenticato mittente e destinatario ma ha rifiutato l’avvio del messaggio (SMTP 554 · DATA).';
+  if (code === 554 && stage === 'ACCETTAZIONE MESSAGGIO') return 'Aruba ha accettato login, mittente e destinatario, ma ha rifiutato il contenuto finale del messaggio (SMTP 554 · dopo DATA).';
   if (code) return `Server Aruba raggiunto, errore SMTP ${code} nella fase ${stage}.`;
   return 'Connessione SMTP Aruba non riuscita.';
 }
@@ -110,7 +124,6 @@ export default async function handler(req, res) {
     return res.status(503).json({
       ok: false,
       error: `Configurazione PEC incompleta: ${missing.join(' + ')}. Verifica che le variabili siano abilitate per Production e poi esegui un nuovo Redeploy.`,
-      env: { userConfigured: env.hasUser, passwordConfigured: env.hasPassword },
     });
   }
 
@@ -138,7 +151,7 @@ export default async function handler(req, res) {
     }
     safeAttachments.push({
       filename: safeFilename(item?.filename),
-      contentType: clean(item?.contentType || 'application/octet-stream', 100),
+      contentType: safeContentType(item?.contentType),
       data,
     });
   }
@@ -147,36 +160,37 @@ export default async function handler(req, res) {
   const textBody = [
     'TEST INVIO PEC BONUSFATTO',
     '',
-    'Questa comunicazione è stata inviata esclusivamente per verificare il flusso tecnico della pratica TARI.',
+    'Questa comunicazione e stata inviata esclusivamente per verificare il flusso tecnico della pratica TARI.',
     `Comune pratica: ${comune || '-'}`,
     `ISEE: ${Number.isFinite(isee) ? isee.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }) : '-'}`,
     `PEC comunale individuata dal sistema (NON utilizzata nel test): ${municipalPec || 'non disponibile'}`,
     '',
     `Allegati inclusi: ${safeAttachments.length}`,
     '',
-    'Nessuna comunicazione è stata inviata al Comune.',
+    'Nessuna comunicazione e stata inviata al Comune.',
     '',
     'BonusFatto.it - LU.CA. S.r.l.s.',
   ].join('\r\n');
 
-  const boundary = `----BonusFattoPEC-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const messageId = `<${randomUUID()}@bonusfatto.it>`;
-  const mime = [
-    `From: ${pecUser}`,
-    `To: ${recipient}`,
+  const boundary = `=_BonusFatto_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  const lines = [
+    `From: <${pecUser}>`,
+    `To: <${recipient}>`,
     `Date: ${new Date().toUTCString()}`,
-    `Message-ID: ${messageId}`,
-    `Subject: ${subject.replace(/[\r\n]+/g, ' ')}`,
+    `Subject: ${encodeSubject(subject)}`,
     'MIME-Version: 1.0',
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
     '',
     `--${boundary}`,
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: 8bit',
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
     '',
-    textBody,
+    wrapBase64(encodeUtf8Base64(textBody)),
     '',
-    ...safeAttachments.flatMap((attachment) => [
+  ];
+
+  for (const attachment of safeAttachments) {
+    lines.push(
       `--${boundary}`,
       `Content-Type: ${attachment.contentType}; name="${attachment.filename}"`,
       'Content-Transfer-Encoding: base64',
@@ -184,13 +198,14 @@ export default async function handler(req, res) {
       '',
       wrapBase64(attachment.data),
       '',
-    ]),
-    `--${boundary}--`,
-    '',
-  ].join('\r\n');
+    );
+  }
+
+  lines.push(`--${boundary}--`, '');
+  const mime = dotStuff(lines.join('\r\n'));
 
   const host = 'smtps.pec.aruba.it';
-  const socket = tls.connect({ host, port: 465, servername: host, rejectUnauthorized: true });
+  const socket = tls.connect({ host, port: 465, servername: host, rejectUnauthorized: true, minVersion: 'TLSv1.2' });
 
   try {
     await new Promise((resolve, reject) => {
@@ -214,13 +229,13 @@ export default async function handler(req, res) {
     if (response.code !== 250) throw smtpError('ACCETTAZIONE MESSAGGIO', response);
 
     await command(socket, 'QUIT', [221], 'QUIT');
-
     return res.status(200).json({ ok: true, sender: pecUser, recipient, attachmentCount: safeAttachments.length });
   } catch (error) {
     console.error('BonusFatto PEC send test failed', {
       message: error?.message || String(error),
       smtpCode: error?.smtpCode || null,
       smtpStage: error?.smtpStage || null,
+      smtpReply: error?.smtpReply || null,
     });
     return res.status(502).json({
       ok: false,
