@@ -302,7 +302,7 @@ function Preview({ analysis, onBack }) {
 }
 
 export default function IseeReportFlowV4() {
-  const entry = useMemo(() => safeParse(window.localStorage.getItem(ENTRY_KEY), {}), []);
+  const entry = useMemo(() => safeParse(window.sessionStorage.getItem(ENTRY_KEY), {}), []);
   const saved = useMemo(() => safeParse(window.sessionStorage.getItem(ANALYSIS_KEY), null), []);
   const [step, setStep] = useState(saved ? 'preview' : 'upload');
   const [file, setFile] = useState(null);
