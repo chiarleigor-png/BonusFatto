@@ -27,13 +27,16 @@ export default async function handler(req, res) {
     }
 
     const metadata = session.metadata || {};
+    const source = String(metadata.source || '');
     const plan = String(metadata.plan || '');
     const comune = String(metadata.comune || '');
     const isee = Number(metadata.isee);
     const figli = Number(metadata.figli);
     const paid = session.payment_status === 'paid' && session.status === 'complete';
+    const amountTotal = Number(session.amount_total);
+    const currency = String(session.currency || '').toUpperCase();
 
-    if (!ALLOWED_PLANS.has(plan) || !comune || !Number.isFinite(isee) || !Number.isInteger(figli)) {
+    if (source !== 'bonusfatto' || !ALLOWED_PLANS.has(plan) || !comune || !Number.isFinite(isee) || !Number.isInteger(figli) || !Number.isInteger(amountTotal) || amountTotal <= 0 || currency !== 'EUR') {
       return res.status(400).json({ error: 'Dati della sessione Stripe incompleti.' });
     }
 
@@ -47,6 +50,8 @@ export default async function handler(req, res) {
       comune,
       isee,
       figli,
+      value: amountTotal / 100,
+      currency,
     });
   } catch (error) {
     console.error('Stripe verification failed', error?.message || error);

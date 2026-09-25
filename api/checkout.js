@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     } catch (archiveError) {
       await expireStripeSession(secret,session.id); console.error('Checkout archived order failed',archiveError?.message||archiveError); return res.status(502).json({ error:'Non è stato possibile registrare l’ordine. Riprova tra poco.' });
     }
-    return res.status(200).json({ id:session.id,url:session.url,order_code:code });
+    return res.status(200).json({ id:session.id,url:session.url,order_code:code,plan,value:selectedPlan.amount/100,currency:'EUR' });
   } catch (error) {
     console.error('Stripe checkout request failed',error?.message||error); return res.status(502).json({ error:'Impossibile contattare Stripe. Riprova tra poco.' });
   }

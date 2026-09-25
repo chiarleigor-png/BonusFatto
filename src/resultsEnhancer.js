@@ -1,3 +1,5 @@
+import { trackInitiateCheckout } from './metaPixel.js';
+
 function parseItalianNumber(value) {
   if (!value) return 0;
   const normalized = String(value)
@@ -111,6 +113,7 @@ function installDossierCheckout(button, root) {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');
+      trackInitiateCheckout({ checkoutId: data.id, plan: data.plan, value: data.value, currency: data.currency });
       window.location.assign(data.url);
     } catch (error) {
       button.disabled = false;

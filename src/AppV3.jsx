@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AppV2 from './AppV2.jsx';
 import { calculate, euro } from './benefits.js';
+import { trackPurchase } from './metaPixel.js';
 
 const PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 const PDFJS_WORKER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
@@ -437,6 +438,7 @@ export default function AppV3() {
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Verifica pagamento non riuscita.');
+        if (data.paid) trackPurchase({ sessionId, value: data.value, currency: data.currency });
         if (data.paid && data.plan === 'report') setReportData({ ...data, sessionId });
       })
       .catch(() => {})

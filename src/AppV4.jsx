@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import AppV3 from './AppV3.jsx';
 import { calculate, euro } from './benefits.js';
 import { openBillingForm } from './billingForm.js';
+import { trackPurchase } from './metaPixel.js';
 
 const ENTRY_KEY = 'bonusfatto_report_entry';
 const ANALYSIS_KEY = 'bonusfatto_report_analysis';
@@ -152,7 +153,10 @@ function PaidUnlock({ sessionId }) {
   useEffect(() => {
     fetch(`/api/verify-checkout?session_id=${encodeURIComponent(sessionId)}`)
       .then(async (r) => { const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Verifica pagamento non riuscita.'); return data; })
-      .then((data) => setState({ loading: false, error: '', paid: data.paid && data.plan === 'report' }))
+      .then((data) => {
+        if (data.paid) trackPurchase({ sessionId, value: data.value, currency: data.currency });
+        setState({ loading: false, error: '', paid: data.paid && data.plan === 'report' });
+      })
       .catch((err) => setState({ loading: false, error: err.message, paid: false }));
   }, [sessionId]);
 

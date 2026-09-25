@@ -1,3 +1,5 @@
+import { trackInitiateCheckout } from './metaPixel.js';
+
 export function openBillingForm(plan, payload) {
   const info = {
     base: ['Analisi veloce in 30 secondi', '2,99 €'],
@@ -64,6 +66,7 @@ export function openBillingForm(plan, payload) {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');
+      trackInitiateCheckout({ checkoutId: data.id, plan: data.plan, value: data.value, currency: data.currency });
       window.location.assign(data.url);
     } catch (err) {
       submit.disabled = false;

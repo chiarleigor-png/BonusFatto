@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { trackInitiateCheckout, trackPurchase } from './metaPixel.js';
 import fallback from './fallback.json';
 import {
   alphabetical,
@@ -281,6 +282,7 @@ export default function AppV2() {
         return data;
       })
       .then((data) => {
+        if (data.paid) trackPurchase({ sessionId, value: data.value, currency: data.currency });
         setResultInput({ isee: Number(data.isee), children: Number(data.figli), municipality: { id: data.comune, name: data.comune, region: '', province: '' } });
         setAccessPlan(data.plan);
         setCheckoutError('');
@@ -340,6 +342,7 @@ export default function AppV2() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');
+      trackInitiateCheckout({ checkoutId: data.id, plan: data.plan, value: data.value, currency: data.currency });
       window.location.assign(data.url);
     } catch (err) {
       setCheckoutError(err.message);

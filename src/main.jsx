@@ -19,6 +19,9 @@ import './brandLogo.js';
 import './formEnhancements.js';
 import './reportDelivery.js';
 import './pricingGateLaunch.js';
+import { initMetaPixel } from './metaPixel.js';
+
+initMetaPixel();
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);

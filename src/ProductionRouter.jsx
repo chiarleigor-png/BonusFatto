@@ -4,6 +4,7 @@ import TariPecTestFlowConnected from './TariPecTestFlowConnected.jsx';
 import ServiceTestFlow from './ServiceTestFlow.jsx';
 import IseeReportFlowFinal from './IseeReportFlowFinal.jsx';
 import { openBillingForm } from './billingForm.js';
+import { trackPurchase } from './metaPixel.js';
 
 const SERVICE_ENTRY = 'bonusfatto_service_entry';
 const REPORT_ENTRY = 'bonusfatto_report_entry';
@@ -122,6 +123,7 @@ export default function PaidServiceRouter({ sessionId }) {
         const order = await orderResponse.json().catch(() => ({}));
         if (!verifyResponse.ok || !verified?.paid) throw new Error(verified?.error || 'Pagamento non verificato.');
         if (!orderResponse.ok) throw new Error(order?.error || 'Dati dell’ordine non disponibili.');
+        trackPurchase({ sessionId, value: verified.value, currency: verified.currency });
 
         const entry = {
           comune: verified.comune,
