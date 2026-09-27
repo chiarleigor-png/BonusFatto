@@ -1,12 +1,10 @@
 import { trackInitiateCheckout } from './metaPixel.js';
+import { PRICES, formatPrice } from './config/prices.js';
 
 export function openBillingForm(plan, payload) {
-  const info = {
-    
-    report: ['Relazione PDF Completa', '4,99 €'],
-    
-    
-  }[plan] || ['Relazione PDF Completa', '4,99 €'];
+  const normalizedPlan = normalizedPlan === 'pdf' ? 'pdf' : normalizedPlan === 'pec' ? 'pec' : plan;
+  const selected = PRICES[normalizedPlan] || PRICES.base;
+  const info = [selected.label, formatPrice(selected.price)];
 
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
@@ -30,11 +28,11 @@ export function openBillingForm(plan, payload) {
         </div>
         ${plan === 'tari'
           ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai completare la pratica, scaricare la delega precompilata e caricare ISEE, documento e delega firmata.</p>'
-          : plan === 'whatsapp'
+          : false
             ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scegliere se ricevere gli aggiornamenti via email, WhatsApp o entrambi i canali.</p>'
             : plan === 'report'
               ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scaricare subito la relazione PDF completa.</p>'
-              : plan === 'base'
+              : normalizedPlan === 'base'
                 ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.</p>'
                 : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
@@ -64,7 +62,7 @@ export function openBillingForm(plan, payload) {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, ...payload, billing }),
+        body: JSON.stringify({ plan: normalizedPlan, ...payload, billing }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');

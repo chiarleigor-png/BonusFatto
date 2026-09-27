@@ -1,5 +1,6 @@
 import { openBillingForm } from './billingForm.js';
 import top100Comuni from '../lib/top100Comuni.json';
+import { PRICES, formatPrice } from './config/prices.js';
 
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
@@ -75,8 +76,8 @@ function ensureStyles() {
     .bf-home-funnel{max-width:980px;margin:24px auto 0}
     .bf-blur-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0 26px}
     .bf-blur-card{position:relative;min-height:152px;display:flex;align-items:stretch;overflow:hidden;border:1px solid #e5e0f4;border-radius:20px;background:#fff;box-shadow:0 12px 34px rgba(34,20,73,.07)}
-    .bf-blur-content{width:100%;display:grid;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:20px;filter:blur(8px);user-select:none;transition:filter .2s ease}
-    .bf-blur-card.is-unlocked .bf-blur-content{filter:none;user-select:text}
+    .bf-blur-content{width:100%;display:grid;pointer-events:none;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:20px;filter:blur(8px);user-select:none;transition:filter .2s ease}
+    .bf-blur-card.is-unlocked .bf-blur-content{filter:none;user-select:text;pointer-events:auto}
     .bf-blur-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:#f1eaff;color:#6d28d9;font-size:22px}
     .bf-blur-title{margin:3px 0 0;font-size:18px;line-height:1.2;color:#282331;font-weight:850}
     .bf-blur-meta{font-size:11px;letter-spacing:.08em;color:#81788d;font-weight:800}
@@ -197,20 +198,20 @@ function patchGate() {
     <div class="bf-price-grid">
       <article class="bf-price-card basic">
         <span class="eyebrow">VISTA SBLOCCATA</span>
-        <h2>Sblocca Vista - 2,99€</h2>
+        <h2>${PRICES.base.label} - ${formatPrice(PRICES.base.price)}</h2>
         <p class="bf-price-sub">Il modo più rapido per vedere il risultato del calcolo.</p>
         <ul>
           <li>Vedi nomi bonus</li>
           <li>Importi stimati</li>
           <li>Idoneità in base all’ISEE inserito</li>
         </ul>
-        <button type="button" class="bf-basic-button">Sblocca per 2,99€</button>
+        <button type="button" class="bf-basic-button">Sblocca per ${formatPrice(PRICES.base.price)}</button>
       </article>
 
       <article class="bf-price-card premium">
         <span class="bf-choice-badge">Più scelto</span>
         <span class="eyebrow">PREMIUM</span>
-        <h2>Premium PDF - 4,99€</h2>
+        <h2>${PRICES.pdf.label} - ${formatPrice(PRICES.pdf.price)}</h2>
         <p class="bf-price-sub">Prezzo finale: include anche la Vista Base.</p>
         <ul>
           <li>Tutto di Base</li>
@@ -218,7 +219,7 @@ function patchGate() {
           <li>Moduli e link bando disponibili</li>
           <li>Testo PEC precompilato</li>
         </ul>
-        <button type="button" class="bf-premium-button bg-violet-600">Sblocca Premium 4,99€</button>
+        <button type="button" class="bf-premium-button bg-violet-600">Sblocca Premium ${formatPrice(PRICES.pdf.price)}</button>
       </article>
     </div>
 
@@ -231,24 +232,23 @@ function patchGate() {
 
   grid.replaceWith(funnel);
 
-  const previouslyUnlocked = sessionStorage.getItem(UNLOCK_KEY);
-  if (previouslyUnlocked === 'basic' || previouslyUnlocked === 'premium') setUnlocked(shell, previouslyUnlocked);
+  shell.dataset.unlocked = '';
+  sessionStorage.removeItem(UNLOCK_KEY);
+  shell.querySelectorAll('.bf-blur-card').forEach((card) => card.classList.remove('is-unlocked'));
 
   track('view_blurred_results', { bonus_count: count, comune: payload.comune || '' });
   loadVerifiedTari(funnel, payload);
 
   funnel.querySelector('.bf-basic-button').addEventListener('click', () => {
-    setUnlocked(shell, 'basic');
-    track('click_unlock_2_99', { value: 2.99, currency: 'EUR', bonus_count: count });
+    track('click_unlock_base', { value: PRICES.base.price, currency: 'EUR', bonus_count: count });
     sessionStorage.setItem(SERVICE_ENTRY, JSON.stringify(payload));
     openBillingForm('base', payload);
   });
 
   funnel.querySelector('.bf-premium-button').addEventListener('click', () => {
-    setUnlocked(shell, 'premium');
-    track('click_unlock_4_99', { value: 4.99, currency: 'EUR', bonus_count: count });
+    track('click_unlock_pdf', { value: PRICES.pdf.price, currency: 'EUR', bonus_count: count });
     sessionStorage.setItem(REPORT_ENTRY, JSON.stringify(payload));
-    openBillingForm('report', payload);
+    openBillingForm('pdf', payload);
   });
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { trackInitiateCheckout, trackPurchase } from './metaPixel.js';
 import fallback from './fallback.json';
 import top100Comuni from '../lib/top100Comuni.json';
+import { PRICES, formatPrice } from './config/prices.js';
 import {
   alphabetical,
   fetchMunicipalities,
@@ -152,7 +153,7 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
         <article className="plan-card">
           <span className="plan-badge">ESSENZIALE</span>
           <h2>Analisi completa</h2>
-          <div className="plan-price">4,99 € <small>una tantum</small></div>
+          <div className="plan-price">{formatPrice(PRICES.base.price)} <small>una tantum</small></div>
           <p>Sblocca subito il risultato dettagliato del calcolo.</p>
           <ul className="plan-list">
             <li><Icon name="check" size={16} /> Tutte le agevolazioni individuate</li>
@@ -160,20 +161,20 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
             <li><Icon name="check" size={16} /> Bonus sociale TARI e bollette</li>
             <li><Icon name="check" size={16} /> Checklist documenti e scadenze</li>
           </ul>
-          <button className="primary" disabled={Boolean(checkoutBusy)} onClick={() => onCheckout('base')}>{checkoutBusy === 'base' ? 'Apertura checkout…' : 'Sblocca a 4,99 €'} <Icon name="arrow" /></button>
+          <button className="primary" disabled={Boolean(checkoutBusy)} onClick={() => onCheckout('base')}>{checkoutBusy === 'base' ? 'Apertura checkout…' : `Sblocca a ${formatPrice(PRICES.base.price)}`} <Icon name="arrow" /></button>
         </article>
         <article className="plan-card featured">
           <span className="plan-badge">PIÙ COMPLETO</span>
           <h2>Analisi + relazione PDF</h2>
-          <div className="plan-price">9,90 € <small>una tantum</small></div>
+          <div className="plan-price">{formatPrice(PRICES.pdf.price)} <small>una tantum</small></div>
           <p>Il pacchetto completo per avere anche i documenti pronti da utilizzare.</p>
           <ul className="plan-list">
-            <li><Icon name="check" size={16} /> Tutto il piano da 4,99 €</li>
+            <li><Icon name="check" size={16} /> Tutto il piano Base</li>
             <li><Icon name="check" size={16} /> Relazione personalizzata salvabile in PDF</li>
             <li><Icon name="check" size={16} /> Testo email/PEC per l’Ufficio Tributi</li>
             <li><Icon name="check" size={16} /> Riepilogo TARI e avvertenze sulle fonti</li>
           </ul>
-          <button className="primary" disabled={Boolean(checkoutBusy)} onClick={() => onCheckout('report')}>{checkoutBusy === 'report' ? 'Apertura checkout…' : 'Scegli il report a 9,90 €'} <Icon name="arrow" /></button>
+          <button className="primary" disabled={Boolean(checkoutBusy)} onClick={() => onCheckout('pdf')}>{checkoutBusy === 'pdf' ? 'Apertura checkout…' : `Scegli il report a ${formatPrice(PRICES.pdf.price)}`} <Icon name="arrow" /></button>
         </article>
       </div>
       {checkoutError && <p className="checkout-error" role="alert">{checkoutError}</p>}
@@ -215,7 +216,7 @@ function PaidResults({ input, plan, reset }) {
   return (
     <section className="results page-enter">
       <button className="text-button" onClick={reset}>← Nuovo calcolo</button>
-      <div className="paid-banner"><Icon name="check" size={18} /> Pagamento verificato · {plan === 'report' ? 'Analisi + relazione PDF' : 'Analisi completa'}</div>
+      <div className="paid-banner"><Icon name="check" size={18} /> Pagamento verificato · {plan === 'pdf' || plan === 'report' ? 'Analisi + relazione PDF' : 'Analisi completa'}</div>
       <div className="result-heading">
         <div>
           <span className="eyebrow">IL TUO RIEPILOGO</span>
@@ -261,7 +262,7 @@ function PaidResults({ input, plan, reset }) {
           </div>
         </aside>
       </div>
-      {plan === 'report' ? (
+      {plan === 'pdf' || plan === 'report' ? (
         <section className="email-card white-card">
           <div className="section-title">
             <div><span className="eyebrow">PACCHETTO REPORT</span><h2>Relazione PDF + email/PEC pronta</h2><p>Puoi salvare la relazione come PDF dal browser e copiare il testo per l’Ufficio Tributi.</p></div>
@@ -271,7 +272,7 @@ function PaidResults({ input, plan, reset }) {
           <p role="status" className="copy-status">{copyStatus}</p>
         </section>
       ) : (
-        <div className="locked-extra"><h3>PDF ed email/PEC non inclusi nel piano da 4,99 €</h3><p>Il pacchetto da 9,90 € include anche la relazione personalizzata e il testo pronto per l’Ufficio Tributi.</p></div>
+        <div className="locked-extra"><h3>PDF ed email/PEC non inclusi nel piano Base</h3><p>Il pacchetto PDF da {formatPrice(PRICES.pdf.price)} include anche la relazione personalizzata e il testo pronto per l’Ufficio Tributi.</p></div>
       )}
       <button className="primary new-calculation" onClick={reset}>Fai un nuovo calcolo <Icon name="arrow" /></button>
     </section>
@@ -452,10 +453,9 @@ export default function AppV2() {
               </div>
               <p className="simulation-caption">Il simulatore distingue le misure nazionali dalle agevolazioni comunali ancora da verificare.</p>
               <div className="stats">
-                <div><Icon name="wallet" /><span>ANALISI VELOCE IN 30 SECONDI</span><strong>2,99 €</strong></div>
-                <div><Icon name="file" /><span>ANALISI CON RELAZIONE</span><strong>6,90 €</strong><p>relazione PDF personalizzata +4,90 €</p></div>
-                <div><Icon name="copy" /><span>INVIO PEC TARI</span><strong>14,90 €</strong><p>inviamo per te la richiesta di riduzione al Comune</p></div>
-                <div><Icon name="spark" /><span>SERVIZIO CONTINUATIVO</span><strong>6,90 €</strong><p>invio aggiornamenti periodici su novità bonus e TARI</p></div>
+                <div><Icon name="wallet" /><span>{PRICES.base.label.toUpperCase()}</span><strong>{formatPrice(PRICES.base.price)}</strong></div>
+                <div><Icon name="file" /><span>{PRICES.pdf.label.toUpperCase()}</span><strong>{formatPrice(PRICES.pdf.price)}</strong></div>
+                <div><Icon name="copy" /><span>{PRICES.pec.label.toUpperCase()}</span><strong>{formatPrice(PRICES.pec.price)}</strong><p>inviamo per te la richiesta di riduzione al Comune</p></div>
               </div>
               <div className="privacy-line"><span className="privacy-icon"><Icon name="lock" size={18} /></span><p><strong>I tuoi dati restano essenziali.</strong><br />Nessuna registrazione richiesta per il calcolo.</p></div>
             </section>
@@ -472,7 +472,7 @@ export default function AppV2() {
                   <label>Figli a carico<select value={children} onChange={(e) => setChildren(e.target.value)}>{[0,1,2,3,4,5].map((n) => <option value={n} key={n}>{n} {n === 1 ? 'figlio' : 'figli'}</option>)}</select></label>
                 </div>
                 <p className="field-hint">Bonus sociali 2026: soglia ordinaria ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.</p>
-                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi di lancio: analisi da 2,99 €, relazione PDF 4,90 € e servizi TARI acquistabili separatamente.</span></div></div>
+                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi chiari: analisi veloce {formatPrice(PRICES.base.price)}, analisi + relazione PDF Top 100 {formatPrice(PRICES.pdf.price)}, invio PEC TARI {formatPrice(PRICES.pec.price)}.</span></div></div>
                 <label className="checkbox-label"><input type="checkbox" checked={otherTown} onChange={(e) => { setOtherTown(e.target.checked); clearTown(); }} /><span>Abito in un altro comune <small>(facoltativo)</small></span></label>
                 {otherTown ? (
                   <div className="autocomplete">
