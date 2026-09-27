@@ -16,6 +16,5 @@
         }
       ]
     }
-  ],
-  "installCommand": "npm install --no-package-lock"
+  ]
 }
