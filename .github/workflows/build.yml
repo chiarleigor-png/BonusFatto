@@ -13,4 +13,4 @@ jobs:
           node-version: 22
       - run: npm install --no-package-lock
       - run: npm run build
-      - run: node -e "Promise.all([import('./lib/tariScraper.js'), import('./api/cron/scrape.js'), import('./api/tari/[istat].js')]).then(()=>console.log('server modules ok'))"
+      - run: node -e "Promise.all([import('./lib/tariScraper.js'), import('./api/cron-scrape.js'), import('./api/tari.js')]).then(()=>console.log('server modules ok'))"

@@ -16,5 +16,22 @@
         }
       ]
     }
+  ],
+  "installCommand": "npm install --no-package-lock",
+  "rewrites": [
+    {
+      "source": "/api/tari/:istat",
+      "destination": "/api/tari?istat=:istat"
+    },
+    {
+      "source": "/api/cron/scrape",
+      "destination": "/api/cron-scrape"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/scrape",
+      "schedule": "0 3 * * *"
+    }
   ]
 }
