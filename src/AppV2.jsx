@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { trackInitiateCheckout, trackPurchase } from './metaPixel.js';
 import fallback from './fallback.json';
+import top100Comuni from '../lib/top100Comuni.json';
 import {
   alphabetical,
   fetchMunicipalities,
@@ -49,6 +50,58 @@ function Deadline({ city }) {
   );
 }
 
+function TariComuneCard({ municipality }) {
+  const [state, setState] = useState({ status: 'idle', data: null });
+
+  const istat = useMemo(() => {
+    const direct = String(municipality?.id || '').trim();
+    if (/^\d{6}$/.test(direct)) return direct;
+    const name = String(municipality?.name || '').trim().toLocaleLowerCase('it');
+    return top100Comuni.find((item) => item.nome.toLocaleLowerCase('it') === name)?.istat || '';
+  }, [municipality]);
+
+  useEffect(() => {
+    if (!istat) {
+      setState({ status: 'outside', data: null });
+      return;
+    }
+
+    const controller = new AbortController();
+    setState({ status: 'loading', data: null });
+
+    fetch(`/api/tari?istat=${encodeURIComponent(istat)}`, { signal: controller.signal })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'TARI API non disponibile');
+        return data;
+      })
+      .then((data) => {
+        if (data?.found === true) setState({ status: 'found', data });
+        else setState({ status: 'outside', data });
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') setState({ status: 'error', data: null });
+      });
+
+    return () => controller.abort();
+  }, [istat]);
+
+  return (
+    <section className="white-card" style={{ maxWidth: 980, margin: '16px auto' }}>
+      <strong>TARI comunale</strong>
+      {state.status === 'loading' && <p>Verifica Comune nel motore Top 100…</p>}
+      {state.status === 'found' && (
+        <p>
+          Comune: {state.data.comune} - Scadenza: {state.data.scadenza} - Riduzione: {state.data.riduzione}% - Fonte: {state.data.fonte}
+        </p>
+      )}
+      {(state.status === 'outside' || state.status === 'error') && (
+        <p>Questo Comune non rientra ancora nel motore TARI Top 100. Non mostriamo dati comunali stimati o inventati.</p>
+      )}
+    </section>
+  );
+}
+
 function Magazine({ close }) {
   return (
     <section className="magazine page-enter">
@@ -89,6 +142,7 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
         <h1>Abbiamo trovato <span>{result.benefits.length} agevolazioni</span> da verificare.</h1>
         <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Anteprima: {previewNames}{result.benefits.length > 4 ? '…' : ''}</p>
       </div>
+      <TariComuneCard municipality={input.municipality} />
       <div className="teaser-summary">
         <div><span>Bonus individuati</span><strong>{result.benefits.length}</strong></div>
         <div><span>TARI nazionale</span><strong>{result.tariNationalEligible ? '25%' : 'Da verificare'}</strong></div>
@@ -176,6 +230,7 @@ function PaidResults({ input, plan, reset }) {
           <div><span>Massimali e una tantum</span><b>{euro(result.conditional)}</b></div>
         </div>
       </div>
+      <TariComuneCard municipality={input.municipality} />
       <div className="model-notice"><Icon name="book" /><p><strong>Risultato orientativo.</strong> ISEE e figli non bastano a verificare tutti i requisiti. Il simulatore segnala opportunità compatibili con i dati inseriti; la spettanza finale dipende dalle condizioni previste dalle fonti ufficiali.</p></div>
       <div className="result-layout">
         <div>
