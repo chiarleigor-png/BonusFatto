@@ -1,4 +1,8 @@
-import top100 from '../lib/top100Comuni.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+
+const top100 = JSON.parse(
+  readFileSync(new URL('../lib/top100Comuni.json', import.meta.url), 'utf8')
+);
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
