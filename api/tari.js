@@ -1,7 +1,4 @@
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const top100 = require('../lib/top100Comuni.json');
+import top100 from '../lib/top100Comuni.json';
 
 function clean(value, max = 500) {
   return String(value ?? '').trim().slice(0, max);
