@@ -119,15 +119,18 @@ async function loadVerifiedTari(funnel, payload) {
   try {
     const response = await fetch(`/api/tari?istat=${encodeURIComponent(payload.istat)}`);
     const json = await response.json();
-    if (!response.ok || !json?.available || !json?.data) {
+    if (response.ok && json?.found === true) {
+      target.textContent = '';
+      target.hidden = true;
+      return;
+    }
+    if (response.ok && json?.found === false) {
+      target.hidden = false;
       target.innerHTML = `Dati TARI non disponibili per <strong>${payload.comune}</strong>.`;
       return;
     }
-    const data = json.data;
-    const dates = [data.scadenza_rata_1, data.scadenza_rata_2].filter(Boolean);
-    const reduction = data.riduzione_isee_9796 == null ? '' : ` · riduzione comunale ISEE ≤ 9.796 €: <strong>${data.riduzione_isee_9796}%</strong>`;
-    const deadline = dates.length ? `Scadenze: <strong>${dates.join(' · ')}</strong>` : 'Scadenze non esplicitate nei documenti acquisiti';
-    target.innerHTML = `${deadline}${reduction} · <a href="${data.url_fonte}" target="_blank" rel="noreferrer">fonte MEF ↗</a>`;
+    target.hidden = false;
+    target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
   } catch {
     target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
   }
