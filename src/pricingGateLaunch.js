@@ -214,7 +214,7 @@ function patchGate() {
         <p class="bf-price-sub">Prezzo finale: include anche la Vista Base.</p>
         <ul>
           <li>Tutto di Base</li>
-          <li>PDF con scadenze ${payload.comune || 'Comune'}</li>
+          <li>PDF con scadenze Top 100 + moduli e testo PEC</li>
           <li>Moduli e link bando disponibili</li>
           <li>Testo PEC precompilato</li>
         </ul>
