@@ -20,7 +20,7 @@ function fmtDate(value) {
 }
 async function load(entry) {
   if (!cache.has(entry.istat)) {
-    cache.set(entry.istat, fetch(`/api/tari/${entry.istat}`, { headers: { accept: 'application/json' } }).then(async (response) => {
+    cache.set(entry.istat, fetch(`/api/tari?istat=${entry.istat}`, { headers: { accept: 'application/json' } }).then(async (response) => {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'TARI API non disponibile');
       return data;
