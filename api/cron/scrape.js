@@ -1,18 +1,26 @@
-import { batchForToday, scrapeBatch } from '../../lib/tariScraper.js';
-
-export const maxDuration = 300;
+import { scrapeBatch, top100Municipalities } from '../../lib/tariScraper.js';
 
 export default async function handler(req, res) {
-  if (!['GET', 'POST'].includes(req.method)) {
-    res.setHeader('Allow', 'GET, POST');
-    return res.status(405).json({ error: 'Metodo non consentito.' });
+  const configuredSecret = String(process.env.CRON_SECRET || '').trim();
+  if (configuredSecret) {
+    const auth = String(req.headers.authorization || '');
+    if (auth !== `Bearer ${configuredSecret}`) return res.status(401).json({ ok: false, error: 'UNAUTHORIZED' });
   }
-  const secret = String(process.env.CRON_SECRET || '').trim();
-  if (secret && req.headers.authorization !== `Bearer ${secret}`) {
-    return res.status(401).json({ error: 'Non autorizzato.' });
-  }
-  const batch = batchForToday(20);
-  const results = await scrapeBatch(batch.comuni, 4);
-  const failed = results.filter((item) => !item.ok);
-  return res.status(failed.length === results.length ? 502 : 200).json({ ok: failed.length < results.length, batch: batch.group, start: batch.start, processed: results.length, failed: failed.length, results });
+
+  const all = top100Municipalities();
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  const batchIndex = dayIndex % 5;
+  const start = batchIndex * 20;
+  const comuni = all.slice(start, start + 20);
+  const results = await scrapeBatch(comuni);
+
+  return res.status(200).json({
+    ok: results.every((item) => item.ok),
+    batch: batchIndex + 1,
+    start,
+    count: comuni.length,
+    success: results.filter((item) => item.ok).length,
+    failed: results.filter((item) => !item.ok),
+    results
+  });
 }

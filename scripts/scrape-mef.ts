@@ -1,19 +1,26 @@
-import { batchForToday, getTop100Comuni, scrapeBatch } from '../lib/tariScraper.js';
+import { scrapeBatch, top100Municipalities } from '../lib/tariScraper.js';
 
-async function main() {
-  const arg = process.argv.find((value) => value.startsWith('--batch='));
-  const size = 20;
-  const automatic = batchForToday(size);
-  const requested = arg ? Number(arg.split('=')[1]) : automatic.group;
-  const group = Number.isInteger(requested) && requested >= 0 && requested <= 4 ? requested : automatic.group;
-  const entries = getTop100Comuni().slice(group * size, group * size + size);
-  const results = await scrapeBatch(entries, 4);
-  const failed = results.filter((item) => !item.ok);
-  console.log(JSON.stringify({ group, processed: results.length, failed: failed.length, results }, null, 2));
-  if (failed.length) process.exitCode = 1;
+function arg(name: string) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : '';
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+const all = top100Municipalities();
+const requestedIstat = arg('--istat');
+const offset = Math.max(0, Number(arg('--offset') || 0));
+const limit = Math.min(100, Math.max(1, Number(arg('--limit') || 20)));
+
+const comuni = requestedIstat
+  ? all.filter((item) => item.istat === requestedIstat)
+  : all.slice(offset, offset + limit);
+
+if (!comuni.length) {
+  console.error('Nessun Comune selezionato.');
+  process.exit(1);
+}
+
+console.log(`BonusFatto TARI: elaborazione ${comuni.length} comuni`);
+const result = await scrapeBatch(comuni);
+console.log(JSON.stringify(result, null, 2));
+
+if (result.some((item) => !item.ok)) process.exitCode = 1;

@@ -1,4 +1,5 @@
 import { openBillingForm } from './billingForm.js';
+import top100Comuni from '../lib/top100Comuni.json';
 
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
@@ -43,7 +44,14 @@ function payloadFromGate(shell) {
   const iseePart = leadParts.find((part) => /ISEE/i.test(part)) || '';
   const isee = parseEuroNumber(iseePart.replace(/ISEE/i, ''));
   const figli = Number(sessionStorage.getItem(CHILDREN_KEY) || 0);
-  return { comune, isee, figli: Number.isInteger(figli) && figli >= 0 ? figli : 0, profile: readProfile() };
+  const sourceComune = top100Comuni.find((item) => item.nome.toLocaleLowerCase('it') === comune.toLocaleLowerCase('it')) || null;
+  return {
+    comune,
+    istat: sourceComune?.istat || '',
+    isee,
+    figli: Number.isInteger(figli) && figli >= 0 ? figli : 0,
+    profile: readProfile()
+  };
 }
 
 function previewNames(shell) {
@@ -98,6 +106,31 @@ function ensureStyles() {
     }
   `;
   document.head.appendChild(style);
+}
+
+async function loadVerifiedTari(funnel, payload) {
+  const target = funnel.querySelector('.bf-tari-live-data');
+  if (!target) return;
+  if (!payload.istat) {
+    target.textContent = 'Dati TARI locali: Comune non incluso nel motore dei 100 Comuni.';
+    return;
+  }
+  target.textContent = 'Verifica TARI comunale in corso…';
+  try {
+    const response = await fetch(`/api/tari/${encodeURIComponent(payload.istat)}`);
+    const json = await response.json();
+    if (!response.ok || !json?.available || !json?.data?.verified) {
+      target.innerHTML = `Dati TARI comunali non ancora verificati per <strong>${payload.comune}</strong>. Verranno mostrati solo dopo acquisizione dalla fonte MEF.`;
+      return;
+    }
+    const data = json.data;
+    const dates = [data.scadenza_rata_1, data.scadenza_rata_2].filter(Boolean);
+    const reduction = data.riduzione_isee_9796 == null ? '' : ` · riduzione comunale ISEE ≤ 9.796 €: <strong>${data.riduzione_isee_9796}%</strong>`;
+    const deadline = dates.length ? `Scadenze: <strong>${dates.join(' · ')}</strong>` : 'Scadenze non esplicitate nei documenti acquisiti';
+    target.innerHTML = `${deadline}${reduction} · <a href="${data.url_fonte}" target="_blank" rel="noreferrer">fonte MEF ↗</a>`;
+  } catch {
+    target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
+  }
 }
 
 function setUnlocked(shell, level) {
@@ -186,6 +219,7 @@ function patchGate() {
       </article>
     </div>
 
+    <p class="bf-home-disclaimer bf-tari-live-data">Verifica dati TARI comunali dalla fonte MEF…</p>
     <p class="bf-home-disclaimer">
       Servizio informativo indipendente - Non sito governativo - 7894 comuni 2026<br />
       Soglia bonus sociale 2026: ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.
@@ -198,6 +232,7 @@ function patchGate() {
   if (previouslyUnlocked === 'basic' || previouslyUnlocked === 'premium') setUnlocked(shell, previouslyUnlocked);
 
   track('view_blurred_results', { bonus_count: count, comune: payload.comune || '' });
+  loadVerifiedTari(funnel, payload);
 
   funnel.querySelector('.bf-basic-button').addEventListener('click', () => {
     setUnlocked(shell, 'basic');
