@@ -22,5 +22,6 @@
       "path": "/api/cron/scrape",
       "schedule": "0 3 * * *"
     }
-  ]
+  ],
+  "installCommand": "npm install --no-package-lock"
 }
