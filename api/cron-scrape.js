@@ -1,7 +1,5 @@
 import { scrapeBatch, top100Municipalities } from '../lib/tariScraper.js';
 
-export const config = { maxDuration: 300 };
-
 export default async function handler(req, res) {
   const configuredSecret = String(process.env.CRON_SECRET || '').trim();
   if (configuredSecret) {

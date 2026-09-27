@@ -27,11 +27,5 @@
       "source": "/api/cron/scrape",
       "destination": "/api/cron-scrape"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/scrape",
-      "schedule": "0 3 * * *"
-    }
   ]
 }

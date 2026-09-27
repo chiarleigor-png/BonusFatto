@@ -1,0 +1,12 @@
+name: TARI cron 20 comuni
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chiama endpoint BonusFatto
+        run: |
+          curl --fail --show-error --silent --max-time 900 https://bonusfatto.it/api/cron/scrape
