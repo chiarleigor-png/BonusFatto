@@ -16,11 +16,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/tari/:istat",
-      "destination": "/api/tari?istat=:istat"
-    }
   ]
 }
