@@ -119,8 +119,8 @@ async function loadVerifiedTari(funnel, payload) {
   try {
     const response = await fetch(`/api/tari/${encodeURIComponent(payload.istat)}`);
     const json = await response.json();
-    if (!response.ok || !json?.available || !json?.data?.verified) {
-      target.innerHTML = `Dati TARI comunali non ancora verificati per <strong>${payload.comune}</strong>. Verranno mostrati solo dopo acquisizione dalla fonte MEF.`;
+    if (!response.ok || !json?.available || !json?.data) {
+      target.innerHTML = `Dati TARI non disponibili per <strong>${payload.comune}</strong>.`;
       return;
     }
     const data = json.data;
