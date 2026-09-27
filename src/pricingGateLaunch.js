@@ -6,7 +6,6 @@ const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
 const REPORT_ENTRY = 'bonusfatto_report_entry';
 const SERVICE_ENTRY = 'bonusfatto_service_entry';
-const UNLOCK_KEY = 'bonusfatto_home_unlock_2026';
 const TARI_ISEE_STANDARD_2026 = 9796;
 const TARI_ISEE_LARGE_FAMILY_2026 = 20000;
 
@@ -85,7 +84,7 @@ function ensureStyles() {
     .bf-lock-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.25);backdrop-filter:saturate(.8)}
     .bf-blur-card.is-unlocked .bf-lock-overlay{display:none}
     .bf-lock-pill{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 8px 24px rgba(47,36,69,.16);font-size:20px}
-    .bf-price-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .bf-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
     .bf-price-card{position:relative;display:flex;flex-direction:column;min-height:330px;padding:24px;border:1px solid #e1dbea;border-radius:24px;background:#fff;box-shadow:0 18px 44px rgba(36,23,61,.08)}
     .bf-price-card.premium{border:2px solid #7C3AED;background:linear-gradient(180deg,#fbf9ff 0%,#f4efff 100%)}
     .bf-price-card h2{margin:8px 0 4px;font-size:26px;line-height:1.1;color:#261f30}
@@ -95,7 +94,7 @@ function ensureStyles() {
     .bf-price-card li:before{content:'✓';font-weight:900;color:#6d28d9}
     .bf-price-card button{margin-top:auto;width:100%;min-height:54px;border-radius:15px;font-size:16px;font-weight:900;cursor:pointer}
     .bf-basic-button{border:2px solid #d8cfdf;background:#fff;color:#4c4056}
-    .bf-premium-button{border:0;background:#7C3AED!important;color:#fff!important;box-shadow:0 10px 24px rgba(124,58,237,.25)}
+    .bf-premium-button,.bf-pec-button{border:0;background:#7C3AED!important;color:#fff!important;box-shadow:0 10px 24px rgba(124,58,237,.25)}
     .bf-choice-badge{position:absolute;right:18px;top:18px;padding:7px 11px;border-radius:999px;background:#7C3AED;color:#fff;font-size:12px;font-weight:900}
     .bf-home-disclaimer{margin:18px auto 0;text-align:center;color:#756d79;font-size:12px;line-height:1.5}
     @media (max-width:720px){
@@ -135,12 +134,6 @@ async function loadVerifiedTari(funnel, payload) {
   } catch {
     target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
   }
-}
-
-function setUnlocked(shell, level) {
-  shell.dataset.unlocked = level;
-  sessionStorage.setItem(UNLOCK_KEY, level);
-  shell.querySelectorAll('.bf-blur-card').forEach((card) => card.classList.add('is-unlocked'));
 }
 
 function patchGate() {
@@ -215,11 +208,24 @@ function patchGate() {
         <p class="bf-price-sub">Prezzo finale: include anche la Vista Base.</p>
         <ul>
           <li>Tutto di Base</li>
-          <li>PDF con scadenze Top 100 + moduli e testo PEC</li>
-          <li>Moduli e link bando disponibili</li>
+          <li>PDF con scadenze Top 100 + moduli</li>
           <li>Testo PEC precompilato</li>
+          <li>Moduli e link bando disponibili</li>
         </ul>
         <button type="button" class="bf-premium-button bg-violet-600">Sblocca Premium ${formatPrice(PRICES.pdf.price)}</button>
+      </article>
+
+      <article class="bf-price-card pec">
+        <span class="eyebrow">INVIO GESTITO BETA</span>
+        <h2>${PRICES.pec.label} - ${formatPrice(PRICES.pec.price)}</h2>
+        <p class="bf-price-sub">Prepariamo e inviamo noi la PEC con i tuoi dati.</p>
+        <ul>
+          <li>Invio al Comune indicato</li>
+          <li>Ricevuta di consegna entro 24h lavorative</li>
+          <li>Esito dipende dal Comune</li>
+          <li>Servizio informativo: non è CAF</li>
+        </ul>
+        <button type="button" class="bf-pec-button">Invio gestito ${formatPrice(PRICES.pec.price)}</button>
       </article>
     </div>
 
@@ -233,7 +239,6 @@ function patchGate() {
   grid.replaceWith(funnel);
 
   shell.dataset.unlocked = '';
-  sessionStorage.removeItem(UNLOCK_KEY);
   shell.querySelectorAll('.bf-blur-card').forEach((card) => card.classList.remove('is-unlocked'));
 
   track('view_blurred_results', { bonus_count: count, comune: payload.comune || '' });
@@ -242,13 +247,18 @@ function patchGate() {
   funnel.querySelector('.bf-basic-button').addEventListener('click', () => {
     track('click_unlock_base', { value: PRICES.base.price, currency: 'EUR', bonus_count: count });
     sessionStorage.setItem(SERVICE_ENTRY, JSON.stringify(payload));
-    openBillingForm('base', payload);
+    openBillingForm(PRICES.base.id, payload);
   });
 
   funnel.querySelector('.bf-premium-button').addEventListener('click', () => {
     track('click_unlock_pdf', { value: PRICES.pdf.price, currency: 'EUR', bonus_count: count });
     sessionStorage.setItem(REPORT_ENTRY, JSON.stringify(payload));
-    openBillingForm('pdf', payload);
+    openBillingForm(PRICES.pdf.id, payload);
+  });
+
+  funnel.querySelector('.bf-pec-button').addEventListener('click', () => {
+    track('click_pec_managed', { value: PRICES.pec.price, currency: 'EUR', bonus_count: count });
+    openBillingForm(PRICES.pec.id, payload);
   });
 }
 

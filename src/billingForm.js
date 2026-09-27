@@ -1,17 +1,20 @@
 import { trackInitiateCheckout } from './metaPixel.js';
 import { PRICES, formatPrice } from './config/prices.js';
+import pecComuni from '../lib/pecComuni.json';
 
 export function openBillingForm(plan, payload) {
-  const normalizedPlan = normalizedPlan === 'pdf' ? 'pdf' : normalizedPlan === 'pec' ? 'pec' : plan;
+  const normalizedPlan = plan === 'report' ? 'pdf' : plan === 'tari' ? 'pec' : plan;
   const selected = PRICES[normalizedPlan] || PRICES.base;
-  const info = [selected.label, formatPrice(selected.price)];
+  const pecRecipient = normalizedPlan === 'pec'
+    ? (pecComuni[String(payload.istat || '')] || 'pec@comune.it')
+    : '';
 
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
   backdrop.innerHTML = `
     <div class="bf-billing-modal" role="dialog" aria-modal="true">
       <div class="bf-billing-head">
-        <div><span class="eyebrow">DATI PER L’ACQUISTO</span><h2>${info[0]} · ${info[1]}</h2></div>
+        <div><span class="eyebrow">DATI PER L’ACQUISTO</span><h2>${selected.label} · ${formatPrice(selected.price)}</h2></div>
         <button type="button" class="bf-billing-close" aria-label="Chiudi">×</button>
       </div>
       <form class="bf-billing-form">
@@ -26,24 +29,40 @@ export function openBillingForm(plan, payload) {
           <label>Provincia<input name="provincia" maxlength="2" placeholder="TO" required /></label>
           <label class="full">PEC <small>(facoltativa)</small><input type="email" name="pec" /></label>
         </div>
-        ${plan === 'tari'
-          ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai completare la pratica, scaricare la delega precompilata e caricare ISEE, documento e delega firmata.</p>'
-          : false
-            ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scegliere se ricevere gli aggiornamenti via email, WhatsApp o entrambi i canali.</p>'
-            : plan === 'report'
-              ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scaricare subito la relazione PDF completa.</p>'
-              : normalizedPlan === 'base'
-                ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.</p>'
-                : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
+
+        ${normalizedPlan === 'pec' ? `
+          <div class="bf-billing-note">
+            <strong>Invio Gestito BETA:</strong> prepariamo e inviamo noi la PEC con i tuoi dati, ti giriamo ricevuta di consegna entro 24h lavorative. Esito dipende dal Comune. Non è CAF.<br>
+            <strong>Destinatario previsto:</strong> ${pecRecipient}
+          </div>
+          <label class="checkbox-label"><input type="checkbox" name="authorizeSend" required /> <span>Autorizzo BonusFatto.it ad inviare per mio conto la richiesta riduzione TARI al Comune di ${payload.comune || ''} con i dati da me inseriti</span></label>
+          <label class="checkbox-label"><input type="checkbox" name="truthDeclaration" required /> <span>Dichiaro che i dati sono veritieri</span></label>
+        ` : normalizedPlan === 'pdf'
+          ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai accedere alla relazione PDF Top 100 e al testo PEC.</p>'
+          : '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.</p>'}
+
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
-          <button type="submit" class="primary">Continua al pagamento · ${info[1]}</button>
+          <button type="submit" class="primary">Continua al pagamento · ${formatPrice(selected.price)}</button>
         </div>
       </form>
     </div>`;
 
-  const close = () => backdrop.remove();
+  const keepPaywallLocked = () => {
+    document.querySelectorAll('.bf-blur-card').forEach((card) => card.classList.remove('is-unlocked'));
+    document.querySelectorAll('.bf-blur-content').forEach((node) => {
+      node.style.filter = 'blur(8px)';
+      node.style.pointerEvents = 'none';
+      node.style.userSelect = 'none';
+    });
+  };
+
+  const close = () => {
+    keepPaywallLocked();
+    backdrop.remove();
+  };
+
   backdrop.querySelector('.bf-billing-close').onclick = close;
   backdrop.querySelector('.bf-billing-cancel').onclick = close;
   backdrop.onclick = (event) => { if (event.target === backdrop) close(); };
@@ -54,23 +73,54 @@ export function openBillingForm(plan, payload) {
     const error = form.querySelector('.bf-billing-error');
     const submit = form.querySelector('button[type="submit"]');
     const billing = Object.fromEntries(new FormData(form).entries());
-    billing.waConsent = false;
+    const consents = {
+      authorizeSend: billing.authorizeSend === 'on',
+      truthDeclaration: billing.truthDeclaration === 'on',
+    };
+
+    if (normalizedPlan === 'pec' && (!consents.authorizeSend || !consents.truthDeclaration)) {
+      error.hidden = false;
+      error.textContent = 'Per il servizio PEC sono obbligatorie entrambe le dichiarazioni.';
+      return;
+    }
 
     submit.disabled = true;
     submit.textContent = 'Apertura pagamento…';
+
     try {
+      const requestBody = {
+        priceId: selected.stripePriceId,
+        comune: payload.comune || '',
+        istat: payload.istat || '',
+        isee: payload.isee,
+        figli: payload.figli,
+        billing,
+        consents,
+      };
+      console.log('[BonusFatto checkout]', normalizedPlan, requestBody.priceId, requestBody.comune, requestBody.istat);
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: normalizedPlan, ...payload, billing }),
+        body: JSON.stringify(requestBody),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Checkout non disponibile.');
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        console.error('[BonusFatto checkout error]', response.status, data);
+        if (response.status >= 500) {
+          alert(`Errore checkout (${response.status}): ${data.error || 'errore server'}`);
+        }
+        throw new Error(data.error || 'Checkout non disponibile.');
+      }
+
+      console.log('[BonusFatto checkout ok]', data.id, data.url);
       trackInitiateCheckout({ checkoutId: data.id, plan: data.plan, value: data.value, currency: data.currency });
       window.location.assign(data.url);
     } catch (err) {
+      keepPaywallLocked();
       submit.disabled = false;
-      submit.textContent = `Continua al pagamento · ${info[1]}`;
+      submit.textContent = `Continua al pagamento · ${formatPrice(selected.price)}`;
       error.hidden = false;
       error.textContent = err.message || 'Impossibile aprire il pagamento.';
     }

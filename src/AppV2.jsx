@@ -141,7 +141,7 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
       <div className="paywall-heading">
         <span className="eyebrow">ANALISI COMPLETATA</span>
         <h1>Abbiamo trovato <span>{result.benefits.length} agevolazioni</span> da verificare.</h1>
-        <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Anteprima: {previewNames}{result.benefits.length > 4 ? '…' : ''}</p>
+        <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Anteprima: <span className="paywall-preview-locked" style={{ filter: 'blur(7px)', pointerEvents: 'none', userSelect: 'none' }}>{previewNames}{result.benefits.length > 4 ? '…' : ''}</span></p>
       </div>
       <TariComuneCard municipality={input.municipality} />
       <div className="teaser-summary">
@@ -455,7 +455,7 @@ export default function AppV2() {
               <div className="stats">
                 <div><Icon name="wallet" /><span>{PRICES.base.label.toUpperCase()}</span><strong>{formatPrice(PRICES.base.price)}</strong></div>
                 <div><Icon name="file" /><span>{PRICES.pdf.label.toUpperCase()}</span><strong>{formatPrice(PRICES.pdf.price)}</strong></div>
-                <div><Icon name="copy" /><span>{PRICES.pec.label.toUpperCase()}</span><strong>{formatPrice(PRICES.pec.price)}</strong><p>inviamo per te la richiesta di riduzione al Comune</p></div>
+                <div><Icon name="copy" /><span>{PRICES.pec.label.toUpperCase()}</span><strong>{formatPrice(PRICES.pec.price)}</strong><p>Invio Gestito BETA · ricevuta entro 24h lavorative · esito dipende dal Comune · non è CAF</p></div>
               </div>
               <div className="privacy-line"><span className="privacy-icon"><Icon name="lock" size={18} /></span><p><strong>I tuoi dati restano essenziali.</strong><br />Nessuna registrazione richiesta per il calcolo.</p></div>
             </section>
