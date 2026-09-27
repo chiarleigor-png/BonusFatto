@@ -102,10 +102,10 @@ function enhancePaywall() {
   const stack = document.createElement('section');
   stack.className = 'bf-offer-stack';
   stack.append(
-    makeOffer({ tag: 'ANALISI VELOCE IN 30 SECONDI', title: 'Analisi veloce in 30 secondi', price: '2,99 €', plan: 'base', description: 'Sblocca subito l’analisi rapida dei bonus compatibili con i dati inseriti.', items: ['Agevolazioni individuate', 'Importi stimabili quando disponibili', 'Indicazioni essenziali sui requisiti'], button: 'Avvia analisi · 2,99 €' }),
-    makeOffer({ type: 'report', tag: 'ANALISI CON RELAZIONE', title: 'Analisi con relazione', price: '6,90 €', plan: 'report', description: 'Analisi più completa con relazione personalizzata e riepilogo operativo.', items: ['Analisi delle agevolazioni individuate', 'Relazione personalizzata', 'Riepilogo dei prossimi passi'], button: 'Carica ISEE e prepara l’anteprima' }),
+    makeOffer({ tag: 'ANALISI VELOCE IN 30 SECONDI', title: 'Analisi veloce in 30 secondi', price: '4,99 €', plan: 'base', description: 'Sblocca subito l’analisi rapida dei bonus compatibili con i dati inseriti.', items: ['Agevolazioni individuate', 'Importi stimabili quando disponibili', 'Indicazioni essenziali sui requisiti'], button: 'Avvia analisi · 4,99 €' }),
+    makeOffer({ type: 'report', tag: 'ANALISI CON RELAZIONE', title: 'Analisi con relazione', price: '4,99 €', plan: 'report', description: 'Analisi più completa con relazione personalizzata e riepilogo operativo.', items: ['Analisi delle agevolazioni individuate', 'Relazione personalizzata', 'Riepilogo dei prossimi passi'], button: 'Carica ISEE e prepara l’anteprima' }),
     makeOffer({ type: 'tari-service', tag: 'INVIO PEC TARI', title: 'Invio PEC TARI', price: '14,90 €', plan: 'tari', description: 'Inviamo per te la richiesta di riduzione al Comune.', items: ['Predisposizione della richiesta', 'Invio al Comune tramite PEC', 'Copia della comunicazione e delle ricevute disponibili'], button: 'Richiedi invio PEC · 14,90 €' }),
-    makeOffer({ type: 'whatsapp', tag: 'SERVIZIO CONTINUATIVO', title: 'Servizio continuativo', price: '6,90 €', plan: 'whatsapp', description: 'Invio aggiornamenti periodici su novità bonus e TARI.', items: ['Aggiornamenti periodici', 'Novità sui bonus', 'Novità e scadenze TARI'], button: 'Attiva servizio continuativo · 6,90 €' })
+    makeOffer({ type: 'whatsapp', tag: 'SERVIZIO CONTINUATIVO', title: 'Servizio continuativo', price: '4,99 €', plan: 'whatsapp', description: 'Invio aggiornamenti periodici su novità bonus e TARI.', items: ['Aggiornamenti periodici', 'Novità sui bonus', 'Novità e scadenze TARI'], button: 'Attiva servizio continuativo · 4,99 €' })
   );
 
   const grid = shell.querySelector('.plan-grid');

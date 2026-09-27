@@ -2,11 +2,11 @@ import { trackInitiateCheckout } from './metaPixel.js';
 
 export function openBillingForm(plan, payload) {
   const info = {
-    base: ['Analisi veloce in 30 secondi', '2,99 €'],
-    report: ['Analisi con relazione', '6,90 €'],
-    whatsapp: ['Servizio continuativo · 12 mesi', '6,90 €'],
-    tari: ['Invio pratica TARI', '14,90 €'],
-  }[plan] || ['Analisi veloce in 30 secondi', '2,99 €'];
+    
+    report: ['Relazione PDF Completa', '4,99 €'],
+    
+    
+  }[plan] || ['Relazione PDF Completa', '4,99 €'];
 
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
@@ -33,7 +33,7 @@ export function openBillingForm(plan, payload) {
           : plan === 'whatsapp'
             ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scegliere se ricevere gli aggiornamenti via email, WhatsApp o entrambi i canali.</p>'
             : plan === 'report'
-              ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> tornerai alla tua analisi e potrai scaricare la relazione PDF definitiva.</p>'
+              ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scaricare subito la relazione PDF completa.</p>'
               : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">

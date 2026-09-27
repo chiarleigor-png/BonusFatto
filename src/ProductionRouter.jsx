@@ -31,7 +31,7 @@ function Loading({ error = '' }) {
 
 function patchReportProductionText() {
   const pill = document.querySelector('.bfq-test-pill');
-  if (pill) pill.textContent = '6,90 € · una tantum';
+  if (pill) pill.textContent = '4,99 € · una tantum';
 
   document.querySelectorAll('.eyebrow').forEach((node) => {
     node.textContent = node.textContent
@@ -162,6 +162,19 @@ export default function PaidServiceRouter({ sessionId }) {
   if (state.plan === 'base') return <QuickAnalysisTestFlow />;
   if (state.plan === 'tari') return <TariPecTestFlowConnected />;
   if (state.plan === 'whatsapp') return <ServiceTestFlow />;
-  if (state.plan === 'report') return <ProductionReportFlow paidSessionId={sessionId} />;
+  if (state.plan === 'report') return <div className="bfs-shell">
+    <main className="bfs-main">
+      <section className="bfs-confirmation">
+        <div className="bfs-success-icon">✓</div>
+        <span className="bfs-eyebrow">PAGAMENTO RICEVUTO</span>
+        <h1>La tua Relazione PDF è pronta.</h1>
+        <p>Puoi scaricarla subito. Il documento è generato dai dati inseriti nel calcolo e resta un servizio informativo indipendente.</p>
+        <div className="bfs-confirm-actions">
+          <a className="bfs-primary-link" href={`/api/report?session_id=${encodeURIComponent(sessionId)}`}>Scarica PDF completo</a>
+          <a className="bfs-secondary-link" href="/">Torna alla Home</a>
+        </div>
+      </section>
+    </main>
+  </div>;
   return <Loading error="Servizio acquistato non riconosciuto." />;
 }
