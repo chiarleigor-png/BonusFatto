@@ -117,7 +117,7 @@ async function loadVerifiedTari(funnel, payload) {
   }
   target.textContent = 'Verifica TARI comunale in corso…';
   try {
-    const response = await fetch(`/api/tari/${encodeURIComponent(payload.istat)}`);
+    const response = await fetch(`/api/tari?istat=${encodeURIComponent(payload.istat)}`);
     const json = await response.json();
     if (!response.ok || !json?.available || !json?.data) {
       target.innerHTML = `Dati TARI non disponibili per <strong>${payload.comune}</strong>.`;
