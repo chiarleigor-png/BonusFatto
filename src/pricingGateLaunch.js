@@ -3,6 +3,8 @@ import { openBillingForm } from './billingForm.js';
 const CHILDREN_KEY = 'bonusfatto_checkout_children';
 const PROFILE_KEY = 'bonusfatto_profile_2026';
 const REPORT_ENTRY = 'bonusfatto_report_entry';
+const SERVICE_ENTRY = 'bonusfatto_service_entry';
+const UNLOCK_KEY = 'bonusfatto_home_unlock_2026';
 const TARI_ISEE_STANDARD_2026 = 9796;
 const TARI_ISEE_LARGE_FAMILY_2026 = 20000;
 
@@ -34,9 +36,11 @@ document.addEventListener('submit', captureChildren, true);
 
 function payloadFromGate(shell) {
   const summary = shell.querySelectorAll('.teaser-summary > div');
-  const comune = summary[2]?.querySelector('strong')?.textContent?.trim() || '';
+  const comuneFromSummary = summary[2]?.querySelector('strong')?.textContent?.trim() || '';
   const lead = shell.querySelector('.paywall-heading .lead')?.textContent || '';
-  const iseePart = lead.split('·').find((part) => /ISEE/i.test(part)) || '';
+  const leadParts = lead.split('·').map((item) => item.trim());
+  const comune = comuneFromSummary || leadParts[0] || '';
+  const iseePart = leadParts.find((part) => /ISEE/i.test(part)) || '';
   const isee = parseEuroNumber(iseePart.replace(/ISEE/i, ''));
   const figli = Number(sessionStorage.getItem(CHILDREN_KEY) || 0);
   return { comune, isee, figli: Number.isInteger(figli) && figli >= 0 ? figli : 0, profile: readProfile() };
@@ -56,86 +60,155 @@ function track(eventName, params = {}) {
 }
 
 function ensureStyles() {
-  if (document.getElementById('bf-single-pdf-funnel')) return;
+  if (document.getElementById('bf-home-blur-funnel')) return;
   const style = document.createElement('style');
-  style.id = 'bf-single-pdf-funnel';
+  style.id = 'bf-home-blur-funnel';
   style.textContent = `
-    .bf-free-result{max-width:820px;margin:22px auto;padding:24px;border:1px solid #cfe4c5;border-radius:24px;background:linear-gradient(180deg,#f6fff1 0%,#edf8e7 100%);box-shadow:0 16px 44px rgba(55,86,38,.08)}
-    .bf-free-result h2{margin:8px 0 6px;font-size:clamp(25px,5vw,38px);line-height:1.08;color:#315a2b}
-    .bf-free-result p{margin:0;color:#5d6b56}
-    .bf-free-list{display:grid;gap:10px;margin:18px 0;padding:0;list-style:none}
-    .bf-free-list li{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid #dbead4;font-weight:700;color:#354333}
-    .bf-saving-estimate{margin-top:16px!important;padding-top:16px;border-top:1px dashed #bfd4b6;color:#315a2b!important;font-weight:800}
-    .bf-pdf-paywall{max-width:820px;margin:18px auto 0;padding:26px;border-radius:26px;background:linear-gradient(145deg,#5b21b6 0%,#7C3AED 58%,#6d28d9 100%);color:#fff;box-shadow:0 24px 60px rgba(91,33,182,.24)}
-    .bf-pdf-paywall .bf-pdf-kicker{font-size:12px;letter-spacing:.13em;font-weight:900;opacity:.85}
-    .bf-pdf-paywall h2{margin:8px 0 10px;font-size:clamp(27px,5vw,40px);line-height:1.08;color:#fff}
-    .bf-pdf-paywall ul{display:grid;gap:9px;margin:18px 0 22px;padding:0;list-style:none}
-    .bf-pdf-paywall li:before{content:'✓';display:inline-grid;place-items:center;width:22px;height:22px;margin-right:9px;border-radius:50%;background:#fff;color:#6d28d9;font-weight:900}
-    .bf-pdf-cta{width:100%;min-height:56px;border:0;border-radius:16px;background:#fff!important;color:#5b21b6!important;font-weight:900;font-size:17px;cursor:pointer}
-    .bf-pdf-trust{margin:13px 0 0!important;text-align:center;font-size:12px;line-height:1.45;opacity:.86}
-    @media (max-width:640px){.bf-free-result,.bf-pdf-paywall{padding:19px;border-radius:20px}.bf-free-list li{font-size:14px}.bf-pdf-paywall h2{font-size:28px}}
+    .bf-home-funnel{max-width:980px;margin:24px auto 0}
+    .bf-blur-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0 26px}
+    .bf-blur-card{position:relative;min-height:152px;display:flex;align-items:stretch;overflow:hidden;border:1px solid #e5e0f4;border-radius:20px;background:#fff;box-shadow:0 12px 34px rgba(34,20,73,.07)}
+    .bf-blur-content{width:100%;display:grid;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:20px;filter:blur(8px);user-select:none;transition:filter .2s ease}
+    .bf-blur-card.is-unlocked .bf-blur-content{filter:none;user-select:text}
+    .bf-blur-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:#f1eaff;color:#6d28d9;font-size:22px}
+    .bf-blur-title{margin:3px 0 0;font-size:18px;line-height:1.2;color:#282331;font-weight:850}
+    .bf-blur-meta{font-size:11px;letter-spacing:.08em;color:#81788d;font-weight:800}
+    .bf-blur-amount{font-weight:900;color:#5b21b6;white-space:nowrap}
+    .bf-lock-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.25);backdrop-filter:saturate(.8)}
+    .bf-blur-card.is-unlocked .bf-lock-overlay{display:none}
+    .bf-lock-pill{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:46px;border-radius:50%;background:#fff;box-shadow:0 8px 24px rgba(47,36,69,.16);font-size:20px}
+    .bf-price-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .bf-price-card{position:relative;display:flex;flex-direction:column;min-height:330px;padding:24px;border:1px solid #e1dbea;border-radius:24px;background:#fff;box-shadow:0 18px 44px rgba(36,23,61,.08)}
+    .bf-price-card.premium{border:2px solid #7C3AED;background:linear-gradient(180deg,#fbf9ff 0%,#f4efff 100%)}
+    .bf-price-card h2{margin:8px 0 4px;font-size:26px;line-height:1.1;color:#261f30}
+    .bf-price-card .bf-price-sub{margin:0 0 14px;color:#716878}
+    .bf-price-card ul{display:grid;gap:10px;margin:14px 0 22px;padding:0;list-style:none;color:#4b4450}
+    .bf-price-card li{display:flex;gap:9px;align-items:flex-start}
+    .bf-price-card li:before{content:'✓';font-weight:900;color:#6d28d9}
+    .bf-price-card button{margin-top:auto;width:100%;min-height:54px;border-radius:15px;font-size:16px;font-weight:900;cursor:pointer}
+    .bf-basic-button{border:2px solid #d8cfdf;background:#fff;color:#4c4056}
+    .bf-premium-button{border:0;background:#7C3AED!important;color:#fff!important;box-shadow:0 10px 24px rgba(124,58,237,.25)}
+    .bf-choice-badge{position:absolute;right:18px;top:18px;padding:7px 11px;border-radius:999px;background:#7C3AED;color:#fff;font-size:12px;font-weight:900}
+    .bf-home-disclaimer{margin:18px auto 0;text-align:center;color:#756d79;font-size:12px;line-height:1.5}
+    @media (max-width:720px){
+      .bf-blur-grid,.bf-price-grid{grid-template-columns:1fr}
+      .bf-blur-card{min-height:138px}
+      .bf-blur-content{grid-template-columns:44px 1fr;align-items:center;padding:17px}
+      .bf-blur-amount{grid-column:2}
+      .bf-price-card{min-height:auto}
+    }
   `;
   document.head.appendChild(style);
 }
 
+function setUnlocked(shell, level) {
+  shell.dataset.unlocked = level;
+  sessionStorage.setItem(UNLOCK_KEY, level);
+  shell.querySelectorAll('.bf-blur-card').forEach((card) => card.classList.add('is-unlocked'));
+}
+
 function patchGate() {
   const shell = document.querySelector('.paywall-shell');
-  if (!shell || shell.dataset.singlePdfFunnel === '1') return;
+  if (!shell || shell.dataset.homeBlurFunnel === '1') return;
   const grid = shell.querySelector('.plan-grid');
   if (!grid) return;
 
-  shell.dataset.singlePdfFunnel = '1';
+  shell.dataset.homeBlurFunnel = '1';
   ensureStyles();
 
   const payload = payloadFromGate(shell);
   const names = previewNames(shell);
   const count = Number(shell.querySelector('.teaser-summary > div strong')?.textContent?.trim()) || names.length || 1;
-  const tariEligible = payload.isee <= (payload.figli >= 4 ? TARI_ISEE_LARGE_FAMILY_2026 : TARI_ISEE_STANDARD_2026);
-  const listNames = names.length ? names : ['Bonus e agevolazioni compatibili con il tuo profilo'];
-  if (tariEligible && !listNames.some((name) => /TARI/i.test(name))) listNames.unshift(`Bonus TARI ${payload.comune || ''} 25%`.trim());
+  const threshold = payload.figli >= 4 ? TARI_ISEE_LARGE_FAMILY_2026 : TARI_ISEE_STANDARD_2026;
+  const tariEligible = Number.isFinite(payload.isee) && payload.isee <= threshold;
+  const listNames = [...names];
+  if (tariEligible && !listNames.some((name) => /TARI/i.test(name))) {
+    listNames.unshift(`Bonus TARI ${payload.comune || ''} 25%`.trim());
+  }
+  while (listNames.length < Math.min(4, count)) listNames.push(`Agevolazione ${listNames.length + 1}`);
+  const visibleNames = listNames.slice(0, Math.max(2, Math.min(4, count)));
 
   const heading = shell.querySelector('.paywall-heading');
   if (heading) {
     heading.innerHTML = `
-      <span class="eyebrow">RISULTATO GRATUITO</span>
-      <h1>Abbiamo trovato <span>${count} bonus</span> da verificare per te.</h1>
-      <p class="lead">${payload.comune || 'Il tuo Comune'} · ISEE inserito · anteprima gratuita disponibile subito.</p>
+      <span class="eyebrow">RISULTATO DEL CALCOLO</span>
+      <h1>Hai diritto a <span>${count} bonus</span></h1>
+      <p class="lead">Su 12 agevolazioni verificate per ${payload.comune || 'il tuo Comune'}</p>
     `;
   }
 
   const summary = shell.querySelector('.teaser-summary');
   if (summary) summary.remove();
 
-  const free = document.createElement('section');
-  free.className = 'bf-free-result';
-  free.innerHTML = `
-    <span class="eyebrow">ANTEPRIMA GRATIS</span>
-    <h2>Hai diritto a ${count} bonus da approfondire</h2>
-    <p>Ti mostriamo subito i nomi delle agevolazioni individuate, senza sbloccare ancora gli importi esatti.</p>
-    <ul class="bf-free-list">${listNames.slice(0, Math.max(4, listNames.length)).map((name) => `<li><span>✓</span><span>${name}</span></li>`).join('')}</ul>
-    <p class="bf-saving-estimate">Stima orientativa del risparmio annuo: circa 250–450 € + eventuali bonus familiari e riduzioni locali.</p>
+  const funnel = document.createElement('section');
+  funnel.className = 'bf-home-funnel';
+  funnel.innerHTML = `
+    <div class="bf-blur-grid">
+      ${visibleNames.map((name, index) => `
+        <article class="bf-blur-card">
+          <div class="bf-blur-content blur-[8px] select-none">
+            <div class="bf-blur-icon">${['€','⌂','⚡','★'][index % 4]}</div>
+            <div>
+              <div class="bf-blur-meta">BONUS ${String(index + 1).padStart(2, '0')}</div>
+              <h3 class="bf-blur-title">${name}</h3>
+            </div>
+            <div class="bf-blur-amount">Importo stimato</div>
+          </div>
+          <div class="bf-lock-overlay"><span class="bf-lock-pill">🔒</span></div>
+        </article>
+      `).join('')}
+    </div>
+
+    <div class="bf-price-grid">
+      <article class="bf-price-card basic">
+        <span class="eyebrow">VISTA SBLOCCATA</span>
+        <h2>Sblocca Vista - 2,99€</h2>
+        <p class="bf-price-sub">Il modo più rapido per vedere il risultato del calcolo.</p>
+        <ul>
+          <li>Vedi nomi bonus</li>
+          <li>Importi stimati</li>
+          <li>Idoneità in base all’ISEE inserito</li>
+        </ul>
+        <button type="button" class="bf-basic-button">Sblocca per 2,99€</button>
+      </article>
+
+      <article class="bf-price-card premium">
+        <span class="bf-choice-badge">Più scelto</span>
+        <span class="eyebrow">PREMIUM</span>
+        <h2>Premium PDF - 4,99€</h2>
+        <p class="bf-price-sub">Prezzo finale: include anche la Vista Base.</p>
+        <ul>
+          <li>Tutto di Base</li>
+          <li>PDF con scadenze ${payload.comune || 'Comune'}</li>
+          <li>Moduli e link bando disponibili</li>
+          <li>Testo PEC precompilato</li>
+        </ul>
+        <button type="button" class="bf-premium-button bg-violet-600">Sblocca Premium 4,99€</button>
+      </article>
+    </div>
+
+    <p class="bf-home-disclaimer">
+      Servizio informativo indipendente - Non sito governativo - 7894 comuni 2026<br />
+      Soglia bonus sociale 2026: ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.
+    </p>
   `;
 
-  const paywall = document.createElement('section');
-  paywall.className = 'bf-pdf-paywall';
-  paywall.innerHTML = `
-    <div class="bf-pdf-kicker">RELAZIONE 2026</div>
-    <h2>Sblocca Relazione PDF Completa - 4,99€</h2>
-    <ul>
-      <li>Importi esatti calcolati con il tuo ISEE</li>
-      <li>Scadenze del Comune e link ai bandi disponibili</li>
-      <li>Moduli e indicazioni operative per la domanda</li>
-      <li>Contenuti aggiornati al 2026</li>
-    </ul>
-    <button type="button" class="bf-pdf-cta">Scarica PDF Completo - 4,99€</button>
-    <p class="bf-pdf-trust">Pagamento sicuro • Download immediato • Servizio informativo indipendente, non sito governativo</p>
-  `;
+  grid.replaceWith(funnel);
 
-  grid.replaceWith(free, paywall);
-  track('bonus_calcolato');
+  const previouslyUnlocked = sessionStorage.getItem(UNLOCK_KEY);
+  if (previouslyUnlocked === 'basic' || previouslyUnlocked === 'premium') setUnlocked(shell, previouslyUnlocked);
 
-  paywall.querySelector('.bf-pdf-cta').addEventListener('click', () => {
-    track('begin_checkout', { value: 4.99, currency: 'EUR' });
+  track('view_blurred_results', { bonus_count: count, comune: payload.comune || '' });
+
+  funnel.querySelector('.bf-basic-button').addEventListener('click', () => {
+    setUnlocked(shell, 'basic');
+    track('click_unlock_2_99', { value: 2.99, currency: 'EUR', bonus_count: count });
+    sessionStorage.setItem(SERVICE_ENTRY, JSON.stringify(payload));
+    openBillingForm('base', payload);
+  });
+
+  funnel.querySelector('.bf-premium-button').addEventListener('click', () => {
+    setUnlocked(shell, 'premium');
+    track('click_unlock_4_99', { value: 4.99, currency: 'EUR', bonus_count: count });
     sessionStorage.setItem(REPORT_ENTRY, JSON.stringify(payload));
     openBillingForm('report', payload);
   });

@@ -34,7 +34,9 @@ export function openBillingForm(plan, payload) {
             ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scegliere se ricevere gli aggiornamenti via email, WhatsApp o entrambi i canali.</p>'
             : plan === 'report'
               ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai scaricare subito la relazione PDF completa.</p>'
-              : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
+              : plan === 'base'
+                ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.</p>'
+                : '<p class="bf-billing-note">Dati richiesti per il pagamento e per l’emissione della documentazione fiscale intestata a persona fisica.</p>'}
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">
           <button type="button" class="secondary-action bf-billing-cancel">Annulla</button>
