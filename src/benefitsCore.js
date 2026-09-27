@@ -1,5 +1,3 @@
-import { getLocalTariBand, getPiemonteTariRule } from './tariPiemonte.js';
-
 export const euro = (n) => {
   if (n === 'spetta') return 'Spetta';
   if (n === 'compatibile') return 'Compatibile';
@@ -9,10 +7,7 @@ export const euro = (n) => {
 };
 
 export const MEDIA_TARI = { Roma:360, Milano:400, Torino:380, Napoli:340, Bologna:370, Firenze:350, Genova:360, Costarainera:285, Imperia:290 };
-export const DEADLINES = {
-  Roma:{date:'2026-02-28T23:59:59+01:00',label:'28 febbraio 2026',url:'https://www.comune.roma.it/web/it/notizia/esenzione-tari-2026-domande-entro-28-febbraio.page'},
-  Fiumicino:{date:'2026-03-16T23:59:59+01:00',label:'16 marzo 2026',url:'https://www.comune.fiumicino.rm.it/index.php/it/news/bando-agevolazioni-tari-2026'}
-};
+export const DEADLINES = {};
 
 const PROFILE_KEY='bonusfatto_profile_2026';
 function readStoredProfile(){if(typeof window==='undefined')return{};if(window.__bonusFattoProfile2026)return window.__bonusFattoProfile2026;try{return JSON.parse(window.localStorage.getItem(PROFILE_KEY)||'{}')||{}}catch{return{}}}
@@ -35,14 +30,12 @@ export function calculate({isee,children,municipality,profile:inputProfile}){
   const add=(id,name,category,amount,period,description,options={})=>benefits.push({id,name,category,amount,period,description,eligibility:options.eligibility??'verifica',amountType:options.amountType??(amount==null?'non-stimabile':'massimo'),countInTotal:options.countInTotal??false,sourceUrl:options.sourceUrl??null});
 
   if(socialThreshold){
-    add('tari','Bonus sociale rifiuti (TARI)','Casa',(tariBase*25)/100,'annuo',`Riduzione nazionale del 25% sulla TARI dovuta. La stima usa una TARI media di ${euro(tariBase)}; il valore reale dipende dalla posizione TARI effettiva. Con DSU/ISEE valido il beneficio è automatico se ricorrono i requisiti dell’utenza.`,{eligibility:'spetta-profilo',amountType:'stima',countInTotal:true,sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});
+    add('tari','Bonus sociale rifiuti (TARI)','Casa','spetta','sulla TARI dovuta',`Riduzione nazionale del 25% sulla TARI dovuta. Il simulatore non attribuisce più un importo comunale stimato: scadenze e riduzioni locali vengono lette dal motore MEF Top 100.`,{eligibility:'spetta-profilo',amountType:'percentuale',countInTotal:false,sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});
     const supplies=[['luce',profile.electricitySupply],['gas',profile.gasSupply],['acqua',profile.waterSupply]];
     const eligible=supplies.filter(([,v])=>v==='yes').map(([k])=>k);const unknown=supplies.filter(([,v])=>v==='unknown'||v==null).map(([k])=>k);
     if(eligible.length){add('utilities','Bonus sociali luce, gas e acqua','Bollette','spetta','automatico · 12 mesi',`ISEE entro la soglia 2026. In base alle risposte sulle forniture, il bonus risulta spettante per: ${eligible.join(', ')}. Il riconoscimento è automatico dopo DSU/ISEE valido; l’importo in euro varia in base alle caratteristiche delle forniture e non viene trasformato in una cifra fissa dal simulatore.${unknown.length?` Da chiarire solo: ${unknown.join(', ')}.`:''}`,{eligibility:'spetta-profilo',amountType:'variabile',sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});}else if(unknown.length){add('utilities','Bonus sociali luce, gas e acqua','Bollette','compatibile','utenze da confermare',`Il requisito economico 2026 è soddisfatto. Per stabilire quali bonus bollette spettano occorre confermare i requisiti delle forniture indicate come “Non so”: ${unknown.join(', ')}.`,{eligibility:'compatibile',amountType:'variabile',sourceUrl:'https://www.arera.it/consumatori/bonus-sociale/bonus-sociale-per-disagio-economico/quali-sono-i-requisiti'});}
   }
 
-  const localTariRule=getPiemonteTariRule(municipality.name),localTariBand=getLocalTariBand(localTariRule,isee);
-  if(localTariBand){const deadlineExpired=localTariRule.deadline?new Date(localTariRule.deadline).getTime()<Date.now():null;const deadlineText=localTariRule.deadlineLabel?` Scadenza indicata dalla fonte: ${localTariRule.deadlineLabel}${deadlineExpired?' (scaduta)':''}.`:' La scadenza 2026 deve essere verificata sulla fonte ufficiale.';add(`tari-local-${municipality.name.toLowerCase().replace(/\s+/g,'-')}`,`Riduzione TARI comunale – ${municipality.name}`,'Casa',(tariBase*localTariBand.percent)/100,'annuo',`Agevolazione comunale 2026 verificata: riduzione del ${localTariBand.percent}% per la fascia ISEE inserita. La cifra è una stima sulla TARI media del simulatore (${euro(tariBase)}).${deadlineText}${localTariRule.note?` ${localTariRule.note}`:''}`,{eligibility:'spetta-profilo',amountType:'stima',countInTotal:true,sourceUrl:localTariRule.sourceUrl});}
 
   if(children>0){const minorCount=childAges.length?childAges.filter(a=>a<18).length:children;if(minorCount>0){const perChild=auuMinorBase(isee),monthly=round1(perChild*minorCount);add('children','Assegno unico e universale (AUU) 2026','Famiglia',monthly,'al mese · quota base',`Per ${minorCount} ${minorCount===1?'figlio minore':'figli minori'} e ISEE ${euro(isee)}, la quota base 2026 stimata dal modello è ${euro(monthly)} al mese (${euro(perChild)} per figlio). Eventuali maggiorazioni per disabilità, età sotto un anno, nuclei numerosi, madre under 21 o genitori entrambi lavoratori si aggiungono se ricorrono e non sono incluse in questa quota base.`,{eligibility:'spetta-profilo',amountType:'quota-base',sourceUrl:'https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.assegno-unico-e-universale-per-i-figli-a-carico-55984.assegno-unico-e-universale-per-i-figli-a-carico.html'});}}
 

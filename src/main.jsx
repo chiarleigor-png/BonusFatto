@@ -19,6 +19,7 @@ import './brandLogo.js';
 import './formEnhancements.js';
 import './reportDelivery.js';
 import './pricingGateLaunch.js';
+import './tariLive.js';
 import { initMetaPixel } from './metaPixel.js';
 
 initMetaPixel();
