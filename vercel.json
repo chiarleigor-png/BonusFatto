@@ -22,11 +22,5 @@
       "source": "/api/tari/:istat",
       "destination": "/api/tari?istat=:istat"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/scrape",
-      "schedule": "0 3 * * *"
-    }
   ]
 }
