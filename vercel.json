@@ -16,5 +16,143 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/comune/00083",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00083/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00084",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00084/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00085",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00085/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00086",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00086/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00087",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00087/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00088",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00088/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00089",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00089/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00090",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00090/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00091",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00091/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00092",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00092/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00093",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00093/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00094",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00094/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00095",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00095/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00096",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00096/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00097",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00097/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00098",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00098/:path*",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00099",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/comune/00099/:path*",
+      "destination": "/api/gone"
+    }
   ]
 }
