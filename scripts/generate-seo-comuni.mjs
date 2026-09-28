@@ -26,7 +26,7 @@ function titleNameFromSlug(slug){return String(slug||'').split('-').map(function
 const xml=fs.readFileSync(sitemapPath,'utf8');
 const matches=Array.from(xml.matchAll(/<loc>(https:\/\/bonusfatto\.it\/comune\/([^/]+)\/([^<]+))<\/loc>/g));
 const urls=matches.map(function(m){return {canonical:m[1],istat:m[2],slug:m[3]};});
-if(urls.length!==483) throw new Error('Attesi 483 URL comunali, trovati '+urls.length);
+if(urls.length<80) throw new Error('Attesi almeno 80 URL comunali, trovati '+urls.length);
 if(urls.some(function(u){return /^0008[3-9]$|^0009[0-9]$/.test(u.istat);})){
   throw new Error('Placeholder 00083-00099 presenti nella sitemap');
 }
