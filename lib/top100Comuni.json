@@ -1,105 +1,1102 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://bonusfatto.it/</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-  <url><loc>https://bonusfatto.it/bonus</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/058091/roma</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/015146/milano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063049/napoli</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/001272/torino</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/082053/palermo</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/010025/genova</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/037006/bologna</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/048017/firenze</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/072006/bari</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/087015/catania</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/023091/verona</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/027042/venezia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/083048/messina</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/028065/padova</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/017029/brescia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/034027/parma</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/100005/prato</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/032006/trieste</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/073027/taranto</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/036023/modena</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/035033/reggio-emilia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/080063/reggio-calabria</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/054039/perugia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/039014/ravenna</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/049009/livorno</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/099014/rimini</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/092009/cagliari</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/071024/foggia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/038008/ferrara</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/059011/latina</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063034/giugliano-in-campania</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/065116/salerno</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/108033/monza</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/016024/bergamo</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/090064/sassari</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/022205/trento</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/068028/pescara</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/040012/forl</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/089017/siracusa</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/024116/vicenza</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/021008/bolzano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/055032/terni</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/033032/piacenza</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/003106/novara</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/042002/ancona</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/030129/udine</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/051002/arezzo</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/110001/andria</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/040007/cesena</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/041044/pesaro</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/075033/lecce</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/006003/alessandria</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/011015/la-spezia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/110002/barletta</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/050026/pisa</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/058044/guidonia-montecelio</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/047014/pistoia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/046019/lucca</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/026086/treviso</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/012026/busto-arsizio</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/058120/fiumicino</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/013075/como</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/079023/catanzaro</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/053011/grosseto</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/074001/brindisi</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/081011/marsala</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/012133/varese</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/015209/sesto-san-giovanni</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063084/torre-del-greco</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/015077/cinisello-balsamo</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/059001/aprilia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063060/pozzuoli</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/078157/corigliano-rossano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/036005/carpi</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/088009/ragusa</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/005005/asti</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063022/casoria</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/061022/caserta</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/018110/pavia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/019036/cremona</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/066049/l-aquila</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/072004/altamura</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/085008/gela</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/037032/imola</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/092051/quartu-sant-elena</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/079160/lamezia-terme</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/056059/viterbo</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/088012/vittoria</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/045010/massa</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/058079/pomezia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/018164/vigevano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/078045/cosenza</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/076063/potenza</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063020/castellammare-di-stabia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/090047/olbia</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/063002/afragola</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/015118/legnano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/046033/viareggio</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/058007/anzio</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://bonusfatto.it/comune/041011/fano</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-</urlset>
+[
+  {
+    "istat": "058091",
+    "codiceIstat": "058091",
+    "nome": "Roma",
+    "comune": "Roma",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "015146",
+    "codiceIstat": "015146",
+    "nome": "Milano",
+    "comune": "Milano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063049",
+    "codiceIstat": "063049",
+    "nome": "Napoli",
+    "comune": "Napoli",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "001272",
+    "codiceIstat": "001272",
+    "nome": "Torino",
+    "comune": "Torino",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "082053",
+    "codiceIstat": "082053",
+    "nome": "Palermo",
+    "comune": "Palermo",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "010025",
+    "codiceIstat": "010025",
+    "nome": "Genova",
+    "comune": "Genova",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "037006",
+    "codiceIstat": "037006",
+    "nome": "Bologna",
+    "comune": "Bologna",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "048017",
+    "codiceIstat": "048017",
+    "nome": "Firenze",
+    "comune": "Firenze",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "072006",
+    "codiceIstat": "072006",
+    "nome": "Bari",
+    "comune": "Bari",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "087015",
+    "codiceIstat": "087015",
+    "nome": "Catania",
+    "comune": "Catania",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "023091",
+    "codiceIstat": "023091",
+    "nome": "Verona",
+    "comune": "Verona",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "027042",
+    "codiceIstat": "027042",
+    "nome": "Venezia",
+    "comune": "Venezia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "083048",
+    "codiceIstat": "083048",
+    "nome": "Messina",
+    "comune": "Messina",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "028065",
+    "codiceIstat": "028065",
+    "nome": "Padova",
+    "comune": "Padova",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "017029",
+    "codiceIstat": "017029",
+    "nome": "Brescia",
+    "comune": "Brescia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "034027",
+    "codiceIstat": "034027",
+    "nome": "Parma",
+    "comune": "Parma",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "100005",
+    "codiceIstat": "100005",
+    "nome": "Prato",
+    "comune": "Prato",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "032006",
+    "codiceIstat": "032006",
+    "nome": "Trieste",
+    "comune": "Trieste",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "073027",
+    "codiceIstat": "073027",
+    "nome": "Taranto",
+    "comune": "Taranto",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "036023",
+    "codiceIstat": "036023",
+    "nome": "Modena",
+    "comune": "Modena",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "035033",
+    "codiceIstat": "035033",
+    "nome": "Reggio Emilia",
+    "comune": "Reggio Emilia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "080063",
+    "codiceIstat": "080063",
+    "nome": "Reggio Calabria",
+    "comune": "Reggio Calabria",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "054039",
+    "codiceIstat": "054039",
+    "nome": "Perugia",
+    "comune": "Perugia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "039014",
+    "codiceIstat": "039014",
+    "nome": "Ravenna",
+    "comune": "Ravenna",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "049009",
+    "codiceIstat": "049009",
+    "nome": "Livorno",
+    "comune": "Livorno",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "099014",
+    "codiceIstat": "099014",
+    "nome": "Rimini",
+    "comune": "Rimini",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "092009",
+    "codiceIstat": "092009",
+    "nome": "Cagliari",
+    "comune": "Cagliari",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "071024",
+    "codiceIstat": "071024",
+    "nome": "Foggia",
+    "comune": "Foggia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "038008",
+    "codiceIstat": "038008",
+    "nome": "Ferrara",
+    "comune": "Ferrara",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "059011",
+    "codiceIstat": "059011",
+    "nome": "Latina",
+    "comune": "Latina",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063034",
+    "codiceIstat": "063034",
+    "nome": "Giugliano In Campania",
+    "comune": "Giugliano In Campania",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "065116",
+    "codiceIstat": "065116",
+    "nome": "Salerno",
+    "comune": "Salerno",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "108033",
+    "codiceIstat": "108033",
+    "nome": "Monza",
+    "comune": "Monza",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "016024",
+    "codiceIstat": "016024",
+    "nome": "Bergamo",
+    "comune": "Bergamo",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "090064",
+    "codiceIstat": "090064",
+    "nome": "Sassari",
+    "comune": "Sassari",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "022205",
+    "codiceIstat": "022205",
+    "nome": "Trento",
+    "comune": "Trento",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "068028",
+    "codiceIstat": "068028",
+    "nome": "Pescara",
+    "comune": "Pescara",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "040012",
+    "codiceIstat": "040012",
+    "nome": "Forl",
+    "comune": "Forl",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "089017",
+    "codiceIstat": "089017",
+    "nome": "Siracusa",
+    "comune": "Siracusa",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "024116",
+    "codiceIstat": "024116",
+    "nome": "Vicenza",
+    "comune": "Vicenza",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "021008",
+    "codiceIstat": "021008",
+    "nome": "Bolzano",
+    "comune": "Bolzano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "055032",
+    "codiceIstat": "055032",
+    "nome": "Terni",
+    "comune": "Terni",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "033032",
+    "codiceIstat": "033032",
+    "nome": "Piacenza",
+    "comune": "Piacenza",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "003106",
+    "codiceIstat": "003106",
+    "nome": "Novara",
+    "comune": "Novara",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "042002",
+    "codiceIstat": "042002",
+    "nome": "Ancona",
+    "comune": "Ancona",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "030129",
+    "codiceIstat": "030129",
+    "nome": "Udine",
+    "comune": "Udine",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "051002",
+    "codiceIstat": "051002",
+    "nome": "Arezzo",
+    "comune": "Arezzo",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "110001",
+    "codiceIstat": "110001",
+    "nome": "Andria",
+    "comune": "Andria",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "040007",
+    "codiceIstat": "040007",
+    "nome": "Cesena",
+    "comune": "Cesena",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "041044",
+    "codiceIstat": "041044",
+    "nome": "Pesaro",
+    "comune": "Pesaro",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "075033",
+    "codiceIstat": "075033",
+    "nome": "Lecce",
+    "comune": "Lecce",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "006003",
+    "codiceIstat": "006003",
+    "nome": "Alessandria",
+    "comune": "Alessandria",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "011015",
+    "codiceIstat": "011015",
+    "nome": "La Spezia",
+    "comune": "La Spezia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "110002",
+    "codiceIstat": "110002",
+    "nome": "Barletta",
+    "comune": "Barletta",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "050026",
+    "codiceIstat": "050026",
+    "nome": "Pisa",
+    "comune": "Pisa",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "058044",
+    "codiceIstat": "058044",
+    "nome": "Guidonia Montecelio",
+    "comune": "Guidonia Montecelio",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "047014",
+    "codiceIstat": "047014",
+    "nome": "Pistoia",
+    "comune": "Pistoia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "046019",
+    "codiceIstat": "046019",
+    "nome": "Lucca",
+    "comune": "Lucca",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "026086",
+    "codiceIstat": "026086",
+    "nome": "Treviso",
+    "comune": "Treviso",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "012026",
+    "codiceIstat": "012026",
+    "nome": "Busto Arsizio",
+    "comune": "Busto Arsizio",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "058120",
+    "codiceIstat": "058120",
+    "nome": "Fiumicino",
+    "comune": "Fiumicino",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "013075",
+    "codiceIstat": "013075",
+    "nome": "Como",
+    "comune": "Como",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "079023",
+    "codiceIstat": "079023",
+    "nome": "Catanzaro",
+    "comune": "Catanzaro",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "053011",
+    "codiceIstat": "053011",
+    "nome": "Grosseto",
+    "comune": "Grosseto",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "074001",
+    "codiceIstat": "074001",
+    "nome": "Brindisi",
+    "comune": "Brindisi",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "081011",
+    "codiceIstat": "081011",
+    "nome": "Marsala",
+    "comune": "Marsala",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "012133",
+    "codiceIstat": "012133",
+    "nome": "Varese",
+    "comune": "Varese",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "015209",
+    "codiceIstat": "015209",
+    "nome": "Sesto San Giovanni",
+    "comune": "Sesto San Giovanni",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063084",
+    "codiceIstat": "063084",
+    "nome": "Torre Del Greco",
+    "comune": "Torre Del Greco",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "015077",
+    "codiceIstat": "015077",
+    "nome": "Cinisello Balsamo",
+    "comune": "Cinisello Balsamo",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "059001",
+    "codiceIstat": "059001",
+    "nome": "Aprilia",
+    "comune": "Aprilia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063060",
+    "codiceIstat": "063060",
+    "nome": "Pozzuoli",
+    "comune": "Pozzuoli",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "078157",
+    "codiceIstat": "078157",
+    "nome": "Corigliano Rossano",
+    "comune": "Corigliano Rossano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "036005",
+    "codiceIstat": "036005",
+    "nome": "Carpi",
+    "comune": "Carpi",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "088009",
+    "codiceIstat": "088009",
+    "nome": "Ragusa",
+    "comune": "Ragusa",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "005005",
+    "codiceIstat": "005005",
+    "nome": "Asti",
+    "comune": "Asti",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063022",
+    "codiceIstat": "063022",
+    "nome": "Casoria",
+    "comune": "Casoria",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "061022",
+    "codiceIstat": "061022",
+    "nome": "Caserta",
+    "comune": "Caserta",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "018110",
+    "codiceIstat": "018110",
+    "nome": "Pavia",
+    "comune": "Pavia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "019036",
+    "codiceIstat": "019036",
+    "nome": "Cremona",
+    "comune": "Cremona",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "066049",
+    "codiceIstat": "066049",
+    "nome": "L Aquila",
+    "comune": "L Aquila",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "072004",
+    "codiceIstat": "072004",
+    "nome": "Altamura",
+    "comune": "Altamura",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "085008",
+    "codiceIstat": "085008",
+    "nome": "Gela",
+    "comune": "Gela",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "037032",
+    "codiceIstat": "037032",
+    "nome": "Imola",
+    "comune": "Imola",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "092051",
+    "codiceIstat": "092051",
+    "nome": "Quartu Sant Elena",
+    "comune": "Quartu Sant Elena",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "079160",
+    "codiceIstat": "079160",
+    "nome": "Lamezia Terme",
+    "comune": "Lamezia Terme",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "056059",
+    "codiceIstat": "056059",
+    "nome": "Viterbo",
+    "comune": "Viterbo",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "088012",
+    "codiceIstat": "088012",
+    "nome": "Vittoria",
+    "comune": "Vittoria",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "045010",
+    "codiceIstat": "045010",
+    "nome": "Massa",
+    "comune": "Massa",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "058079",
+    "codiceIstat": "058079",
+    "nome": "Pomezia",
+    "comune": "Pomezia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "018164",
+    "codiceIstat": "018164",
+    "nome": "Vigevano",
+    "comune": "Vigevano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "078045",
+    "codiceIstat": "078045",
+    "nome": "Cosenza",
+    "comune": "Cosenza",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "076063",
+    "codiceIstat": "076063",
+    "nome": "Potenza",
+    "comune": "Potenza",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063020",
+    "codiceIstat": "063020",
+    "nome": "Castellammare Di Stabia",
+    "comune": "Castellammare Di Stabia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "090047",
+    "codiceIstat": "090047",
+    "nome": "Olbia",
+    "comune": "Olbia",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "063002",
+    "codiceIstat": "063002",
+    "nome": "Afragola",
+    "comune": "Afragola",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "015118",
+    "codiceIstat": "015118",
+    "nome": "Legnano",
+    "comune": "Legnano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "046033",
+    "codiceIstat": "046033",
+    "nome": "Viareggio",
+    "comune": "Viareggio",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "058007",
+    "codiceIstat": "058007",
+    "nome": "Anzio",
+    "comune": "Anzio",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  },
+  {
+    "istat": "041011",
+    "codiceIstat": "041011",
+    "nome": "Fano",
+    "comune": "Fano",
+    "scadenza": "30/11/2026",
+    "riduzione": 25,
+    "fonte": "Delibera TARI 2026 - Top 100",
+    "regione": "",
+    "provincia": ""
+  }
+]
