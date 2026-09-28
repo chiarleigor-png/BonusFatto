@@ -57,7 +57,7 @@ export default function App(){
   const bonusBollette = (iseeN<=9530 || figliN>=4)? 250 : 0;
   const totale = 4.99 + (pdf?2:0) + (alert2026?9.9:0) + (alert2027?9.9:0);
 
-  // FORM - UGUALE SCREENSHOT
+  // FORM - UGUALE SCREENSHOT + LINK 100 COMUNI PER SEO
   if(stage==="form"){
     return (
       <div className="min-h-screen bg-[#FFF9E6] p-4">
@@ -70,6 +70,28 @@ export default function App(){
               <span className="bg-white border px-2 py-1 rounded-full">2. Sconto TARI fino al 100%</span>
               <span className="bg-[#FFE082] border px-2 py-1 rounded-full">3. Bonus luce e gas ~250€/anno</span>
             </div>
+
+            {/* ✅ NUOVO - LINK SEO AI 100 COMUNI - PER GOOGLE */}
+            <div className="mt-6 bg-white border-2 border-green-200 rounded-xl p-4 shadow-sm">
+              <div className="font-extrabold text-[18px]">🏘️ Bonus TARI 2026 per Comune</div>
+              <p className="text-[14px] text-slate-600 mt-1">Scadenza 30/11/2026 – riduzione 25% – Delibera TARI 2026 Top 100</p>
+              <a href="/bonus" className="mt-3 inline-flex items-center px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">
+                Vedi tutti i 100 comuni →
+              </a>
+              <div className="mt-2 text-[12px] text-slate-500">Roma, Milano, Napoli, Torino, Palermo, Genova, Bologna e altri 93 comuni – ISTAT verificato</div>
+              <div className="mt-3 flex flex-wrap gap-2 text-[12px]">
+                <a href="/comune/058091/roma" className="underline text-green-700">Roma</a>
+                <a href="/comune/015146/milano" className="underline text-green-700">Milano</a>
+                <a href="/comune/063049/napoli" className="underline text-green-700">Napoli</a>
+                <a href="/comune/001272/torino" className="underline text-green-700">Torino</a>
+                <a href="/comune/082053/palermo" className="underline text-green-700">Palermo</a>
+                <a href="/comune/010025/genova" className="underline text-green-700">Genova</a>
+                <a href="/comune/037006/bologna" className="underline text-green-700">Bologna</a>
+                <a href="/comune/048017/firenze" className="underline text-green-700">Firenze</a>
+              </div>
+            </div>
+            {/* FINE NUOVO BLOCCO SEO */}
+
           </div>
           <div className="bg-white rounded- border p-4 shadow-sm">
             <div className="font-bold text-">1. Dove abiti?</div>
