@@ -1,19 +1,10 @@
+
+// scripts/generate-seo-comuni.mjs - VERSIONE 7894 COMUNI COMPLETA
 import fs from 'fs';
 import path from 'path';
 
-const top100Path = path.join(process.cwd(), 'lib', 'top100Comuni.json');
-const publicSitemap = path.join(process.cwd(), 'public', 'sitemap.xml');
-
-console.log('🔍 Cerco Top100 in:', top100Path);
-
-let comuni = [];
-try {
-  const raw = fs.readFileSync(top100Path, 'utf-8');
-  comuni = JSON.parse(raw);
-  console.log(`📦 Trovati ${comuni.length} comuni in top100Comuni.json`);
-} catch (e) {
-  console.error('⚠️ Non trovo lib/top100Comuni.json', e.message);
-}
+const TOP100_PATH = path.join(process.cwd(), 'lib', 'top100Comuni.json');
+const SITEMAP_PATH = path.join(process.cwd(), 'public', 'sitemap.xml');
 
 function slugify(name) {
   return name.toLowerCase()
@@ -23,40 +14,88 @@ function slugify(name) {
     .replace(/^-|-$/g, '');
 }
 
+async function getComuni() {
+  // 1. Prova a scaricare lista completa 7894 da GitHub (funziona su Vercel)
+  try {
+    console.log('🌍 Scarico lista 7894 comuni da GitHub...');
+    const res = await fetch('https://raw.githubusercontent.com/matteocontrini/comuni-json/master/comuni.json');
+    if (res.ok) {
+      const data = await res.json();
+      console.log(`✅ Scaricati ${data.length} comuni da GitHub`);
+      // data ha formato {nome, codice, provincia...} mappiamo
+      return data.map(c => ({
+        nome: c.nome,
+        istat: c.codice || c.istat,
+        provincia: c.provincia?.nome || c.provincia || '',
+        regione: c.regione?.nome || c.regione || ''
+      })).filter(c => c.istat);
+    }
+  } catch (e) {
+    console.warn('⚠️ Fetch GitHub fallito:', e.message);
+  }
+
+  // 2. Fallback locale top100 + Collegno + Costarainera
+  try {
+    const raw = fs.readFileSync(TOP100_PATH, 'utf-8');
+    const comuni = JSON.parse(raw);
+    console.log(`📦 Fallback locale: ${comuni.length} comuni`);
+    // Aggiungi Collegno se manca
+    if (!comuni.find(c => (c.istat||c.codiceIstat)==='001090')) {
+      comuni.push({ nome: 'Collegno', istat: '001090', provincia: 'TO', regione: 'Piemonte' });
+    }
+    if (!comuni.find(c => (c.istat||c.codiceIstat)==='008024')) {
+      comuni.push({ nome: 'Costarainera', istat: '008024', provincia: 'IM', regione: 'Liguria' });
+    }
+    return comuni;
+  } catch (e) {
+    console.error('❌ Nessun file comuni trovato');
+    return [];
+  }
+}
+
+const comuni = await getComuni();
+
 let urls = [];
 for (const c of comuni) {
-  const istat = c.codiceIstat || c.istat;
-  const nome = c.comune || c.nome;
+  const istat = c.istat || c.codiceIstat || c.codice;
+  const nome = c.nome || c.comune;
   if (!istat || !nome) continue;
   const slug = slugify(nome);
   urls.push(`https://www.bonusfatto.it/comune/${istat}/${slug}`);
 }
 
-console.log(`✅ URL comunali generati: ${urls.length}`);
+console.log(`✅ URL comunali generati: ${urls.length} (target 7894)`);
 
-// FIX: non bloccare più il build se <483, usa quelli che ci sono
-if (urls.length < 80 && fs.existsSync(publicSitemap)) {
-  try {
-    const sitemapContent = fs.readFileSync(publicSitemap, 'utf-8');
-    const matches = [...sitemapContent.matchAll(/<loc>https:\/\/www\.bonusfatto\.it\/comune\/[^<]+<\/loc>/g)];
-    const sitemapUrls = matches.map(m => m[0].replace('<loc>','').replace('</loc>',''));
-    const set = new Set([...urls, ...sitemapUrls]);
-    urls = Array.from(set);
-  } catch {}
-}
-
+// Genera cartelle SEO per OGNI comune (evita 404)
 const outDir = path.join(process.cwd(), 'public', 'comune');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
 for (const c of comuni) {
-  const istat = c.codiceIstat || c.istat;
-  const nome = c.comune || c.nome;
+  const istat = c.istat || c.codiceIstat || c.codice;
+  const nome = c.nome || c.comune;
   if (!istat || !nome) continue;
   const slug = slugify(nome);
   const dir = path.join(outDir, istat, slug);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Bonus TARI 2026 ${nome} – ISTAT ${istat}</title><link rel="canonical" href="https://www.bonusfatto.it/comune/${istat}/${slug}"><meta http-equiv="refresh" content="0; url=/?comune=${encodeURIComponent(nome)}"></head><body><p>Redirect a <a href="/?comune=${encodeURIComponent(nome)}">${nome}</a></p></body></html>`;
+  const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Bonus 2026 ${nome} – ISTAT ${istat} – Tutti i bonus ISEE ed età</title><meta name="description" content="Bonus 2026 ${nome} (${istat}) – ISEE, età figli, TARI, trasporto, mensa, asilo"><link rel="canonical" href="https://www.bonusfatto.it/comune/${istat}/${slug}"><meta http-equiv="refresh" content="0; url=/?comune=${encodeURIComponent(nome)}"></head><body><p>Redirect a <a href="/?comune=${encodeURIComponent(nome)}">${nome}</a></p></body></html>`;
   fs.writeFileSync(path.join(dir, 'index.html'), html);
 }
 
-console.log(`✅ Generate SEO comuni completato: ${urls.length} URL - Sitemap non sovrascritta`);
+// Genera sitemap.xml COMPLETA con tutti i comuni
+let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.bonusfatto.it/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/bonus</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+`;
+for (const c of comuni) {
+  const istat = c.istat || c.codiceIstat || c.codice;
+  const nome = c.nome || c.comune;
+  if (!istat || !nome) continue;
+  const slug = slugify(nome);
+  sitemap += `  <url><loc>https://www.bonusfatto.it/comune/${istat}/${slug}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>\n`;
+}
+sitemap += '</urlset>';
+
+fs.writeFileSync(SITEMAP_PATH, sitemap);
+console.log(`✅ Sitemap generata: ${SITEMAP_PATH} con ${urls.length + 2} URL`);
+console.log(`✅ SEO comuni generato: ${comuni.length} cartelle in public/comune/`);
