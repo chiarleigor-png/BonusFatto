@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://www.bonusfatto.it/sitemap.xml
+Sitemap: https://bonusfatto.it/sitemap.xml
