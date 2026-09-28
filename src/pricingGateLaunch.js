@@ -101,7 +101,7 @@ function ensureStyles() {
     .bf-tari-longtail{margin:18px 0;padding:18px;border-radius:18px;background:#fff;border:1px solid #e5e0f4;text-align:left}
     .bf-tari-longtail h3{margin:0 0 8px;color:#282331}
     .bf-tari-green{margin:12px 0;padding:14px;border-radius:14px;background:#eefbf2;border:1px solid #b9e7c5;color:#245b34}
-    .bf-tari-longtail button{width:100%;min-height:50px;border:0;border-radius:14px;background:#7C3AED;color:#fff;font-weight:900;cursor:pointer}
+    .bf-tari-longtail-actions{display:grid;gap:8px}.bf-tari-longtail button{width:100%;min-height:50px;border-radius:14px;font-weight:900;cursor:pointer}.bf-tari-longtail .secondary{border:1px solid #cfc5dc;background:#fff;color:#4c4056}.bf-tari-longtail .primary{border:0;background:#7C3AED;color:#fff}
     @media (max-width:720px){
       .bf-blur-grid,.bf-price-grid{grid-template-columns:1fr}
       .bf-blur-card{min-height:138px}
@@ -125,12 +125,22 @@ async function loadVerifiedTari(funnel, payload) {
       <h3>TARI comunale - ${payload.comune || 'il tuo Comune'}</h3>
       <p>Non abbiamo ancora la delibera specifica di <strong>${payload.comune || 'questo Comune'}</strong> nel motore Top 500. Non mostriamo dati comunali inventati.</p>
       <div class="bf-tari-green">
-        <strong>Puoi comunque chiedere la verifica della riduzione.</strong><br>
-        La normativa nazionale disciplina la TARI e consente ai Comuni di prevedere riduzioni ed esenzioni; il regolamento comunale disciplina anche le eventuali agevolazioni collegate alla capacità contributiva, anche tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente.
+        <strong>Normativa nazionale TARI.</strong><br>
+        Il DPR 158/1999 disciplina il metodo tariffario e la L. 147/2013 consente ai Comuni di prevedere riduzioni ed esenzioni, anche collegate alla capacità contributiva tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente: puoi comunque presentare una richiesta di verifica.
       </div>
-      <button type="button" class="bf-tari-longtail-cta">Verifica con normativa nazionale - ${formatPrice(PRICES.pec.price)} invio PEC gestito</button>
+      <div class="bf-tari-longtail-actions">
+        <button type="button" class="secondary bf-tari-base-cta">Verifica diritto con normativa nazionale</button>
+        <button type="button" class="secondary bf-tari-pdf-cta">Genera PDF con normativa nazionale + testo richiesta</button>
+        <button type="button" class="primary bf-tari-pec-cta">Invio PEC gestito con riferimento normativa nazionale</button>
+      </div>
     `;
-    target.querySelector('.bf-tari-longtail-cta')?.addEventListener('click', () => {
+    target.querySelector('.bf-tari-base-cta')?.addEventListener('click', () => {
+      openBillingForm(PRICES.base.id, { ...payload, tariFound: false });
+    });
+    target.querySelector('.bf-tari-pdf-cta')?.addEventListener('click', () => {
+      openBillingForm(PRICES.pdf.id, { ...payload, tariFound: false });
+    });
+    target.querySelector('.bf-tari-pec-cta')?.addEventListener('click', () => {
       openBillingForm(PRICES.pec.id, { ...payload, tariFound: false });
     });
   };

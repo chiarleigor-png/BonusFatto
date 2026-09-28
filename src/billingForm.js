@@ -55,8 +55,8 @@ export function openBillingForm(plan, payload) {
           <label class="checkbox-label"><input type="checkbox" name="authorizeSend" required /> <span>Autorizzo BonusFatto.it ad inviare per mio conto la richiesta riduzione TARI al Comune di ${payload.comune || ''} con i dati da me inseriti</span></label>
           <label class="checkbox-label"><input type="checkbox" name="truthDeclaration" required /> <span>Dichiaro che i dati sono veritieri</span></label>
         ` : normalizedPlan === 'pdf'
-          ? '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai accedere alla relazione PDF Top 100 e al testo PEC.</p>'
-          : '<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.</p>'}
+          ? `<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> ${payload.tariFound === false ? 'generiamo il PDF con riferimento alla normativa nazionale e il testo di richiesta da presentare al Comune.' : 'potrai accedere alla relazione PDF Top 500 e al testo PEC.'}</p>`
+          : `<p class="bf-billing-note"><strong>Dopo il pagamento:</strong> ${payload.tariFound === false ? 'verifichi il diritto usando la normativa nazionale e i criteri dichiarati dal servizio.' : 'potrai consultare la Vista Base con nomi bonus, importi stimati e idoneità ISEE.'}</p>`}
 
         <p class="bf-billing-error" hidden></p>
         <div class="bf-billing-actions">

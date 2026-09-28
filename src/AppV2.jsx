@@ -52,7 +52,7 @@ function Deadline({ city }) {
   );
 }
 
-function TariComuneCard({ municipality, onPec }) {
+function TariComuneCard({ municipality, onCheckoutPlan }) {
   const [state, setState] = useState({ status: 'idle', data: null });
 
   const istat = useMemo(() => {
@@ -103,13 +103,21 @@ function TariComuneCard({ municipality, onPec }) {
         <>
           <p>Non abbiamo ancora la delibera specifica di {comune} nel motore Top 500. Non mostriamo dati comunali inventati.</p>
           <div style={{ marginTop: 12, padding: 14, borderRadius: 14, background: '#eefbf2', border: '1px solid #b9e7c5' }}>
-            <strong>Puoi comunque chiedere la verifica della riduzione.</strong>
-            <p style={{ marginBottom: 0 }}>La normativa nazionale disciplina la TARI e consente ai Comuni di prevedere riduzioni ed esenzioni; il regolamento comunale disciplina anche le eventuali agevolazioni collegate alla capacità contributiva, anche tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente.</p>
+            <strong>Normativa nazionale TARI.</strong>
+            <p style={{ marginBottom: 0 }}>Il DPR 158/1999 disciplina il metodo tariffario e la L. 147/2013 consente ai Comuni di prevedere riduzioni ed esenzioni, anche collegate alla capacità contributiva tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente: puoi comunque presentare una richiesta di verifica.</p>
           </div>
-          {onPec && (
-            <button type="button" className="primary compact" style={{ marginTop: 12 }} onClick={() => onPec(istat)}>
-              Verifica con normativa nazionale - {formatPrice(PRICES.pec.price)} invio PEC gestito
-            </button>
+          {onCheckoutPlan && (
+            <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+              <button type="button" className="secondary-action" onClick={() => onCheckoutPlan(PRICES.base.id, istat)}>
+                Verifica diritto con normativa nazionale
+              </button>
+              <button type="button" className="secondary-action" onClick={() => onCheckoutPlan(PRICES.pdf.id, istat)}>
+                Genera PDF con normativa nazionale + testo richiesta
+              </button>
+              <button type="button" className="primary compact" onClick={() => onCheckoutPlan(PRICES.pec.id, istat)}>
+                Invio PEC gestito con riferimento normativa nazionale
+              </button>
+            </div>
           )}
         </>
       )}
@@ -159,7 +167,7 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
       </div>
       <TariComuneCard
         municipality={input.municipality}
-        onPec={(istat) => openBillingForm(PRICES.pec.id, {
+        onCheckoutPlan={(planId, istat) => openBillingForm(planId, {
           comune: input.municipality.name,
           istat,
           isee: input.isee,
@@ -495,7 +503,7 @@ export default function AppV2() {
                   <label>Figli a carico<select value={children} onChange={(e) => setChildren(e.target.value)}>{[0,1,2,3,4,5].map((n) => <option value={n} key={n}>{n} {n === 1 ? 'figlio' : 'figli'}</option>)}</select></label>
                 </div>
                 <p className="field-hint">Bonus sociali 2026: soglia ordinaria ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.</p>
-                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi chiari: analisi veloce {formatPrice(PRICES.base.price)}, analisi + relazione PDF Top 100 {formatPrice(PRICES.pdf.price)}, invio PEC TARI {formatPrice(PRICES.pec.price)}.</span></div></div>
+                <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi chiari: analisi veloce {formatPrice(PRICES.base.price)}, analisi + relazione PDF Top 500 {formatPrice(PRICES.pdf.price)}, invio PEC TARI {formatPrice(PRICES.pec.price)}.</span></div></div>
                 <label className="checkbox-label"><input type="checkbox" checked={otherTown} onChange={(e) => { setOtherTown(e.target.checked); clearTown(); }} /><span>Abito in un altro comune <small>(facoltativo)</small></span></label>
                 {otherTown ? (
                   <div className="autocomplete">
