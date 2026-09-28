@@ -105,8 +105,12 @@ function TariComuneCard({ municipality, onCheckoutPlan }) {
         <>
           <p>Non abbiamo ancora la delibera specifica di {comune} nel motore Top 500. Non mostriamo dati comunali inventati.</p>
           <div style={{ marginTop: 12, padding: 14, borderRadius: 14, background: '#eefbf2', border: '1px solid #b9e7c5' }}>
-            <strong>Normativa nazionale TARI.</strong>
-            <p style={{ marginBottom: 0 }}>Il DPR 158/1999 disciplina il metodo tariffario e la L. 147/2013 consente ai Comuni di prevedere riduzioni ed esenzioni, anche collegate alla capacità contributiva tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente: puoi comunque presentare una richiesta di verifica.</p>
+            <strong>✅ Bonus Sociale Nazionale TARI 25% (2025)</strong>
+            <p style={{ marginBottom: 0 }}>
+              Spetta a livello nazionale con ISEE basso, riconosciuto automaticamente con DSU.<br />
+              Se il tuo Comune lo ha già attivato, lo trovi in bolletta come riduzione del 25%.<br />
+              Verifica nel regolamento TARI 2026 del tuo Comune - se non c&apos;è ancora, puoi presentare richiesta di verifica citando delibera ARERA bonus sociale rifiuti.
+            </p>
           </div>
           {onCheckoutPlan && (
             <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>

@@ -125,8 +125,10 @@ async function loadVerifiedTari(funnel, payload) {
       <h3>TARI comunale - ${payload.comune || 'il tuo Comune'}</h3>
       <p>Non abbiamo ancora la delibera specifica di <strong>${payload.comune || 'questo Comune'}</strong> nel motore Top 500. Non mostriamo dati comunali inventati.</p>
       <div class="bf-tari-green">
-        <strong>Normativa nazionale TARI.</strong><br>
-        Il DPR 158/1999 disciplina il metodo tariffario e la L. 147/2013 consente ai Comuni di prevedere riduzioni ed esenzioni, anche collegate alla capacità contributiva tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente: puoi comunque presentare una richiesta di verifica.
+        <strong>✅ Bonus Sociale Nazionale TARI 25% (2025)</strong><br>
+        Spetta a livello nazionale con ISEE basso, riconosciuto automaticamente con DSU.<br>
+        Se il tuo Comune lo ha già attivato, lo trovi in bolletta come riduzione del 25%.<br>
+        Verifica nel regolamento TARI 2026 del tuo Comune - se non c'è ancora, puoi presentare richiesta di verifica citando delibera ARERA bonus sociale rifiuti.
       </div>
       <div class="bf-tari-longtail-actions">
         <button type="button" class="secondary bf-tari-base-cta">Verifica diritto con normativa nazionale</button>
