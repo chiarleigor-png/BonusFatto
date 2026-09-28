@@ -13,6 +13,8 @@ import {
 } from './geography';
 import { calculate, countdown, DEADLINES, emailTemplate, euro } from './benefits';
 
+const HOME_PROFILE_KEY = 'bonusfatto_home_profile_2026';
+
 function Icon({ name, size = 20, ...props }) {
   const paths = {
     arrow: <><path d="M5 12h14M13 6l6 6-6 6" /></>,
@@ -163,7 +165,7 @@ function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, r
       <div className="paywall-heading">
         <span className="eyebrow">ANALISI COMPLETATA</span>
         <h1>Abbiamo trovato <span>{result.benefits.length} agevolazioni</span> da verificare.</h1>
-        <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Anteprima: <span className="paywall-preview-locked" style={{ filter: 'blur(7px)', pointerEvents: 'none', userSelect: 'none' }}>{previewNames}{result.benefits.length > 4 ? '…' : ''}</span></p>
+        <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Età dichiarante {input.profile?.declarantAge ?? '—'} · Anteprima: <span className="paywall-preview-locked" style={{ filter: 'blur(7px)', pointerEvents: 'none', userSelect: 'none' }}>{previewNames}{result.benefits.length > 4 ? '…' : ''}</span></p>
       </div>
       <TariComuneCard
         municipality={input.municipality}
@@ -322,7 +324,11 @@ export default function AppV2() {
   const [region, setRegion] = useState('Lazio');
   const [province, setProvince] = useState('Roma');
   const [isee, setIsee] = useState('');
+  const [household, setHousehold] = useState('2');
   const [children, setChildren] = useState('1');
+  const [declarantAge, setDeclarantAge] = useState('');
+  const [childAges, setChildAges] = useState(['']);
+  const [otherMemberAges, setOtherMemberAges] = useState([]);
   const [otherTown, setOtherTown] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
@@ -354,6 +360,40 @@ export default function AppV2() {
 
   useEffect(() => () => clearTimeout(blurTimer.current), []);
 
+  const childrenCount = Math.max(0, Number(children) || 0);
+  const householdCount = Math.max(1, Number(household) || 1);
+  const otherMembersCount = Math.max(0, householdCount - 1 - childrenCount);
+
+  useEffect(() => {
+    setChildAges((current) => Array.from({ length: childrenCount }, (_, index) => current[index] ?? ''));
+  }, [childrenCount]);
+
+  useEffect(() => {
+    setOtherMemberAges((current) => Array.from({ length: otherMembersCount }, (_, index) => current[index] ?? ''));
+  }, [otherMembersCount]);
+
+  function changeChildren(value) {
+    const nextChildren = Math.max(0, Number(value) || 0);
+    setChildren(String(nextChildren));
+    setHousehold((current) => String(Math.max(Number(current) || 1, nextChildren + 1)));
+  }
+
+  function changeChildAge(index, value) {
+    setChildAges((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  }
+
+  function changeOtherMemberAge(index, value) {
+    setOtherMemberAges((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
@@ -370,7 +410,18 @@ export default function AppV2() {
       })
       .then((data) => {
         if (data.paid) trackPurchase({ sessionId, value: data.value, currency: data.currency });
-        setResultInput({ isee: Number(data.isee), children: Number(data.figli), municipality: { id: data.comune, name: data.comune, region: '', province: '' } });
+        let restoredProfile = null;
+        try {
+          restoredProfile = JSON.parse(sessionStorage.getItem(HOME_PROFILE_KEY) || 'null');
+        } catch {
+          restoredProfile = null;
+        }
+        setResultInput({
+          isee: Number(data.isee),
+          children: Number(data.figli),
+          municipality: { id: data.comune, name: data.comune, region: '', province: '' },
+          profile: restoredProfile && Number(restoredProfile.children) === Number(data.figli) ? restoredProfile : undefined,
+        });
         setAccessPlan(data.plan);
         setCheckoutError('');
       })
@@ -413,12 +464,14 @@ export default function AppV2() {
     setAccessPlan(null);
     setCheckoutBusy('');
     setCheckoutError('');
+    sessionStorage.removeItem(HOME_PROFILE_KEY);
     window.history.replaceState({}, '', window.location.pathname);
     focusPage();
   }
 
   async function startCheckout(plan) {
     if (!resultInput) return;
+    if (resultInput.profile) sessionStorage.setItem(HOME_PROFILE_KEY, JSON.stringify(resultInput.profile));
     setCheckoutBusy(plan);
     setCheckoutError('');
     try {
@@ -443,14 +496,62 @@ export default function AppV2() {
       setError('Seleziona un Comune dall’elenco prima di continuare.');
       return;
     }
+
     const value = Number(isee);
     if (!isee.trim() || !Number.isFinite(value) || value < 0) {
       setError('Inserisci un ISEE valido, anche pari a zero.');
       return;
     }
+
+    const householdValue = Number(household);
+    if (!Number.isInteger(householdValue) || householdValue < 1 || householdValue < childrenCount + 1) {
+      setError('Il nucleo ISEE deve comprendere il dichiarante e tutti i figli indicati.');
+      return;
+    }
+
+    const declarantAgeValue = Number(declarantAge);
+    if (!declarantAge.trim() || !Number.isInteger(declarantAgeValue) || declarantAgeValue < 0 || declarantAgeValue > 120) {
+      setError('Inserisci l’età del dichiarante ISEE.');
+      return;
+    }
+
+    const parsedChildAges = childAges.map((age) => Number(age));
+    if (childrenCount > 0 && (parsedChildAges.length !== childrenCount || parsedChildAges.some((age) => !Number.isInteger(age) || age < 0 || age > 40))) {
+      setError('Inserisci l’età di ogni figlio a carico.');
+      return;
+    }
+
+    const parsedOtherAges = otherMemberAges.map((age) => Number(age));
+    if (otherMembersCount > 0 && (parsedOtherAges.length !== otherMembersCount || parsedOtherAges.some((age) => !Number.isInteger(age) || age < 0 || age > 120))) {
+      setError('Inserisci l’età di ogni altro componente del nucleo ISEE.');
+      return;
+    }
+
+    const householdAges = [declarantAgeValue, ...parsedOtherAges, ...parsedChildAges];
+    const maxAge = Math.max(...householdAges);
+    const profile = {
+      children: childrenCount,
+      household: householdValue,
+      declarantAge: declarantAgeValue,
+      childAges: parsedChildAges,
+      otherMemberAges: parsedOtherAges,
+      householdAges,
+      over60: householdAges.some((age) => age >= 60) ? 'yes' : 'no',
+      over65: householdAges.some((age) => age >= 65) ? 'yes' : 'no',
+      ageBand: maxAge >= 65 ? '65plus' : maxAge >= 60 ? '60-64' : 'none',
+    };
+
+    try {
+      localStorage.setItem('bonusfatto_profile_2026', JSON.stringify(profile));
+      sessionStorage.setItem(HOME_PROFILE_KEY, JSON.stringify(profile));
+      window.__bonusFattoProfile2026 = profile;
+    } catch {
+      // Il calcolo resta disponibile anche se lo storage del browser è bloccato.
+    }
+
     setAccessPlan(null);
     setCheckoutError('');
-    setResultInput({ isee: value, children: Number(children), municipality });
+    setResultInput({ isee: value, children: childrenCount, municipality, profile });
     setError('');
     focusPage();
   }
@@ -475,7 +576,7 @@ export default function AppV2() {
               <div className="intro-badge"><span className="status-dot" />MENO DUBBI, PIÙ POSSIBILITÀ</div>
               <h1>Scopri <span>tutti i bonus</span><br />a cui puoi avere diritto<br />con il tuo ISEE<span className="heading-dot">.</span></h1>
               <p className="lead">Inserisci il tuo ISEE e scopri bonus nazionali, bonus bollette e le informazioni TARI per il tuo Comune.</p>
-              <p className="hero-description">Regione, Provincia, Comune, ISEE e figli: BonusFatto organizza le agevolazioni in un unico riepilogo. <strong>Non serve avere sotto mano la bolletta TARI.</strong></p>
+              <p className="hero-description">Regione, Provincia, Comune, ISEE, composizione del nucleo ed età: BonusFatto organizza le agevolazioni in un unico riepilogo e verifica anche i bonus legati all’età. <strong>Non serve avere sotto mano la bolletta TARI.</strong></p>
               <div className="pill-grid">
                 <span className="pill green"><Icon name="check" size={15} />1. Bonus ISEE</span>
                 <span className="pill green"><Icon name="check" size={15} />2. Bonus sociale TARI 25%</span>
@@ -500,9 +601,36 @@ export default function AppV2() {
                 <p className="field-hint province-hint">{region === 'Lazio' ? 'Nel Lazio: Frosinone, Latina, Rieti, Roma, Viterbo.' : `${provinces.length} province disponibili in ${region}.`}</p>
                 <div className="field-grid income-fields">
                   <label>Il tuo ISEE<span className="input-with-unit"><input type="number" min="0" step="0.01" inputMode="decimal" required placeholder="Es. 15000" value={isee} onChange={(e) => setIsee(e.target.value)} /><span>€</span></span></label>
-                  <label>Figli a carico<select value={children} onChange={(e) => setChildren(e.target.value)}>{[0,1,2,3,4,5].map((n) => <option value={n} key={n}>{n} {n === 1 ? 'figlio' : 'figli'}</option>)}</select></label>
+                  <label>Componenti nucleo ISEE<select value={household} onChange={(e) => setHousehold(e.target.value)}>{Array.from({ length: 10 }, (_, i) => i + 1).map((n) => <option value={n} key={n}>{n} {n === 1 ? 'persona' : 'persone'}</option>)}</select></label>
+                  <label>Figli a carico<select value={children} onChange={(e) => changeChildren(e.target.value)}>{[0,1,2,3,4,5].map((n) => <option value={n} key={n}>{n} {n === 1 ? 'figlio' : 'figli'}</option>)}</select></label>
+                  <label>Età dichiarante ISEE<input type="number" min="0" max="120" inputMode="numeric" required placeholder="Es. 35, 70" value={declarantAge} onChange={(e) => setDeclarantAge(e.target.value)} style={{ background: '#fffbea', borderColor: '#e7c94d' }} /></label>
                 </div>
-                <p className="field-hint">Bonus sociali 2026: soglia ordinaria ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.</p>
+
+                {childrenCount > 0 && (
+                  <div className="white-card" style={{ marginTop: 14, padding: 16, background: '#fffdf2', borderColor: '#eadb8b' }}>
+                    <strong>Età dei figli a carico</strong>
+                    <p className="field-hint">Inserisci l’età di ciascun figlio: serve per bonus 0–3, 3–14, Assegno Unico e altre misure legate all’età.</p>
+                    <div className="field-grid" style={{ marginTop: 10 }}>
+                      {childAges.map((age, index) => (
+                        <label key={index}>Figlio {index + 1}<input type="number" min="0" max="40" inputMode="numeric" required placeholder="Età" value={age} onChange={(e) => changeChildAge(index, e.target.value)} style={{ background: '#fffbea', borderColor: '#e7c94d' }} /></label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {otherMembersCount > 0 && (
+                  <div className="white-card" style={{ marginTop: 14, padding: 16, background: '#fffdf2', borderColor: '#eadb8b' }}>
+                    <strong>Età degli altri componenti del nucleo ISEE</strong>
+                    <p className="field-hint">Oltre al dichiarante e ai figli, indica l’età delle altre persone presenti nello stesso ISEE.</p>
+                    <div className="field-grid" style={{ marginTop: 10 }}>
+                      {otherMemberAges.map((age, index) => (
+                        <label key={index}>Altro componente {index + 1}<input type="number" min="0" max="120" inputMode="numeric" required placeholder="Età" value={age} onChange={(e) => changeOtherMemberAge(index, e.target.value)} style={{ background: '#fffbea', borderColor: '#e7c94d' }} /></label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="field-hint">Le età vengono usate dal motore per distinguere bonus per bambini, giovani, adulti e persone over 60/65. Bonus sociali 2026: soglia ordinaria ISEE 9.796 €; 20.000 € per nuclei con almeno 4 figli a carico.</p>
                 <div className="news-box"><span className="news-icon"><Icon name="spark" size={19} /></span><div><strong>Novità: TARI più trasparente.</strong><p>Il bonus sociale rifiuti nazionale è del <b>25%</b> della TARI dovuta quando ricorrono i requisiti. Le ulteriori riduzioni comunali vengono indicate solo se verificate.</p><span>Prezzi chiari: analisi veloce {formatPrice(PRICES.base.price)}, analisi + relazione PDF Top 500 {formatPrice(PRICES.pdf.price)}, invio PEC TARI {formatPrice(PRICES.pec.price)}.</span></div></div>
                 <label className="checkbox-label"><input type="checkbox" checked={otherTown} onChange={(e) => { setOtherTown(e.target.checked); clearTown(); }} /><span>Abito in un altro comune <small>(facoltativo)</small></span></label>
                 {otherTown ? (
