@@ -1,0 +1,108 @@
+[
+  {
+    "id": "bonus_sociale_luce_gas_acqua",
+    "nome": "Bonus Sociale Luce + Gas + Acqua",
+    "categoria": "nazionale",
+    "descrizione": "Sconto automatico in bolletta",
+    "isee_max": 9530,
+    "isee_max_4_figli": 15000,
+    "eta_min": 0,
+    "eta_max": 120,
+    "importo": "200€ luce + 300€ gas + 50€ acqua/anno",
+    "requisiti": ["ISEE <= 9530", "DSU valida"],
+    "priorita": 1
+  },
+  {
+    "id": "assegno_unico",
+    "nome": "Assegno Unico Figli",
+    "categoria": "nazionale",
+    "descrizione": "Per figli fino a 21 anni, maggiorato con ISEE 0",
+    "isee_max": 45000,
+    "eta_min": 0,
+    "eta_max": 21,
+    "eta_riferimento": "figlio",
+    "importo": "199€/mese figlio con ISEE 0",
+    "requisiti": ["Figlio <21 anni"],
+    "priorita": 1
+  },
+  {
+    "id": "bonus_asilo_nido",
+    "nome": "Bonus Asilo Nido",
+    "categoria": "nazionale",
+    "descrizione": "Rimborso retta asilo",
+    "isee_max": 40000,
+    "eta_min": 0,
+    "eta_max": 3,
+    "eta_riferimento": "bambino",
+    "importo": "3000€/anno con ISEE 0-25000",
+    "priorita": 2
+  },
+  {
+    "id": "adi",
+    "nome": "Assegno di Inclusione (ex RdC)",
+    "categoria": "nazionale",
+    "descrizione": "Sostegno reddito nuclei fragili",
+    "isee_max": 6000,
+    "eta_min": 18,
+    "eta_max": 67,
+    "importo": "500€ + 280€ affitto",
+    "priorita": 1
+  },
+  {
+    "id": "carta_acquisti_over65",
+    "nome": "Carta Acquisti Over 65 - 80€",
+    "categoria": "nazionale",
+    "descrizione": "80€ bimestrali spesa",
+    "isee_max": 8000,
+    "eta_min": 65,
+    "eta_max": 120,
+    "eta_riferimento": "richiedente",
+    "importo": "80€ ogni 2 mesi",
+    "priorita": 2
+  },
+  {
+    "id": "bonus_mensa_3_14",
+    "nome": "Mensa Scolastica 3-14 anni",
+    "categoria": "comunale",
+    "descrizione": "Riduzione mensa infanzia/primaria",
+    "isee_max": 10000,
+    "eta_min": 3,
+    "eta_max": 14,
+    "eta_riferimento": "figlio",
+    "importo": "Riduzione 50-100%",
+    "priorita": 2
+  },
+  {
+    "id": "bonus_trasporto_under26",
+    "nome": "Bonus Trasporto Under 26",
+    "categoria": "regionale",
+    "descrizione": "Abbonamento scontato under 26",
+    "isee_max": 15000,
+    "eta_min": 0,
+    "eta_max": 26,
+    "importo": "Gratis con ISEE 0-5000, 70% sconto fino a 15000",
+    "priorita": 3
+  },
+  {
+    "id": "bonus_trasporto_over65",
+    "nome": "Bonus Trasporto Over 65",
+    "categoria": "regionale",
+    "descrizione": "Trasporto gratuito over 65 con ISEE basso",
+    "isee_max": 15000,
+    "eta_min": 65,
+    "eta_max": 120,
+    "importo": "Gratis",
+    "priorita": 3
+  },
+  {
+    "id": "bonus_tari",
+    "nome": "Bonus TARI",
+    "categoria": "comunale",
+    "descrizione": "Riduzione tassa rifiuti",
+    "isee_max": 15000,
+    "eta_min": 0,
+    "eta_max": 120,
+    "importo": "25-100%",
+    "priorita": 1
+  }
+]
