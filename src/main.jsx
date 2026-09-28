@@ -20,8 +20,10 @@ import './formEnhancements.js';
 import './reportDelivery.js';
 import './pricingGateLaunch.js';
 import { initMetaPixel } from './metaPixel.js';
+import { initGoogleAds } from './googleAds.js';
 
 initMetaPixel();
+initGoogleAds();
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);

@@ -38,7 +38,7 @@ const pages = {
     intro: 'Informazioni sui cookie e sugli strumenti tecnici utilizzati da BonusFatto.it.',
     html: `
       <h2>Cookie e strumenti tecnici</h2><p>BonusFatto utilizza gli strumenti tecnici necessari al funzionamento del sito, alla gestione della sessione e al corretto svolgimento del percorso di acquisto. Possono inoltre essere utilizzate memorie locali del browser per mantenere temporaneamente informazioni indispensabili al servizio.</p>
-      <h2>Cookie non necessari</h2><p>Nella configurazione attuale il portale non richiede cookie di profilazione per il funzionamento ordinario. Qualora in futuro vengano introdotti strumenti analitici o di marketing che richiedano il consenso, essi saranno attivati soltanto dopo una scelta dell'utente e la policy sarà aggiornata.</p>
+      <h2>Strumenti analitici e di marketing</h2><p>BonusFatto utilizza strumenti di misurazione e marketing, tra cui Google Ads, Meta Pixel e Microsoft Clarity, per comprendere l'utilizzo del sito e misurare le conversioni delle campagne. Google Ads riceve un evento di conversione soltanto dopo la conferma di un pagamento completato; il valore trasmesso corrisponde all'importo dell'ordine e viene associato a un identificativo tecnico della sessione di pagamento per evitare duplicazioni.</p>
       <h2>Gestione dal browser</h2><p>L'utente può eliminare o bloccare cookie e dati locali attraverso le impostazioni del proprio browser. La disattivazione degli strumenti strettamente necessari può però impedire il corretto funzionamento di alcune funzioni del sito.</p>`
   },
   'note-legali': {

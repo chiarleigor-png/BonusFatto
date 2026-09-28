@@ -1,3 +1,5 @@
+import { trackGoogleAdsPurchase } from './googleAds.js';
+
 const PIXEL_ID = '1122441816881464';
 const STATE_KEY = '__bonusFattoMetaPixel';
 const PURCHASES_KEY = 'bonusfatto_meta_purchases';
@@ -101,9 +103,15 @@ export function trackInitiateCheckout({ checkoutId, plan, value, currency }) {
 }
 
 export function trackPurchase({ sessionId, value, currency }) {
-  if (typeof window === 'undefined' || typeof window.fbq !== 'function' || !sessionId) return;
+  if (typeof window === 'undefined' || !sessionId) return;
   const numericValue = Number(value);
   if (!Number.isFinite(numericValue) || numericValue <= 0 || currency !== 'EUR') return;
+
+  // Google Ads: conversione solo dopo pagamento Stripe verificato.
+  trackGoogleAdsPurchase({ sessionId, value: numericValue, currency: 'EUR' });
+
+  // Meta Pixel: mantiene il tracciamento esistente e la sua deduplicazione.
+  if (typeof window.fbq !== 'function') return;
   if (!rememberId(window.localStorage, PURCHASES_KEY, sessionId)) return;
   window.fbq('track', 'Purchase', { value: numericValue, currency: 'EUR' });
 }
