@@ -9,7 +9,10 @@
     "eta_min": 0,
     "eta_max": 120,
     "importo": "200€ luce + 300€ gas + 50€ acqua/anno",
-    "requisiti": ["ISEE <= 9530", "DSU valida"],
+    "requisiti": [
+      "ISEE <= 9530",
+      "DSU valida"
+    ],
     "priorita": 1
   },
   {
@@ -22,7 +25,9 @@
     "eta_max": 21,
     "eta_riferimento": "figlio",
     "importo": "199€/mese figlio con ISEE 0",
-    "requisiti": ["Figlio <21 anni"],
+    "requisiti": [
+      "Figlio <21 anni"
+    ],
     "priorita": 1
   },
   {
@@ -61,6 +66,63 @@
     "priorita": 2
   },
   {
+    "id": "carta_acquisti_bimbi",
+    "nome": "Carta Acquisti Bimbi 0-3 anni",
+    "categoria": "nazionale",
+    "descrizione": "80€ bimestrali per bimbi",
+    "isee_max": 8000,
+    "eta_min": 0,
+    "eta_max": 3,
+    "importo": "80€ ogni 2 mesi",
+    "priorita": 2
+  },
+  {
+    "id": "bonus_cultura_18app",
+    "nome": "Bonus Cultura 18App - 500€",
+    "categoria": "nazionale",
+    "descrizione": "500€ per cultura a 18 anni",
+    "isee_max": 35000,
+    "eta_min": 18,
+    "eta_max": 18,
+    "eta_riferimento": "richiedente",
+    "importo": "500€",
+    "priorita": 3
+  },
+  {
+    "id": "bonus_psicologo",
+    "nome": "Bonus Psicologo",
+    "categoria": "nazionale",
+    "descrizione": "Contributo sedute psicologo",
+    "isee_max": 50000,
+    "eta_min": 0,
+    "eta_max": 120,
+    "importo": "Fino a 1500€ con ISEE 0-15000",
+    "priorita": 3
+  },
+  {
+    "id": "bonus_tari",
+    "nome": "Bonus TARI",
+    "categoria": "comunale",
+    "descrizione": "Riduzione tassa rifiuti",
+    "isee_max": 15000,
+    "eta_min": 0,
+    "eta_max": 120,
+    "importo": "25-100%",
+    "priorita": 1
+  },
+  {
+    "id": "bonus_mensa_0_3",
+    "nome": "Mensa Scolastica 0-3 esenzione",
+    "categoria": "comunale",
+    "descrizione": "Esenzione mensa nido con ISEE 0",
+    "isee_max": 3000,
+    "eta_min": 0,
+    "eta_max": 3,
+    "eta_riferimento": "figlio",
+    "importo": "Esenzione totale",
+    "priorita": 2
+  },
+  {
     "id": "bonus_mensa_3_14",
     "nome": "Mensa Scolastica 3-14 anni",
     "categoria": "comunale",
@@ -95,14 +157,15 @@
     "priorita": 3
   },
   {
-    "id": "bonus_tari",
-    "nome": "Bonus TARI",
+    "id": "bonus_centro_estivo_3_14",
+    "nome": "Bonus Centri Estivi 3-14",
     "categoria": "comunale",
-    "descrizione": "Riduzione tassa rifiuti",
+    "descrizione": "Contributo centri estivi",
     "isee_max": 15000,
-    "eta_min": 0,
-    "eta_max": 120,
-    "importo": "25-100%",
-    "priorita": 1
+    "eta_min": 3,
+    "eta_max": 14,
+    "eta_riferimento": "figlio",
+    "importo": "500€ a figlio",
+    "priorita": 4
   }
 ]
