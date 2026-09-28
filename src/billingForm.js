@@ -2,12 +2,28 @@ import { trackInitiateCheckout } from './metaPixel.js';
 import { PRICES, formatPrice } from './config/prices.js';
 import pecComuni from '../lib/pecComuni.json';
 
+function municipalitySlug(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'comune';
+}
+
 export function openBillingForm(plan, payload) {
   const normalizedPlan = plan === 'report' ? 'pdf' : plan === 'tari' ? 'pec' : plan;
   const selected = PRICES[normalizedPlan] || PRICES.base;
+  const mappedPec = pecComuni[String(payload.istat || '')] || '';
   const pecRecipient = normalizedPlan === 'pec'
-    ? (pecComuni[String(payload.istat || '')] || 'pec@comune.it')
+    ? (mappedPec || `protocollo@pec.comune.${municipalitySlug(payload.comune)}.it`)
     : '';
+  const pecRecipientNote = normalizedPlan === 'pec' && !mappedPec
+    ? ' (indirizzo tecnico provvisorio: da verificare prima dell’invio)'
+    : '';
+  const pecTemplate = payload.tariFound === false
+    ? 'richiesta riduzione TARI ai sensi della normativa nazionale e dei regolamenti locali vigenti'
+    : 'richiesta riduzione TARI ai sensi della disciplina TARI e del regolamento locale vigente';
 
   const backdrop = document.createElement('div');
   backdrop.className = 'bf-billing-backdrop';
@@ -33,7 +49,8 @@ export function openBillingForm(plan, payload) {
         ${normalizedPlan === 'pec' ? `
           <div class="bf-billing-note">
             <strong>Invio Gestito BETA:</strong> prepariamo e inviamo noi la PEC con i tuoi dati, ti giriamo ricevuta di consegna entro 24h lavorative. Esito dipende dal Comune. Non è CAF.<br>
-            <strong>Destinatario previsto:</strong> ${pecRecipient}
+            <strong>Destinatario previsto:</strong> ${pecRecipient}${pecRecipientNote}<br>
+            <strong>Testo PEC:</strong> ${pecTemplate}
           </div>
           <label class="checkbox-label"><input type="checkbox" name="authorizeSend" required /> <span>Autorizzo BonusFatto.it ad inviare per mio conto la richiesta riduzione TARI al Comune di ${payload.comune || ''} con i dati da me inseriti</span></label>
           <label class="checkbox-label"><input type="checkbox" name="truthDeclaration" required /> <span>Dichiaro che i dati sono veritieri</span></label>
@@ -96,6 +113,7 @@ export function openBillingForm(plan, payload) {
         figli: payload.figli,
         billing,
         consents,
+        tariFound: payload.tariFound === false ? false : true,
       };
       console.log('[BonusFatto checkout]', normalizedPlan, requestBody.priceId, requestBody.comune, requestBody.istat);
 

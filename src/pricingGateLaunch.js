@@ -45,9 +45,10 @@ function payloadFromGate(shell) {
   const isee = parseEuroNumber(iseePart.replace(/ISEE/i, ''));
   const figli = Number(sessionStorage.getItem(CHILDREN_KEY) || 0);
   const sourceComune = top100Comuni.find((item) => item.nome.toLocaleLowerCase('it') === comune.toLocaleLowerCase('it')) || null;
+  const istatFromShell = String(shell.dataset.istat || '').trim();
   return {
     comune,
-    istat: sourceComune?.istat || '',
+    istat: /^\d{6}$/.test(istatFromShell) ? istatFromShell : (sourceComune?.istat || ''),
     isee,
     figli: Number.isInteger(figli) && figli >= 0 ? figli : 0,
     profile: readProfile()
@@ -97,6 +98,10 @@ function ensureStyles() {
     .bf-premium-button,.bf-pec-button{border:0;background:#7C3AED!important;color:#fff!important;box-shadow:0 10px 24px rgba(124,58,237,.25)}
     .bf-choice-badge{position:absolute;right:18px;top:18px;padding:7px 11px;border-radius:999px;background:#7C3AED;color:#fff;font-size:12px;font-weight:900}
     .bf-home-disclaimer{margin:18px auto 0;text-align:center;color:#756d79;font-size:12px;line-height:1.5}
+    .bf-tari-longtail{margin:18px 0;padding:18px;border-radius:18px;background:#fff;border:1px solid #e5e0f4;text-align:left}
+    .bf-tari-longtail h3{margin:0 0 8px;color:#282331}
+    .bf-tari-green{margin:12px 0;padding:14px;border-radius:14px;background:#eefbf2;border:1px solid #b9e7c5;color:#245b34}
+    .bf-tari-longtail button{width:100%;min-height:50px;border:0;border-radius:14px;background:#7C3AED;color:#fff;font-weight:900;cursor:pointer}
     @media (max-width:720px){
       .bf-blur-grid,.bf-price-grid{grid-template-columns:1fr}
       .bf-blur-card{min-height:138px}
@@ -111,27 +116,52 @@ function ensureStyles() {
 async function loadVerifiedTari(funnel, payload) {
   const target = funnel.querySelector('.bf-tari-live-data');
   if (!target) return;
+
+  const renderLongTail = () => {
+    payload.tariFound = false;
+    target.hidden = false;
+    target.className = 'bf-tari-longtail bf-tari-live-data';
+    target.innerHTML = `
+      <h3>TARI comunale - ${payload.comune || 'il tuo Comune'}</h3>
+      <p>Non abbiamo ancora la delibera specifica di <strong>${payload.comune || 'questo Comune'}</strong> nel motore Top 500. Non mostriamo dati comunali inventati.</p>
+      <div class="bf-tari-green">
+        <strong>Puoi comunque chiedere la verifica della riduzione.</strong><br>
+        La normativa nazionale disciplina la TARI e consente ai Comuni di prevedere riduzioni ed esenzioni; il regolamento comunale disciplina anche le eventuali agevolazioni collegate alla capacità contributiva, anche tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente.
+      </div>
+      <button type="button" class="bf-tari-longtail-cta">Verifica con normativa nazionale - ${formatPrice(PRICES.pec.price)} invio PEC gestito</button>
+    `;
+    target.querySelector('.bf-tari-longtail-cta')?.addEventListener('click', () => {
+      openBillingForm(PRICES.pec.id, { ...payload, tariFound: false });
+    });
+  };
+
   if (!payload.istat) {
-    target.textContent = 'Dati TARI locali: Comune non incluso nel motore dei 100 Comuni.';
+    renderLongTail();
     return;
   }
+
   target.textContent = 'Verifica TARI comunale in corso…';
+
   try {
     const response = await fetch(`/api/tari?istat=${encodeURIComponent(payload.istat)}`);
     const json = await response.json();
+
     if (response.ok && json?.found === true) {
+      payload.tariFound = true;
       target.textContent = '';
       target.hidden = true;
       return;
     }
+
     if (response.ok && json?.found === false) {
-      target.hidden = false;
-      target.innerHTML = `Dati TARI non disponibili per <strong>${payload.comune}</strong>.`;
+      renderLongTail();
       return;
     }
+
     target.hidden = false;
     target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
   } catch {
+    target.hidden = false;
     target.textContent = 'Dati TARI comunali temporaneamente non disponibili.';
   }
 }
@@ -208,7 +238,7 @@ function patchGate() {
         <p class="bf-price-sub">Prezzo finale: include anche la Vista Base.</p>
         <ul>
           <li>Tutto di Base</li>
-          <li>PDF con scadenze Top 100 + moduli</li>
+          <li>PDF con scadenze Top 500 + moduli</li>
           <li>Testo PEC precompilato</li>
           <li>Moduli e link bando disponibili</li>
         </ul>

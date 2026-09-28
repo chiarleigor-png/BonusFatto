@@ -1,5 +1,6 @@
 import { PRICES } from '../src/config/prices.js';
 import pecComuni from '../lib/pecComuni.json' with { type: 'json' };
+import { TOP500 } from '../lib/tari/index.js';
 
 function siteOrigin(req) {
   const configured = String(process.env.BONUSFATTO_SITE_URL || process.env.SITE_URL || '').trim();
@@ -11,6 +12,15 @@ function siteOrigin(req) {
 
 function clean(value, max = 255) {
   return String(value || '').trim().slice(0, max);
+}
+
+function municipalitySlug(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'comune';
 }
 
 function planFromPriceId(priceId) {
@@ -37,9 +47,14 @@ export default async function handler(req, res) {
 
   const municipality = clean(comune, 180);
   const istatCode = clean(istat, 12);
+  const mappedPec = pecComuni[istatCode] || '';
   const pecRecipient = selected.id === 'pec'
-    ? (pecComuni[istatCode] || 'pec@comune.it')
+    ? (mappedPec || `protocollo@pec.comune.${municipalitySlug(municipality)}.it`)
     : '';
+  const inTop500 = TOP500.some((c) => c.istat === istatCode || c.codiceIstat === istatCode);
+  const pecTemplate = inTop500
+    ? 'richiesta riduzione TARI ai sensi della disciplina TARI e del regolamento locale vigente'
+    : 'richiesta riduzione TARI ai sensi della normativa nazionale e dei regolamenti locali vigenti';
 
   if (selected.id === 'pec' && (!consents?.authorizeSend || !consents?.truthDeclaration)) {
     return res.status(400).json({ error: 'Per il servizio PEC sono obbligatorie entrambe le autorizzazioni.' });
@@ -59,6 +74,9 @@ export default async function handler(req, res) {
       figli,
       autorizzazioneInvio: true,
       dichiarazioneVeridicita: true,
+      top500: inTop500,
+      pecTemplate,
+      pecDaVerificare: !mappedPec,
       createdAt: new Date().toISOString(),
     }));
   }
@@ -92,6 +110,9 @@ export default async function handler(req, res) {
     params.append('metadata[pec_status]', 'da inviare');
     params.append('metadata[authorize_send]', 'true');
     params.append('metadata[truth_declaration]', 'true');
+    params.append('metadata[top500]', inTop500 ? 'true' : 'false');
+    params.append('metadata[pec_template]', pecTemplate);
+    params.append('metadata[pec_da_verificare]', mappedPec ? 'false' : 'true');
   }
 
   try {

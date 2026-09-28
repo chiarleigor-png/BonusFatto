@@ -3,6 +3,7 @@ import { trackInitiateCheckout, trackPurchase } from './metaPixel.js';
 import fallback from './fallback.json';
 import top100Comuni from '../lib/top100Comuni.json';
 import { PRICES, formatPrice } from './config/prices.js';
+import { openBillingForm } from './billingForm.js';
 import {
   alphabetical,
   fetchMunicipalities,
@@ -51,7 +52,7 @@ function Deadline({ city }) {
   );
 }
 
-function TariComuneCard({ municipality }) {
+function TariComuneCard({ municipality, onPec }) {
   const [state, setState] = useState({ status: 'idle', data: null });
 
   const istat = useMemo(() => {
@@ -87,17 +88,30 @@ function TariComuneCard({ municipality }) {
     return () => controller.abort();
   }, [istat]);
 
+  const comune = municipality?.name || 'il tuo Comune';
+
   return (
     <section className="white-card" style={{ maxWidth: 980, margin: '16px auto' }}>
-      <strong>TARI comunale</strong>
-      {state.status === 'loading' && <p>Verifica Comune nel motore Top 100…</p>}
+      <strong>TARI comunale - {comune}</strong>
+      {state.status === 'loading' && <p>Verifica Comune nel motore Top 500…</p>}
       {state.status === 'found' && (
         <p>
           Comune: {state.data.comune} - Scadenza: {state.data.scadenza} - Riduzione: {state.data.riduzione}% - Fonte: {state.data.fonte}
         </p>
       )}
       {(state.status === 'outside' || state.status === 'error') && (
-        <p>Questo Comune non rientra ancora nel motore TARI Top 100. Non mostriamo dati comunali stimati o inventati.</p>
+        <>
+          <p>Non abbiamo ancora la delibera specifica di {comune} nel motore Top 500. Non mostriamo dati comunali inventati.</p>
+          <div style={{ marginTop: 12, padding: 14, borderRadius: 14, background: '#eefbf2', border: '1px solid #b9e7c5' }}>
+            <strong>Puoi comunque chiedere la verifica della riduzione.</strong>
+            <p style={{ marginBottom: 0 }}>La normativa nazionale disciplina la TARI e consente ai Comuni di prevedere riduzioni ed esenzioni; il regolamento comunale disciplina anche le eventuali agevolazioni collegate alla capacità contributiva, anche tramite ISEE. La spettanza concreta dipende dal regolamento locale vigente.</p>
+          </div>
+          {onPec && (
+            <button type="button" className="primary compact" style={{ marginTop: 12 }} onClick={() => onPec(istat)}>
+              Verifica con normativa nazionale - {formatPrice(PRICES.pec.price)} invio PEC gestito
+            </button>
+          )}
+        </>
       )}
     </section>
   );
@@ -136,14 +150,23 @@ function Magazine({ close }) {
 function PricingGate({ input, result, onCheckout, checkoutBusy, checkoutError, reset }) {
   const previewNames = result.benefits.slice(0, 4).map((b) => b.name).join(', ');
   return (
-    <section className="paywall-shell page-enter">
+    <section className="paywall-shell page-enter" data-istat={String(input.municipality?.id || '')}>
       <button className="text-button" onClick={reset}>← Modifica i dati</button>
       <div className="paywall-heading">
         <span className="eyebrow">ANALISI COMPLETATA</span>
         <h1>Abbiamo trovato <span>{result.benefits.length} agevolazioni</span> da verificare.</h1>
         <p className="lead">{input.municipality.name} · ISEE {euro(input.isee)} · Anteprima: <span className="paywall-preview-locked" style={{ filter: 'blur(7px)', pointerEvents: 'none', userSelect: 'none' }}>{previewNames}{result.benefits.length > 4 ? '…' : ''}</span></p>
       </div>
-      <TariComuneCard municipality={input.municipality} />
+      <TariComuneCard
+        municipality={input.municipality}
+        onPec={(istat) => openBillingForm(PRICES.pec.id, {
+          comune: input.municipality.name,
+          istat,
+          isee: input.isee,
+          figli: input.children,
+          tariFound: false
+        })}
+      />
       <div className="teaser-summary">
         <div><span>Bonus individuati</span><strong>{result.benefits.length}</strong></div>
         <div><span>TARI nazionale</span><strong>{result.tariNationalEligible ? '25%' : 'Da verificare'}</strong></div>
