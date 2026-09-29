@@ -1,6 +1,8 @@
 const GOOGLE_ADS_ID = 'AW-18481382989';
 const PURCHASE_SEND_TO = 'AW-18481382989/8PmMCJ-H0okdEM2MzuxE';
+const SIMULATION_SEND_TO = 'AW-18481382989/8PmMCJ-H0okdEM2MzuxE';
 const PURCHASES_KEY = 'bonusfatto_google_ads_purchases';
+const SIMULATIONS_KEY = 'bonusfatto_google_ads_simulations';
 
 function readIds() {
   try {
@@ -43,5 +45,42 @@ export function trackGoogleAdsPurchase({ sessionId, value, currency }) {
     value: numericValue,
     currency: 'EUR',
     transaction_id: sessionId,
+  });
+}
+
+
+function rememberSimulation(key) {
+  try {
+    const ids = JSON.parse(window.sessionStorage.getItem(SIMULATIONS_KEY) || '[]');
+    const list = Array.isArray(ids) ? ids : [];
+    if (list.includes(key)) return false;
+    window.sessionStorage.setItem(SIMULATIONS_KEY, JSON.stringify([...list.slice(-49), key]));
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+export function trackGoogleAdsSimulation({ comune, isee, children, declarantAge }) {
+  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+
+  const key = [comune, isee, children, declarantAge].join('|');
+  if (!rememberSimulation(key)) return;
+
+  window.gtag('event', 'conversion', {
+    send_to: SIMULATION_SEND_TO,
+    value: 1.0,
+    currency: 'EUR',
+  });
+}
+
+export function updateGoogleConsent(granted) {
+  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+  const value = granted ? 'granted' : 'denied';
+  window.gtag('consent', 'update', {
+    ad_storage: value,
+    analytics_storage: value,
+    ad_user_data: value,
+    ad_personalization: value,
   });
 }

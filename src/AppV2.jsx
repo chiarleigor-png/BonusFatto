@@ -4,6 +4,7 @@ import fallback from './fallback.json';
 import top100Comuni from '../lib/top100Comuni.json';
 import { PRICES, formatPrice } from './config/prices.js';
 import { openBillingForm } from './billingForm.js';
+import { trackGoogleAdsSimulation } from './googleAds.js';
 import {
   alphabetical,
   fetchMunicipalities,
@@ -556,6 +557,15 @@ export default function AppV2() {
     setAccessPlan(null);
     setCheckoutError('');
     setResultInput({ isee: value, children: childrenCount, municipality, profile });
+
+    // Google Ads: conversione solo dopo una simulazione completata con dati validi.
+    trackGoogleAdsSimulation({
+      comune: municipality.name,
+      isee: value,
+      children: childrenCount,
+      declarantAge: declarantAgeValue,
+    });
+
     setError('');
     focusPage();
   }
