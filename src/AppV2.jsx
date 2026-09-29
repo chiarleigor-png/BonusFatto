@@ -81,8 +81,13 @@ function TariComuneCard({ municipality, onCheckoutPlan }) {
         return data;
       })
       .then((data) => {
-        if (data?.found === true) setState({ status: 'found', data });
-        else setState({ status: 'outside', data });
+        if (data?.found === true) {
+          setState({ status: 'found', data });
+        } else if (data?.status === 'pending' || data?.status === 'error' || data?.status === 'no_document') {
+          setState({ status: data.status, data });
+        } else {
+          setState({ status: 'outside', data });
+        }
       })
       .catch((error) => {
         if (error.name !== 'AbortError') setState({ status: 'error', data: null });
@@ -96,15 +101,32 @@ function TariComuneCard({ municipality, onCheckoutPlan }) {
   return (
     <section className="white-card" style={{ maxWidth: 980, margin: '16px auto' }}>
       <strong>TARI comunale - {comune}</strong>
-      {state.status === 'loading' && <p>Verifica Comune nel motore Top 500…</p>}
+      {state.status === 'loading' && <p>Verifica delibera TARI 2026 per {comune}…</p>}
       {state.status === 'found' && (
-        <p>
-          Comune: {state.data.comune} - Scadenza: {state.data.scadenza} - Riduzione: {state.data.riduzione}% - Fonte: {state.data.fonte}
-        </p>
+        <div style={{ marginTop: 12, padding: 14, borderRadius: 14, background: '#eefbf2', border: '1px solid #b9e7c5' }}>
+          <strong>✅ Comune censito · Delibera TARI 2026 disponibile</strong>
+          <p style={{ marginBottom: 0 }}>
+            Abbiamo acquisito la delibera TARI di <strong>{state.data.comune || comune}</strong> dalla fonte ufficiale.
+            {state.data.scadenza ? <> Scadenza indicata: <strong>{state.data.scadenza}</strong>.</> : null}
+            {state.data.riduzione != null ? <> Riduzione rilevata: <strong>{state.data.riduzione}%</strong>.</> : null}
+            <br />Fonte: {state.data.fonte || 'MEF - Fiscalità locale'}.
+          </p>
+          {state.data.mefUrl && (
+            <p style={{ marginBottom: 0, marginTop: 8 }}>
+              <a href={state.data.mefUrl} target="_blank" rel="noreferrer">Consulta la fonte ufficiale MEF ↗</a>
+            </p>
+          )}
+        </div>
+      )}
+      {state.status === 'pending' && (
+        <p>⏳ {comune} è già nella coda nazionale di BonusFatto. La delibera TARI 2026 è in fase di acquisizione dal portale MEF.</p>
+      )}
+      {state.status === 'no_document' && (
+        <p>✅ {comune} è stato censito. Al momento non risulta ancora disponibile una delibera TARI 2026 acquisibile dal portale MEF.</p>
       )}
       {(state.status === 'outside' || state.status === 'error') && (
         <>
-          <p>Non abbiamo ancora la delibera specifica di {comune} nel motore Top 500. Non mostriamo dati comunali inventati.</p>
+          <p>La delibera specifica di {comune} non è ancora disponibile nel motore nazionale. Non mostriamo dati comunali inventati.</p>
           <div style={{ marginTop: 12, padding: 14, borderRadius: 14, background: '#eefbf2', border: '1px solid #b9e7c5' }}>
             <strong>✅ Bonus Sociale Nazionale TARI 25% (2025)</strong>
             <p style={{ marginBottom: 0 }}>
