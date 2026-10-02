@@ -9,7 +9,7 @@ import { fetchTariForMunicipality } from '../../lib/tari/mef.js';
 
 const COMUNI_URL = 'https://raw.githubusercontent.com/matteocontrini/comuni-json/master/comuni.json';
 const BATCH_SIZE = 500;
-const CONCURRENCY = 20;
+const CONCURRENCY = 8;
 
 function authorized(req) {
   const secret = String(process.env.CRON_SECRET || '');
@@ -51,8 +51,10 @@ async function worker(queue, stats) {
     const row = queue.shift();
     if (!row) return;
     try {
+      const attemptsBefore = Number(row.attempts || 0);
       const result = await fetchTariForMunicipality(row);
-      const attempts = Number(row.attempts || 0) + 1;
+      const attempts = attemptsBefore + 1;
+      if (attemptsBefore > 0) stats.retried += 1;
       if (result.found) {
         await updateMunicipality(row.istat, {
           status: 'found',
@@ -75,6 +77,7 @@ async function worker(queue, stats) {
           last_error: result.reason || 'tari_not_found',
         });
         stats.notFound += 1;
+        if (finalNoDocument) stats.noDocument += 1;
       }
     } catch (error) {
       await updateMunicipality(row.istat, {
@@ -104,9 +107,20 @@ export default async function handler(req, res) {
   const startedAt = Date.now();
   try {
     const seed = await ensureSeeded();
-    const pending = await getPending(BATCH_SIZE);
+    const requestedLimit = Math.min(
+      Math.max(Number(req.query?.limit || BATCH_SIZE) || BATCH_SIZE, 1),
+      BATCH_SIZE,
+    );
+    const pending = await getPending(requestedLimit);
     const queue = [...pending];
-    const stats = { requested: pending.length, found: 0, notFound: 0, errors: 0 };
+    const stats = {
+      requested: pending.length,
+      found: 0,
+      notFound: 0,
+      noDocument: 0,
+      retried: 0,
+      errors: 0,
+    };
 
     await Promise.all(
       Array.from({ length: Math.min(CONCURRENCY, queue.length || 1) }, () => worker(queue, stats)),
@@ -115,7 +129,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       seed,
-      batchSize: BATCH_SIZE,
+      batchSize: requestedLimit,
+      concurrency: CONCURRENCY,
       ...stats,
       durationMs: Date.now() - startedAt,
       nextRun: 'nightly',
