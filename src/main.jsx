@@ -19,11 +19,13 @@ import './brandLogo.js';
 import './formEnhancements.js';
 import './reportDelivery.js';
 import './pricingGateLaunch.js';
-import { initMetaPixel } from './metaPixel.js';
 import { initGoogleAds } from './googleAds.js';
+import ConsentManager from './ConsentManager.jsx';
+import { initConsent } from './consent.js';
+import './consent.css';
 
-initMetaPixel();
 initGoogleAds();
+initConsent();
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
@@ -31,7 +33,10 @@ const root = createRoot(rootElement);
 flushSync(() => {
   root.render(
     <React.StrictMode>
-      <App />
+      <>
+        <App />
+        <ConsentManager />
+      </>
     </React.StrictMode>,
   );
 });
