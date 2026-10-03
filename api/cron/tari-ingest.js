@@ -9,7 +9,7 @@ import { fetchTariForMunicipality } from '../../lib/tari/mef.js';
 
 const COMUNI_URL = 'https://raw.githubusercontent.com/matteocontrini/comuni-json/master/comuni.json';
 const BATCH_SIZE = 500;
-const CONCURRENCY = 8;
+const CONCURRENCY = 12;
 
 function authorized(req) {
   const secret = String(process.env.CRON_SECRET || '');
