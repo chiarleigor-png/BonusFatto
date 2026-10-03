@@ -1,6 +1,6 @@
 const GOOGLE_ADS_ID = 'AW-18481382989';
 const PURCHASE_SEND_TO = 'AW-18481382989/8PmMCJ-H0okdEM2MzuxE';
-const SIMULATION_SEND_TO = 'AW-18481382989/8PmMCJ-H0okdEM2MzuxE';
+const SIMULATION_SEND_TO = 'AW-18481382989/N5M_CKOs248dEM2MzuxE';
 const PURCHASES_KEY = 'bonusfatto_google_ads_purchases';
 const SIMULATIONS_KEY = 'bonusfatto_google_ads_simulations';
 
