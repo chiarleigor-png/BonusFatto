@@ -1,7 +1,5 @@
-name: TARI cron nazionale
+name: TARI ingest manuale
 on:
-  schedule:
-    - cron: '0 3 * * *'
   workflow_dispatch:
 jobs:
   scrape:
