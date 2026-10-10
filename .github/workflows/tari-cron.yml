@@ -1,4 +1,4 @@
-name: TARI cron 20 comuni
+name: TARI cron nazionale
 on:
   schedule:
     - cron: '0 3 * * *'
@@ -7,6 +7,9 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - name: Chiama endpoint BonusFatto
+      - name: Chiama endpoint TARI nazionale BonusFatto
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl --fail --show-error --silent --max-time 900 https://bonusfatto.it/api/cron/scrape
+          test -n "$CRON_SECRET"
+          curl --fail --show-error --silent --max-time 900             -H "Authorization: Bearer $CRON_SECRET"             "https://bonusfatto.it/api/cron/tari-ingest?limit=1000"
