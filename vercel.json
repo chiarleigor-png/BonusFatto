@@ -156,7 +156,7 @@
     },
     {
       "source": "/comune/:istat/:slug",
-      "destination": "/comune/:istat"
+      "destination": "/api/gone"
     }
   ],
   "crons": [
