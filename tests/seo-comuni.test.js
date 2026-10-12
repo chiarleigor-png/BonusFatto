@@ -6,7 +6,8 @@ import test from 'node:test';
 
 const root = process.cwd();
 
-test('genera soltanto i 160 Comuni SEO con pagine indicizzabili', () => {
+test('genera i 160 Comuni SEO e include le guide nella sitemap', () => {
+  execFileSync(process.execPath, ['scripts/generate-guides.mjs'], { cwd: root });
   execFileSync(process.execPath, ['scripts/generate-seo-comuni.mjs'], { cwd: root });
   const selected = JSON.parse(fs.readFileSync(path.join(root, 'lib', 'comuniSeo.json'), 'utf-8'));
   assert.equal(selected.length, 160);
@@ -20,8 +21,9 @@ test('genera soltanto i 160 Comuni SEO con pagine indicizzabili', () => {
   assert.equal(fs.existsSync(path.join(root, 'public', 'comune', '001038', 'bruino')), false);
 
   const sitemap = fs.readFileSync(path.join(root, 'public', 'sitemap.xml'), 'utf-8');
-  assert.equal((sitemap.match(/<loc>/g) || []).length, 162);
+  assert.equal((sitemap.match(/<loc>/g) || []).length, 187);
   assert.equal((sitemap.match(/\/comune\//g) || []).length, 160);
+  assert.equal((sitemap.match(/\/guide-bonus\//g) || []).length, 25);
   assert.doesNotMatch(sitemap, /\/comune\/001038\/bruino/);
 
   const bonusIndex = fs.readFileSync(path.join(root, 'public', 'bonus', 'index.html'), 'utf-8');

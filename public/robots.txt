@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Allow: /comune/*
-Sitemap: https://bonusfatto.it/sitemap.xml
+Sitemap: https://www.bonusfatto.it/sitemap.xml

@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.bonusfatto.it/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>
   <url><loc>https://www.bonusfatto.it/bonus</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.bonusfatto.it/comune/068028/pescara</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.bonusfatto.it/comune/066049/l-aquila</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.bonusfatto.it/comune/067041/teramo</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
@@ -162,4 +163,28 @@
   <url><loc>https://www.bonusfatto.it/comune/029041/rovigo</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.bonusfatto.it/comune/027008/chioggia</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.bonusfatto.it/comune/024012/bassano-del-grappa</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/agevolazioni-universitarie-isee/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/assegno-unico-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-affitto-contributi-comunali/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-asilo-nido-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-automatici-e-da-richiedere/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-famiglie-quattro-figli/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-famiglie-tre-figli/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-genitori-separati/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-isee-basso-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-scuola-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-sociale-acqua-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-sociale-gas-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-sociale-luce-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/bonus-sociale-tari-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/come-chiedere-bonus-comune/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/come-trovare-tutti-i-bonus/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/esenzione-tari-comune/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/giacenza-media-isee/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/isee-2026-guida-completa/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/isee-corrente-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/isee-minorenni/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/isee-sbagliato-cosa-fare/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/soglie-isee-2026/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.bonusfatto.it/guide-bonus/tari-isee-riduzioni-comunali/</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
 </urlset>

@@ -7,6 +7,7 @@ const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const COMUNI_OUT_DIR = path.join(PUBLIC_DIR, 'comune');
 const BONUS_INDEX_PATH = path.join(PUBLIC_DIR, 'bonus', 'index.html');
 const SITEMAP_PATH = path.join(PUBLIC_DIR, 'sitemap.xml');
+const GUIDES_DIR = path.join(PUBLIC_DIR, 'guide-bonus');
 
 function slugify(name) {
   return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -63,6 +64,12 @@ function bonusIndex(comuni) {
 
 const comuni = loadComuni();
 const urls = comuni.map((comune) => `${SITE_URL}/comune/${comune.istat}/${slugify(comune.nome)}`);
+const guideUrls = fs.existsSync(GUIDES_DIR)
+  ? fs.readdirSync(GUIDES_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(GUIDES_DIR, entry.name, 'index.html')))
+    .map((entry) => `${SITE_URL}/guide-bonus/${entry.name}/`)
+    .sort()
+  : [];
 fs.rmSync(COMUNI_OUT_DIR, { recursive: true, force: true });
 for (const comune of comuni) {
   const dir = path.join(COMUNI_OUT_DIR, comune.istat, slugify(comune.nome));
@@ -71,7 +78,7 @@ for (const comune of comuni) {
 }
 fs.mkdirSync(path.dirname(BONUS_INDEX_PATH), { recursive: true });
 fs.writeFileSync(BONUS_INDEX_PATH, bonusIndex(comuni));
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE_URL}/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n  <url><loc>${SITE_URL}/bonus</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n${urls.map((url) => `  <url><loc>${url}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>`).join('\n')}\n</urlset>`;
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE_URL}/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n  <url><loc>${SITE_URL}/bonus</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n  <url><loc>${SITE_URL}/guide-bonus/</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>\n${urls.map((url) => `  <url><loc>${url}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>`).join('\n')}\n${guideUrls.map((url) => `  <url><loc>${url}</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>`).join('\n')}\n</urlset>`;
 fs.writeFileSync(SITEMAP_PATH, sitemap);
 console.log(`✅ Generate ${comuni.length} pagine Comune in 20 regioni.`);
-console.log(`✅ Sitemap generata con ${urls.length + 2} URL.`);
+console.log(`✅ Sitemap generata con ${urls.length + guideUrls.length + 3} URL.`);
