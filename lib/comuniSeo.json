@@ -1,24 +1,10 @@
 [
   {
-    "nome": "Pescara",
-    "istat": "068028",
-    "provincia": "Pescara",
-    "regione": "Abruzzo",
-    "popolazione": 117166
-  },
-  {
     "nome": "L'Aquila",
     "istat": "066049",
     "provincia": "L'Aquila",
     "regione": "Abruzzo",
     "popolazione": 66964
-  },
-  {
-    "nome": "Teramo",
-    "istat": "067041",
-    "provincia": "Teramo",
-    "regione": "Abruzzo",
-    "popolazione": 54294
   },
   {
     "nome": "Chieti",
@@ -28,39 +14,18 @@
     "popolazione": 51484
   },
   {
-    "nome": "Montesilvano",
-    "istat": "068024",
+    "nome": "Pescara",
+    "istat": "068028",
     "provincia": "Pescara",
     "regione": "Abruzzo",
-    "popolazione": 50413
+    "popolazione": 117166
   },
   {
-    "nome": "Avezzano",
-    "istat": "066006",
-    "provincia": "L'Aquila",
+    "nome": "Teramo",
+    "istat": "067041",
+    "provincia": "Teramo",
     "regione": "Abruzzo",
-    "popolazione": 40744
-  },
-  {
-    "nome": "Vasto",
-    "istat": "069099",
-    "provincia": "Chieti",
-    "regione": "Abruzzo",
-    "popolazione": 38747
-  },
-  {
-    "nome": "Lanciano",
-    "istat": "069046",
-    "provincia": "Chieti",
-    "regione": "Abruzzo",
-    "popolazione": 35921
-  },
-  {
-    "nome": "Potenza",
-    "istat": "076063",
-    "provincia": "Potenza",
-    "regione": "Basilicata",
-    "popolazione": 66777
+    "popolazione": 54294
   },
   {
     "nome": "Matera",
@@ -70,53 +35,11 @@
     "popolazione": 59796
   },
   {
-    "nome": "Melfi",
-    "istat": "076048",
+    "nome": "Potenza",
+    "istat": "076063",
     "provincia": "Potenza",
     "regione": "Basilicata",
-    "popolazione": 17425
-  },
-  {
-    "nome": "Pisticci",
-    "istat": "077020",
-    "provincia": "Matera",
-    "regione": "Basilicata",
-    "popolazione": 17361
-  },
-  {
-    "nome": "Policoro",
-    "istat": "077021",
-    "provincia": "Matera",
-    "regione": "Basilicata",
-    "popolazione": 15976
-  },
-  {
-    "nome": "Lavello",
-    "istat": "076043",
-    "provincia": "Potenza",
-    "regione": "Basilicata",
-    "popolazione": 13590
-  },
-  {
-    "nome": "Rionero in Vulture",
-    "istat": "076066",
-    "provincia": "Potenza",
-    "regione": "Basilicata",
-    "popolazione": 13444
-  },
-  {
-    "nome": "Lauria",
-    "istat": "076042",
-    "provincia": "Potenza",
-    "regione": "Basilicata",
-    "popolazione": 13262
-  },
-  {
-    "nome": "Reggio di Calabria",
-    "istat": "080063",
-    "provincia": "Reggio Calabria",
-    "regione": "Calabria",
-    "popolazione": 180817
+    "popolazione": 66777
   },
   {
     "nome": "Catanzaro",
@@ -124,20 +47,6 @@
     "provincia": "Catanzaro",
     "regione": "Calabria",
     "popolazione": 89364
-  },
-  {
-    "nome": "Corigliano-Rossano",
-    "istat": "078157",
-    "provincia": "Cosenza",
-    "regione": "Calabria",
-    "popolazione": 74848
-  },
-  {
-    "nome": "Lamezia Terme",
-    "istat": "079160",
-    "provincia": "Catanzaro",
-    "regione": "Calabria",
-    "popolazione": 70336
   },
   {
     "nome": "Cosenza",
@@ -154,11 +63,11 @@
     "popolazione": 58881
   },
   {
-    "nome": "Rende",
-    "istat": "078102",
-    "provincia": "Cosenza",
+    "nome": "Reggio di Calabria",
+    "istat": "080063",
+    "provincia": "Reggio Calabria",
     "regione": "Calabria",
-    "popolazione": 33555
+    "popolazione": 180817
   },
   {
     "nome": "Vibo Valentia",
@@ -166,6 +75,27 @@
     "provincia": "Vibo Valentia",
     "regione": "Calabria",
     "popolazione": 33357
+  },
+  {
+    "nome": "Avellino",
+    "istat": "064008",
+    "provincia": "Avellino",
+    "regione": "Campania",
+    "popolazione": 52400
+  },
+  {
+    "nome": "Benevento",
+    "istat": "062008",
+    "provincia": "Benevento",
+    "regione": "Campania",
+    "popolazione": 56000
+  },
+  {
+    "nome": "Caserta",
+    "istat": "061022",
+    "provincia": "Caserta",
+    "regione": "Campania",
+    "popolazione": 75640
   },
   {
     "nome": "Napoli",
@@ -182,88 +112,11 @@
     "popolazione": 132608
   },
   {
-    "nome": "Giugliano in Campania",
-    "istat": "063034",
-    "provincia": "Napoli",
-    "regione": "Campania",
-    "popolazione": 108793
-  },
-  {
-    "nome": "Torre del Greco",
-    "istat": "063084",
-    "provincia": "Napoli",
-    "regione": "Campania",
-    "popolazione": 85922
-  },
-  {
-    "nome": "Pozzuoli",
-    "istat": "063060",
-    "provincia": "Napoli",
-    "regione": "Campania",
-    "popolazione": 80357
-  },
-  {
-    "nome": "Casoria",
-    "istat": "063023",
-    "provincia": "Napoli",
-    "regione": "Campania",
-    "popolazione": 78647
-  },
-  {
-    "nome": "Caserta",
-    "istat": "061022",
-    "provincia": "Caserta",
-    "regione": "Campania",
-    "popolazione": 75640
-  },
-  {
-    "nome": "Castellammare di Stabia",
-    "istat": "063024",
-    "provincia": "Napoli",
-    "regione": "Campania",
-    "popolazione": 65944
-  },
-  {
     "nome": "Bologna",
     "istat": "037006",
     "provincia": "Bologna",
     "regione": "Emilia-Romagna",
     "popolazione": 371337
-  },
-  {
-    "nome": "Modena",
-    "istat": "036023",
-    "provincia": "Modena",
-    "regione": "Emilia-Romagna",
-    "popolazione": 179149
-  },
-  {
-    "nome": "Parma",
-    "istat": "034027",
-    "provincia": "Parma",
-    "regione": "Emilia-Romagna",
-    "popolazione": 175895
-  },
-  {
-    "nome": "Reggio nell'Emilia",
-    "istat": "035033",
-    "provincia": "Reggio nell'Emilia",
-    "regione": "Emilia-Romagna",
-    "popolazione": 162082
-  },
-  {
-    "nome": "Ravenna",
-    "istat": "039014",
-    "provincia": "Ravenna",
-    "regione": "Emilia-Romagna",
-    "popolazione": 153740
-  },
-  {
-    "nome": "Rimini",
-    "istat": "099014",
-    "provincia": "Rimini",
-    "regione": "Emilia-Romagna",
-    "popolazione": 139601
   },
   {
     "nome": "Ferrara",
@@ -280,6 +133,62 @@
     "popolazione": 116434
   },
   {
+    "nome": "Modena",
+    "istat": "036023",
+    "provincia": "Modena",
+    "regione": "Emilia-Romagna",
+    "popolazione": 179149
+  },
+  {
+    "nome": "Parma",
+    "istat": "034027",
+    "provincia": "Parma",
+    "regione": "Emilia-Romagna",
+    "popolazione": 175895
+  },
+  {
+    "nome": "Piacenza",
+    "istat": "033032",
+    "provincia": "Piacenza",
+    "regione": "Emilia-Romagna",
+    "popolazione": 102000
+  },
+  {
+    "nome": "Ravenna",
+    "istat": "039014",
+    "provincia": "Ravenna",
+    "regione": "Emilia-Romagna",
+    "popolazione": 153740
+  },
+  {
+    "nome": "Reggio nell'Emilia",
+    "istat": "035033",
+    "provincia": "Reggio nell'Emilia",
+    "regione": "Emilia-Romagna",
+    "popolazione": 162082
+  },
+  {
+    "nome": "Rimini",
+    "istat": "099014",
+    "provincia": "Rimini",
+    "regione": "Emilia-Romagna",
+    "popolazione": 139601
+  },
+  {
+    "nome": "Gorizia",
+    "istat": "031007",
+    "provincia": "Gorizia",
+    "regione": "Friuli-Venezia Giulia",
+    "popolazione": 35212
+  },
+  {
+    "nome": "Pordenone",
+    "istat": "093033",
+    "provincia": "Pordenone",
+    "regione": "Friuli-Venezia Giulia",
+    "popolazione": 50583
+  },
+  {
     "nome": "Trieste",
     "istat": "032006",
     "provincia": "Trieste",
@@ -294,53 +203,11 @@
     "popolazione": 98287
   },
   {
-    "nome": "Pordenone",
-    "istat": "093033",
-    "provincia": "Pordenone",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 50583
-  },
-  {
-    "nome": "Gorizia",
-    "istat": "031007",
-    "provincia": "Gorizia",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 35212
-  },
-  {
-    "nome": "Monfalcone",
-    "istat": "031012",
-    "provincia": "Gorizia",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 27041
-  },
-  {
-    "nome": "Sacile",
-    "istat": "093037",
-    "provincia": "Pordenone",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 19897
-  },
-  {
-    "nome": "Cordenons",
-    "istat": "093017",
-    "provincia": "Pordenone",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 18203
-  },
-  {
-    "nome": "Codroipo",
-    "istat": "030027",
-    "provincia": "Udine",
-    "regione": "Friuli-Venezia Giulia",
-    "popolazione": 15806
-  },
-  {
-    "nome": "Roma",
-    "istat": "058091",
-    "provincia": "Roma",
+    "nome": "Frosinone",
+    "istat": "060038",
+    "provincia": "Frosinone",
     "regione": "Lazio",
-    "popolazione": 2617175
+    "popolazione": 43000
   },
   {
     "nome": "Latina",
@@ -350,25 +217,18 @@
     "popolazione": 117892
   },
   {
-    "nome": "Guidonia Montecelio",
-    "istat": "058047",
-    "provincia": "Roma",
+    "nome": "Rieti",
+    "istat": "057059",
+    "provincia": "Rieti",
     "regione": "Lazio",
-    "popolazione": 81447
+    "popolazione": 47000
   },
   {
-    "nome": "Fiumicino",
-    "istat": "058120",
+    "nome": "Roma",
+    "istat": "058091",
     "provincia": "Roma",
     "regione": "Lazio",
-    "popolazione": 67626
-  },
-  {
-    "nome": "Aprilia",
-    "istat": "059001",
-    "provincia": "Latina",
-    "regione": "Lazio",
-    "popolazione": 66979
+    "popolazione": 2617175
   },
   {
     "nome": "Viterbo",
@@ -378,25 +238,18 @@
     "popolazione": 63209
   },
   {
-    "nome": "Pomezia",
-    "istat": "058079",
-    "provincia": "Roma",
-    "regione": "Lazio",
-    "popolazione": 56372
-  },
-  {
-    "nome": "Tivoli",
-    "istat": "058104",
-    "provincia": "Roma",
-    "regione": "Lazio",
-    "popolazione": 52910
-  },
-  {
     "nome": "Genova",
     "istat": "010025",
     "provincia": "Genova",
     "regione": "Liguria",
     "popolazione": 586180
+  },
+  {
+    "nome": "Imperia",
+    "istat": "008031",
+    "provincia": "Imperia",
+    "regione": "Liguria",
+    "popolazione": 42322
   },
   {
     "nome": "La Spezia",
@@ -413,46 +266,11 @@
     "popolazione": 60661
   },
   {
-    "nome": "Sanremo",
-    "istat": "008055",
-    "provincia": "Imperia",
-    "regione": "Liguria",
-    "popolazione": 54137
-  },
-  {
-    "nome": "Imperia",
-    "istat": "008031",
-    "provincia": "Imperia",
-    "regione": "Liguria",
-    "popolazione": 42322
-  },
-  {
-    "nome": "Rapallo",
-    "istat": "010046",
-    "provincia": "Genova",
-    "regione": "Liguria",
-    "popolazione": 29226
-  },
-  {
-    "nome": "Chiavari",
-    "istat": "010015",
-    "provincia": "Genova",
-    "regione": "Liguria",
-    "popolazione": 27338
-  },
-  {
-    "nome": "Ventimiglia",
-    "istat": "008065",
-    "provincia": "Imperia",
-    "regione": "Liguria",
-    "popolazione": 23926
-  },
-  {
-    "nome": "Milano",
-    "istat": "015146",
-    "provincia": "Milano",
+    "nome": "Bergamo",
+    "istat": "016024",
+    "provincia": "Bergamo",
     "regione": "Lombardia",
-    "popolazione": 1242123
+    "popolazione": 115349
   },
   {
     "nome": "Brescia",
@@ -462,6 +280,48 @@
     "popolazione": 189902
   },
   {
+    "nome": "Como",
+    "istat": "013075",
+    "provincia": "Como",
+    "regione": "Lombardia",
+    "popolazione": 82045
+  },
+  {
+    "nome": "Cremona",
+    "istat": "019036",
+    "provincia": "Cremona",
+    "regione": "Lombardia",
+    "popolazione": 71000
+  },
+  {
+    "nome": "Lecco",
+    "istat": "097042",
+    "provincia": "Lecco",
+    "regione": "Lombardia",
+    "popolazione": 47000
+  },
+  {
+    "nome": "Lodi",
+    "istat": "098031",
+    "provincia": "Lodi",
+    "regione": "Lombardia",
+    "popolazione": 45000
+  },
+  {
+    "nome": "Mantova",
+    "istat": "020030",
+    "provincia": "Mantova",
+    "regione": "Lombardia",
+    "popolazione": 49000
+  },
+  {
+    "nome": "Milano",
+    "istat": "015146",
+    "provincia": "Milano",
+    "regione": "Lombardia",
+    "popolazione": 1242123
+  },
+  {
     "nome": "Monza",
     "istat": "108033",
     "provincia": "Monza e della Brianza",
@@ -469,18 +329,18 @@
     "popolazione": 119856
   },
   {
-    "nome": "Bergamo",
-    "istat": "016024",
-    "provincia": "Bergamo",
+    "nome": "Pavia",
+    "istat": "018110",
+    "provincia": "Pavia",
     "regione": "Lombardia",
-    "popolazione": 115349
+    "popolazione": 71000
   },
   {
-    "nome": "Como",
-    "istat": "013075",
-    "provincia": "Como",
+    "nome": "Sondrio",
+    "istat": "014061",
+    "provincia": "Sondrio",
     "regione": "Lombardia",
-    "popolazione": 82045
+    "popolazione": 21000
   },
   {
     "nome": "Varese",
@@ -490,39 +350,11 @@
     "popolazione": 79793
   },
   {
-    "nome": "Busto Arsizio",
-    "istat": "012026",
-    "provincia": "Varese",
-    "regione": "Lombardia",
-    "popolazione": 79692
-  },
-  {
-    "nome": "Sesto San Giovanni",
-    "istat": "015209",
-    "provincia": "Milano",
-    "regione": "Lombardia",
-    "popolazione": 76514
-  },
-  {
     "nome": "Ancona",
     "istat": "042002",
     "provincia": "Ancona",
     "regione": "Marche",
     "popolazione": 100497
-  },
-  {
-    "nome": "Pesaro",
-    "istat": "041044",
-    "provincia": "Pesaro e Urbino",
-    "regione": "Marche",
-    "popolazione": 94237
-  },
-  {
-    "nome": "Fano",
-    "istat": "041013",
-    "provincia": "Pesaro e Urbino",
-    "regione": "Marche",
-    "popolazione": 62901
   },
   {
     "nome": "Ascoli Piceno",
@@ -532,18 +364,11 @@
     "popolazione": 49958
   },
   {
-    "nome": "San Benedetto del Tronto",
-    "istat": "044066",
-    "provincia": "Ascoli Piceno",
+    "nome": "Fermo",
+    "istat": "109006",
+    "provincia": "Fermo",
     "regione": "Marche",
-    "popolazione": 46963
-  },
-  {
-    "nome": "Senigallia",
-    "istat": "042045",
-    "provincia": "Ancona",
-    "regione": "Marche",
-    "popolazione": 44361
+    "popolazione": 37000
   },
   {
     "nome": "Macerata",
@@ -553,11 +378,11 @@
     "popolazione": 42019
   },
   {
-    "nome": "Jesi",
-    "istat": "042021",
-    "provincia": "Ancona",
+    "nome": "Pesaro",
+    "istat": "041044",
+    "provincia": "Pesaro e Urbino",
     "regione": "Marche",
-    "popolazione": 40303
+    "popolazione": 94237
   },
   {
     "nome": "Campobasso",
@@ -567,67 +392,11 @@
     "popolazione": 48747
   },
   {
-    "nome": "Termoli",
-    "istat": "070078",
-    "provincia": "Campobasso",
-    "regione": "Molise",
-    "popolazione": 32793
-  },
-  {
     "nome": "Isernia",
     "istat": "094023",
     "provincia": "Isernia",
     "regione": "Molise",
     "popolazione": 22025
-  },
-  {
-    "nome": "Venafro",
-    "istat": "094052",
-    "provincia": "Isernia",
-    "regione": "Molise",
-    "popolazione": 11236
-  },
-  {
-    "nome": "Bojano",
-    "istat": "070003",
-    "provincia": "Campobasso",
-    "regione": "Molise",
-    "popolazione": 7946
-  },
-  {
-    "nome": "Larino",
-    "istat": "070031",
-    "provincia": "Campobasso",
-    "regione": "Molise",
-    "popolazione": 7142
-  },
-  {
-    "nome": "Campomarino",
-    "istat": "070010",
-    "provincia": "Campobasso",
-    "regione": "Molise",
-    "popolazione": 7068
-  },
-  {
-    "nome": "Montenero di Bisaccia",
-    "istat": "070046",
-    "provincia": "Campobasso",
-    "regione": "Molise",
-    "popolazione": 6649
-  },
-  {
-    "nome": "Torino",
-    "istat": "001272",
-    "provincia": "Torino",
-    "regione": "Piemonte",
-    "popolazione": 872367
-  },
-  {
-    "nome": "Novara",
-    "istat": "003106",
-    "provincia": "Novara",
-    "regione": "Piemonte",
-    "popolazione": 101952
   },
   {
     "nome": "Alessandria",
@@ -644,11 +413,11 @@
     "popolazione": 73899
   },
   {
-    "nome": "Moncalieri",
-    "istat": "001156",
-    "provincia": "Torino",
+    "nome": "Biella",
+    "istat": "096004",
+    "provincia": "Biella",
     "regione": "Piemonte",
-    "popolazione": 55875
+    "popolazione": 43000
   },
   {
     "nome": "Cuneo",
@@ -658,18 +427,32 @@
     "popolazione": 55013
   },
   {
-    "nome": "Collegno",
-    "istat": "001090",
-    "provincia": "Torino",
+    "nome": "Novara",
+    "istat": "003106",
+    "provincia": "Novara",
     "regione": "Piemonte",
-    "popolazione": 49083
+    "popolazione": 101952
   },
   {
-    "nome": "Rivoli",
-    "istat": "001219",
+    "nome": "Verbania",
+    "istat": "103072",
+    "provincia": "Verbano-Cusio-Ossola",
+    "regione": "Piemonte",
+    "popolazione": 30000
+  },
+  {
+    "nome": "Vercelli",
+    "istat": "002158",
+    "provincia": "Vercelli",
+    "regione": "Piemonte",
+    "popolazione": 45000
+  },
+  {
+    "nome": "Torino",
+    "istat": "001272",
     "provincia": "Torino",
     "regione": "Piemonte",
-    "popolazione": 48632
+    "popolazione": 872367
   },
   {
     "nome": "Bari",
@@ -679,39 +462,11 @@
     "popolazione": 315933
   },
   {
-    "nome": "Taranto",
-    "istat": "073027",
-    "provincia": "Taranto",
-    "regione": "Puglia",
-    "popolazione": 200154
-  },
-  {
-    "nome": "Foggia",
-    "istat": "071024",
-    "provincia": "Foggia",
-    "regione": "Puglia",
-    "popolazione": 147036
-  },
-  {
-    "nome": "Andria",
-    "istat": "110001",
-    "provincia": "Barletta-Andria-Trani",
-    "regione": "Puglia",
-    "popolazione": 100052
-  },
-  {
     "nome": "Barletta",
     "istat": "110002",
     "provincia": "Barletta-Andria-Trani",
     "regione": "Puglia",
     "popolazione": 94239
-  },
-  {
-    "nome": "Lecce",
-    "istat": "075035",
-    "provincia": "Lecce",
-    "regione": "Puglia",
-    "popolazione": 89916
   },
   {
     "nome": "Brindisi",
@@ -721,11 +476,25 @@
     "popolazione": 88812
   },
   {
-    "nome": "Altamura",
-    "istat": "072004",
-    "provincia": "Bari",
+    "nome": "Foggia",
+    "istat": "071024",
+    "provincia": "Foggia",
     "regione": "Puglia",
-    "popolazione": 69529
+    "popolazione": 147036
+  },
+  {
+    "nome": "Lecce",
+    "istat": "075035",
+    "provincia": "Lecce",
+    "regione": "Puglia",
+    "popolazione": 89916
+  },
+  {
+    "nome": "Taranto",
+    "istat": "073027",
+    "provincia": "Taranto",
+    "regione": "Puglia",
+    "popolazione": 200154
   },
   {
     "nome": "Cagliari",
@@ -733,34 +502,6 @@
     "provincia": "Cagliari",
     "regione": "Sardegna",
     "popolazione": 149883
-  },
-  {
-    "nome": "Sassari",
-    "istat": "090064",
-    "provincia": "Sassari",
-    "regione": "Sardegna",
-    "popolazione": 123782
-  },
-  {
-    "nome": "Quartu Sant'Elena",
-    "istat": "092051",
-    "provincia": "Cagliari",
-    "regione": "Sardegna",
-    "popolazione": 69296
-  },
-  {
-    "nome": "Olbia",
-    "istat": "090047",
-    "provincia": "Sassari",
-    "regione": "Sardegna",
-    "popolazione": 53307
-  },
-  {
-    "nome": "Alghero",
-    "istat": "090003",
-    "provincia": "Sassari",
-    "regione": "Sardegna",
-    "popolazione": 40641
   },
   {
     "nome": "Nuoro",
@@ -777,18 +518,25 @@
     "popolazione": 31155
   },
   {
-    "nome": "Carbonia",
-    "istat": "111009",
-    "provincia": "Sud Sardegna",
+    "nome": "Sassari",
+    "istat": "090064",
+    "provincia": "Sassari",
     "regione": "Sardegna",
-    "popolazione": 28882
+    "popolazione": 123782
   },
   {
-    "nome": "Palermo",
-    "istat": "082053",
-    "provincia": "Palermo",
+    "nome": "Agrigento",
+    "istat": "084001",
+    "provincia": "Agrigento",
     "regione": "Sicilia",
-    "popolazione": 657561
+    "popolazione": 58000
+  },
+  {
+    "nome": "Caltanissetta",
+    "istat": "085004",
+    "provincia": "Caltanissetta",
+    "regione": "Sicilia",
+    "popolazione": 60000
   },
   {
     "nome": "Catania",
@@ -798,6 +546,13 @@
     "popolazione": 293902
   },
   {
+    "nome": "Enna",
+    "istat": "086009",
+    "provincia": "Enna",
+    "regione": "Sicilia",
+    "popolazione": 26000
+  },
+  {
     "nome": "Messina",
     "istat": "083048",
     "provincia": "Messina",
@@ -805,25 +560,11 @@
     "popolazione": 243262
   },
   {
-    "nome": "Siracusa",
-    "istat": "089017",
-    "provincia": "Siracusa",
+    "nome": "Palermo",
+    "istat": "082053",
+    "provincia": "Palermo",
     "regione": "Sicilia",
-    "popolazione": 118385
-  },
-  {
-    "nome": "Marsala",
-    "istat": "081011",
-    "provincia": "Trapani",
-    "regione": "Sicilia",
-    "popolazione": 80218
-  },
-  {
-    "nome": "Gela",
-    "istat": "085007",
-    "provincia": "Caltanissetta",
-    "regione": "Sicilia",
-    "popolazione": 75668
+    "popolazione": 657561
   },
   {
     "nome": "Ragusa",
@@ -833,32 +574,18 @@
     "popolazione": 69794
   },
   {
+    "nome": "Siracusa",
+    "istat": "089017",
+    "provincia": "Siracusa",
+    "regione": "Sicilia",
+    "popolazione": 118385
+  },
+  {
     "nome": "Trapani",
     "istat": "081021",
     "provincia": "Trapani",
     "regione": "Sicilia",
     "popolazione": 69241
-  },
-  {
-    "nome": "Firenze",
-    "istat": "048017",
-    "provincia": "Firenze",
-    "regione": "Toscana",
-    "popolazione": 358079
-  },
-  {
-    "nome": "Prato",
-    "istat": "100005",
-    "provincia": "Prato",
-    "regione": "Toscana",
-    "popolazione": 185456
-  },
-  {
-    "nome": "Livorno",
-    "istat": "049009",
-    "provincia": "Livorno",
-    "regione": "Toscana",
-    "popolazione": 157052
   },
   {
     "nome": "Arezzo",
@@ -868,25 +595,11 @@
     "popolazione": 98144
   },
   {
-    "nome": "Pistoia",
-    "istat": "047014",
-    "provincia": "Pistoia",
+    "nome": "Firenze",
+    "istat": "048017",
+    "provincia": "Firenze",
     "regione": "Toscana",
-    "popolazione": 89101
-  },
-  {
-    "nome": "Lucca",
-    "istat": "046017",
-    "provincia": "Lucca",
-    "regione": "Toscana",
-    "popolazione": 87200
-  },
-  {
-    "nome": "Pisa",
-    "istat": "050026",
-    "provincia": "Pisa",
-    "regione": "Toscana",
-    "popolazione": 85858
+    "popolazione": 358079
   },
   {
     "nome": "Grosseto",
@@ -896,11 +609,53 @@
     "popolazione": 78630
   },
   {
-    "nome": "Trento",
-    "istat": "022205",
-    "provincia": "Trento",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 114198
+    "nome": "Livorno",
+    "istat": "049009",
+    "provincia": "Livorno",
+    "regione": "Toscana",
+    "popolazione": 157052
+  },
+  {
+    "nome": "Lucca",
+    "istat": "046017",
+    "provincia": "Lucca",
+    "regione": "Toscana",
+    "popolazione": 87200
+  },
+  {
+    "nome": "Massa",
+    "istat": "045010",
+    "provincia": "Massa-Carrara",
+    "regione": "Toscana",
+    "popolazione": 66000
+  },
+  {
+    "nome": "Pisa",
+    "istat": "050026",
+    "provincia": "Pisa",
+    "regione": "Toscana",
+    "popolazione": 85858
+  },
+  {
+    "nome": "Pistoia",
+    "istat": "047014",
+    "provincia": "Pistoia",
+    "regione": "Toscana",
+    "popolazione": 89101
+  },
+  {
+    "nome": "Prato",
+    "istat": "100005",
+    "provincia": "Prato",
+    "regione": "Toscana",
+    "popolazione": 185456
+  },
+  {
+    "nome": "Siena",
+    "istat": "052032",
+    "provincia": "Siena",
+    "regione": "Toscana",
+    "popolazione": 53000
   },
   {
     "nome": "Bolzano",
@@ -910,46 +665,11 @@
     "popolazione": 102575
   },
   {
-    "nome": "Rovereto",
-    "istat": "022161",
+    "nome": "Trento",
+    "istat": "022205",
     "provincia": "Trento",
     "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 37754
-  },
-  {
-    "nome": "Merano",
-    "istat": "021051",
-    "provincia": "Bolzano/Bozen",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 37368
-  },
-  {
-    "nome": "Bressanone",
-    "istat": "021011",
-    "provincia": "Bolzano/Bozen",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 20677
-  },
-  {
-    "nome": "Pergine Valsugana",
-    "istat": "022139",
-    "provincia": "Trento",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 20446
-  },
-  {
-    "nome": "Laives",
-    "istat": "021040",
-    "provincia": "Bolzano/Bozen",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 16909
-  },
-  {
-    "nome": "Arco",
-    "istat": "022006",
-    "provincia": "Trento",
-    "regione": "Trentino-Alto Adige/Südtirol",
-    "popolazione": 16871
+    "popolazione": 114198
   },
   {
     "nome": "Perugia",
@@ -966,48 +686,6 @@
     "popolazione": 109193
   },
   {
-    "nome": "Foligno",
-    "istat": "054018",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 56045
-  },
-  {
-    "nome": "Città di Castello",
-    "istat": "054013",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 40064
-  },
-  {
-    "nome": "Spoleto",
-    "istat": "054051",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 38429
-  },
-  {
-    "nome": "Gubbio",
-    "istat": "054024",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 32432
-  },
-  {
-    "nome": "Assisi",
-    "istat": "054001",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 27377
-  },
-  {
-    "nome": "Bastia Umbra",
-    "istat": "054002",
-    "provincia": "Perugia",
-    "regione": "Umbria",
-    "popolazione": 21653
-  },
-  {
     "nome": "Aosta",
     "istat": "007003",
     "provincia": "Valle d'Aosta/Vallée d'Aoste",
@@ -1015,53 +693,32 @@
     "popolazione": 34102
   },
   {
-    "nome": "Châtillon",
-    "istat": "007020",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 4946
+    "nome": "Belluno",
+    "istat": "025006",
+    "provincia": "Belluno",
+    "regione": "Veneto",
+    "popolazione": 35000
   },
   {
-    "nome": "Sarre",
-    "istat": "007066",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 4857
+    "nome": "Padova",
+    "istat": "028060",
+    "provincia": "Padova",
+    "regione": "Veneto",
+    "popolazione": 206192
   },
   {
-    "nome": "Saint-Vincent",
-    "istat": "007065",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 4654
+    "nome": "Rovigo",
+    "istat": "029041",
+    "provincia": "Rovigo",
+    "regione": "Veneto",
+    "popolazione": 50164
   },
   {
-    "nome": "Pont-Saint-Martin",
-    "istat": "007052",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 4005
-  },
-  {
-    "nome": "Quart",
-    "istat": "007054",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 3872
-  },
-  {
-    "nome": "Saint-Christophe",
-    "istat": "007058",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 3356
-  },
-  {
-    "nome": "Gressan",
-    "istat": "007031",
-    "provincia": "Valle d'Aosta/Vallée d'Aoste",
-    "regione": "Valle d'Aosta/Vallée d'Aoste",
-    "popolazione": 3306
+    "nome": "Treviso",
+    "istat": "026086",
+    "provincia": "Treviso",
+    "regione": "Veneto",
+    "popolazione": 81014
   },
   {
     "nome": "Venezia",
@@ -1078,45 +735,10 @@
     "popolazione": 252520
   },
   {
-    "nome": "Padova",
-    "istat": "028060",
-    "provincia": "Padova",
-    "regione": "Veneto",
-    "popolazione": 206192
-  },
-  {
     "nome": "Vicenza",
     "istat": "024116",
     "provincia": "Vicenza",
     "regione": "Veneto",
     "popolazione": 111500
-  },
-  {
-    "nome": "Treviso",
-    "istat": "026086",
-    "provincia": "Treviso",
-    "regione": "Veneto",
-    "popolazione": 81014
-  },
-  {
-    "nome": "Rovigo",
-    "istat": "029041",
-    "provincia": "Rovigo",
-    "regione": "Veneto",
-    "popolazione": 50164
-  },
-  {
-    "nome": "Chioggia",
-    "istat": "027008",
-    "provincia": "Venezia",
-    "regione": "Veneto",
-    "popolazione": 49735
-  },
-  {
-    "nome": "Bassano del Grappa",
-    "istat": "024012",
-    "provincia": "Vicenza",
-    "regione": "Veneto",
-    "popolazione": 42984
   }
 ]
